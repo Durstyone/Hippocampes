@@ -1,0 +1,18 @@
+{
+  "target": "GitHub Pages",
+  "published": false,
+  "mediaIncluded": true,
+  "backendIncluded": false,
+  "sourceSiteIdentityIncluded": false,
+  "mediaFiles": 123,
+  "nextSteps": [
+    "Configurer les URL externes des médias",
+    "Créer ou sélectionner le dépôt GitHub propre au club",
+    "Activer GitHub Pages avec GitHub Actions",
+    "Configurer un domaine si le club en possède un"
+  ],
+  "repository": "https://github.com/Durstyone/Hippocampes",
+  "localNewsMediaFiles": 7,
+  "externalMediaFiles": 116,
+  "mediaPolicy": "Photos des actualités et articles conservées dans le site; autres médias à héberger séparément."
+}

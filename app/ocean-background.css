@@ -1,0 +1,251 @@
+/* One continuous underwater setting for the public site and the club space.
+   Reading surfaces stay nearly opaque; dialogs and photo viewers keep their
+   existing solid backgrounds. The image is decorative and never animated. */
+body.ocean-theme {
+  --ocean-panel: rgba(249, 252, 251, .96);
+  --ocean-panel-line: rgba(228, 238, 233, .78);
+  --ocean-panel-shadow: 0 14px 45px rgba(0, 22, 28, .12);
+  position: relative;
+  isolation: isolate;
+  background: #042d34;
+}
+
+body.ocean-theme::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: -1;
+  pointer-events: none;
+  background-image:
+    linear-gradient(90deg, rgba(0, 25, 31, .5), rgba(0, 28, 33, .08) 75%),
+    linear-gradient(0deg, rgba(0, 25, 31, .38), rgba(0, 28, 33, .06) 75%),
+    var(--site-ocean-image, url('/images/fond-manta-robec.png'));
+  background-position: center, center, center 43%;
+  background-size: cover;
+  background-repeat: no-repeat;
+}
+
+body.ocean-theme .site-page,
+body.ocean-theme .archive-page,
+body.ocean-theme .club-app {
+  background: transparent;
+}
+
+/* The original hero participates in the same background instead of starting
+   a separate copy of the photograph at each section. */
+body.ocean-theme .site-page .site-hero-underwater {
+  background: transparent;
+}
+
+body.ocean-theme .site-page .site-ocean-backdrop {
+  display: none;
+}
+
+body.ocean-theme .site-page .site-quick-info,
+body.ocean-theme .site-page .site-section.site-container,
+body.ocean-theme .site-page .site-club-section > .site-container,
+body.ocean-theme .site-page .site-news-section > .site-container,
+body.ocean-theme .site-page .site-join-section > .site-container,
+body.ocean-theme .site-page .site-archive-banner {
+  background: var(--ocean-panel);
+  border: 1px solid var(--ocean-panel-line);
+  border-radius: 16px;
+  box-shadow: var(--ocean-panel-shadow);
+}
+
+body.ocean-theme .site-page .site-quick-info {
+  margin-top: 26px;
+  padding: 25px 32px;
+}
+
+body.ocean-theme .site-page .site-section.site-container {
+  margin-top: 28px;
+  margin-bottom: 28px;
+  padding: 46px;
+}
+
+body.ocean-theme .site-page .site-club-section,
+body.ocean-theme .site-page .site-news-section,
+body.ocean-theme .site-page .site-join-section,
+body.ocean-theme .site-page .site-archive-section,
+body.ocean-theme .site-page .site-contact-section {
+  background: transparent;
+  padding: 0;
+  margin-top: 28px;
+  margin-bottom: 28px;
+}
+
+body.ocean-theme .site-page .site-club-section > .site-container,
+body.ocean-theme .site-page .site-news-section > .site-container,
+body.ocean-theme .site-page .site-join-section > .site-container {
+  padding: 46px;
+}
+
+body.ocean-theme .site-page .site-contact-grid {
+  background: rgba(3, 34, 38, .86);
+  border: 1px solid rgba(206, 230, 218, .2);
+  border-radius: 16px;
+  padding: 46px;
+  box-shadow: var(--ocean-panel-shadow);
+}
+
+body.ocean-theme .site-page .site-footer,
+body.ocean-theme .archive-page .archive-footer {
+  background: rgba(2, 29, 35, .9);
+  border-top: 1px solid rgba(215, 234, 225, .14);
+}
+
+/* The catalogue and long articles share a calm reading surface, with the
+   underwater scene still visible in the gutters and above/below the content. */
+body.ocean-theme .archive-page .archive-hero {
+  background: rgba(1, 28, 33, .22);
+  border-bottom-color: rgba(222, 237, 226, .17);
+}
+
+body.ocean-theme .archive-page .archive-catalogue,
+body.ocean-theme .archive-page .archive-reader-shell {
+  margin-top: 28px;
+  margin-bottom: 28px;
+  padding: 36px 42px 46px;
+  background: var(--ocean-panel);
+  border: 1px solid var(--ocean-panel-line);
+  border-radius: 16px;
+  box-shadow: var(--ocean-panel-shadow);
+}
+
+body.ocean-theme .archive-page .archive-reader-shell {
+  padding-top: 28px;
+}
+
+/* The private tools remain readable and keep the same controls and data
+   surfaces. Only their surrounding canvas changes. */
+body.ocean-theme .club-app .club-main {
+  background: transparent;
+}
+
+body.ocean-theme .club-app .club-body {
+  width: calc(100% - 64px);
+  max-width: 1450px;
+  margin: 28px auto 40px;
+  padding: 30px 32px 34px;
+  background: var(--ocean-panel);
+  border: 1px solid var(--ocean-panel-line);
+  border-radius: 16px;
+  box-shadow: var(--ocean-panel-shadow);
+}
+
+body.ocean-theme .club-app .club-sidebar {
+  background: rgba(3, 39, 46, .96);
+  border-right: 1px solid rgba(203, 226, 218, .17);
+}
+
+@media (max-width: 1100px) {
+  body.ocean-theme .site-page .site-section.site-container,
+  body.ocean-theme .site-page .site-club-section > .site-container,
+  body.ocean-theme .site-page .site-news-section > .site-container,
+  body.ocean-theme .site-page .site-join-section > .site-container,
+  body.ocean-theme .site-page .site-contact-grid {
+    padding: 34px;
+  }
+
+  body.ocean-theme .archive-page .archive-catalogue,
+  body.ocean-theme .archive-page .archive-reader-shell {
+    padding: 30px;
+  }
+
+  body.ocean-theme .club-app .club-body {
+    width: calc(100% - 44px);
+    padding: 25px;
+    margin-top: 22px;
+  }
+}
+
+@media (max-width: 640px) {
+  body.ocean-theme::before {
+    background-position: center, center, 60% center;
+  }
+
+  body.ocean-theme .site-page .site-section.site-container,
+  body.ocean-theme .site-page .site-club-section > .site-container,
+  body.ocean-theme .site-page .site-news-section > .site-container,
+  body.ocean-theme .site-page .site-join-section > .site-container,
+  body.ocean-theme .site-page .site-contact-grid {
+    padding: 28px 20px;
+  }
+
+  body.ocean-theme .site-page .site-quick-info {
+    padding: 23px 20px;
+    margin-top: 18px;
+  }
+
+  body.ocean-theme .site-page .site-section.site-container,
+  body.ocean-theme .site-page .site-club-section,
+  body.ocean-theme .site-page .site-news-section,
+  body.ocean-theme .site-page .site-join-section,
+  body.ocean-theme .site-page .site-archive-section,
+  body.ocean-theme .site-page .site-contact-section {
+    margin-top: 18px;
+    margin-bottom: 18px;
+  }
+
+  body.ocean-theme .site-page .site-section.site-container,
+  body.ocean-theme .site-page .site-club-section > .site-container,
+  body.ocean-theme .site-page .site-news-section > .site-container,
+  body.ocean-theme .site-page .site-join-section > .site-container,
+  body.ocean-theme .site-page .site-contact-grid,
+  body.ocean-theme .site-page .site-archive-banner,
+  body.ocean-theme .site-page .site-quick-info,
+  body.ocean-theme .archive-page .archive-catalogue,
+  body.ocean-theme .archive-page .archive-reader-shell {
+    border-radius: 12px;
+  }
+
+  body.ocean-theme .archive-page .archive-catalogue,
+  body.ocean-theme .archive-page .archive-reader-shell {
+    margin-top: 18px;
+    margin-bottom: 18px;
+    padding: 24px 18px 30px;
+  }
+
+  body.ocean-theme .club-app .club-body {
+    width: calc(100% - 24px);
+    margin: 16px auto 28px;
+    padding: 22px 16px 25px;
+    border-radius: 12px;
+  }
+}
+
+@media print {
+  body.ocean-theme {
+    background: white;
+  }
+
+  body.ocean-theme::before {
+    display: none;
+  }
+
+  body.ocean-theme .site-page,
+  body.ocean-theme .archive-page,
+  body.ocean-theme .club-app,
+  body.ocean-theme .site-page .site-quick-info,
+  body.ocean-theme .site-page .site-section.site-container,
+  body.ocean-theme .site-page .site-club-section > .site-container,
+  body.ocean-theme .site-page .site-news-section > .site-container,
+  body.ocean-theme .site-page .site-join-section > .site-container,
+  body.ocean-theme .site-page .site-contact-grid,
+  body.ocean-theme .site-page .site-archive-banner,
+  body.ocean-theme .archive-page .archive-catalogue,
+  body.ocean-theme .archive-page .archive-reader-shell,
+  body.ocean-theme .club-app .club-body {
+    background: white;
+    border: 0;
+    border-radius: 0;
+    box-shadow: none;
+  }
+
+  body.ocean-theme .archive-page .archive-reader-shell {
+    padding: 0;
+    margin: 0;
+    width: 100%;
+  }
+}

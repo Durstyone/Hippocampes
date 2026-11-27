@@ -1,0 +1,58 @@
+{
+  "links": {
+    "history": "/archives/page-3006896-68cbe753",
+    "team": "/archives/page-3007194-ac86acee",
+    "rules": "/archives/page-reglement-interieur-5222762-caabd87d",
+    "statutes": "/archives/page-statuts-de-l-association-les-hippocampes-du-robec-5222805-8dcf9d78",
+    "tiv": "/archives/documentation-tiv-f49e53ed",
+    "registration": "/archives/dossier-d-inscription-b57a8c92",
+    "season": "/archives/2026-09-bonne-reprise-pour-notre-club-et-agenda-2026-2027-90a44c59",
+    "summer": "https://les-hippocampes-du-robec.over-blog.com/2026/06/resume-de-nos-activites-de-mai-et-juin.html",
+    "nemo": "https://les-hippocampes-du-robec.over-blog.com/2026/04/nemo-todi-2026.html",
+    "assembly": "https://les-hippocampes-du-robec.over-blog.com/2026/10/convocation-et-procuration-ag-club-du-17-octobre-2027.html"
+  },
+  "stats": {
+    "articles": 121,
+    "pages": 14,
+    "albums": 5,
+    "images": 113,
+    "documents": 4
+  },
+  "featuredAlbums": [
+    {
+      "id": "album-1645852-2a6eea5c",
+      "title": "Marseille",
+      "year": "2010",
+      "href": "/archives/album-1645852-2a6eea5c",
+      "cover": "/media/archive/757a3cee11b42147a9ec4c01.jpg",
+      "alt": "Sortie Club sur Marseille durant le WE de l'ascension !",
+      "imageCount": 38
+    },
+    {
+      "id": "album-1627117-401272b9",
+      "title": "Némo",
+      "year": "2010",
+      "href": "/archives/album-1627117-401272b9",
+      "cover": "/media/archive/013b3aa036c5dc4170717bd9.jpg",
+      "alt": "Album - Nemo2010",
+      "imageCount": 23
+    },
+    {
+      "id": "album-1704767-649b6b76",
+      "title": "L’été des Hippocampes",
+      "year": "2010",
+      "href": "/archives/album-1704767-649b6b76",
+      "cover": "/media/archive/221bc8581d592d94400bd8ea.jpg",
+      "alt": "Photos sous-marines de membres du club durant l'été 2010\r\n.",
+      "imageCount": 5
+    }
+  ],
+  "externalLinks": [
+    "summer",
+    "nemo",
+    "assembly"
+  ],
+  "firstYear": "2010",
+  "lastYear": "2026",
+  "importedAt": "2026-11-27T17:55:45.986037+00:00"
+}
