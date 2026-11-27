@@ -167,6 +167,21 @@ content:
       label: Saison
       type: string
       required: true
+    - name: startDate
+      label: Premier jour de la saison
+      type: date
+      required: true
+      options:
+        time: false
+        format: yyyy-MM-dd
+    - name: endDate
+      label: Dernier jour de la saison
+      type: date
+      required: true
+      description: Le calendrier couvre cette période. Les événements datés doivent y être compris.
+      options:
+        time: false
+        format: yyyy-MM-dd
     - name: calendarImage
       label: Image du programme de la saison
       type: image
@@ -197,31 +212,96 @@ content:
   - name: events
     label: Agenda
     type: object
+    description: Événements de la saison et créneaux habituels. Une entrée sans date reste un créneau indicatif et ne crée aucune séance dans le calendrier.
     fields:
     - name: id
       label: Identifiant
       type: string
       hidden: true
-    - name: dateLabel
-      label: Mois ou fréquence
-      type: string
-      description: 'Exemples : CHAQUE, AVR. 2027'
-    - name: dateValue
-      label: Jour affiché
-      type: string
-      description: 'Exemples : MAR., JEU., 11'
-    - name: category
-      label: Type d’activité
-      type: string
-      required: true
-    - name: timeLabel
-      label: Horaires ou précision
-      type: string
-      required: true
     - name: title
       label: Titre
       type: string
       required: true
+    - name: calendarCategory
+      label: Couleur et filtre du calendrier
+      type: select
+      default: club
+      required: true
+      options:
+        values:
+        - name: piscine
+          label: Piscine
+        - name: formation
+          label: Formation
+        - name: sortie
+          label: Sortie
+        - name: club
+          label: Vie du club
+        - name: ferie
+          label: Jour férié
+      description: Un jour férié est un repère du calendrier ; il ne signifie pas que le club est fermé.
+    - name: category
+      label: Intitulé public du type d’activité
+      type: string
+      required: true
+      description: 'Exemples : Formation N2, Sortie club, Vie du club.'
+    - name: status
+      label: Statut de la date
+      type: select
+      default: scheduled
+      required: true
+      options:
+        values:
+        - name: scheduled
+          label: Prévu
+        - name: confirmed
+          label: Confirmé
+        - name: tentative
+          label: À confirmer
+      description: Choisir « À confirmer » pour une date provisoire. « Prévu » est le statut par défaut.
+    - name: date
+      label: Date de début
+      type: date
+      required: false
+      default: ''
+      description: Laisser vide uniquement pour un créneau habituel sans date précise. Aucun événement daté ne sera généré pour ce créneau.
+      options:
+        time: false
+        format: yyyy-MM-dd
+    - name: endDate
+      label: Date de fin, jour inclus
+      type: date
+      required: false
+      default: ''
+      description: Facultatif. Renseigner le dernier jour d’un événement de plusieurs jours. Laisser vide pour un seul jour.
+      options:
+        time: false
+        format: yyyy-MM-dd
+    - name: startTime
+      label: Heure de début
+      type: string
+      required: false
+      description: 'Facultatif, à l’heure de Paris, au format HH:MM (exemple : 19:30). Laisser vide si l’horaire est à préciser.'
+    - name: endTime
+      label: Heure de fin
+      type: string
+      required: false
+      description: 'Facultatif, au format HH:MM. Ne pas inventer d’heure de fin. Une heure de début est nécessaire ; pour une fin le lendemain, indiquer aussi la date de fin.'
+    - name: timeLabel
+      label: Précision sur les horaires
+      type: string
+      required: false
+      description: Facultatif. Si vide, les heures saisies s’affichent automatiquement, ou « Horaire à préciser » si elles ne sont pas connues.
+    - name: dateLabel
+      label: Fréquence du créneau sans date
+      type: string
+      required: false
+      description: 'Uniquement pour un créneau habituel sans date (exemple : CHAQUE). Le mois est calculé pour les événements datés.'
+    - name: dateValue
+      label: Jour du créneau sans date
+      type: string
+      required: false
+      description: 'Uniquement pour un créneau habituel sans date (exemples : MAR., JEU.). Le jour est calculé pour les événements datés.'
     - name: description
       label: Description
       type: text
@@ -229,14 +309,6 @@ content:
     - name: contactSubject
       label: Objet de la demande de renseignements
       type: string
-    - name: date
-      label: Date précise, pour proposer l’ajout au calendrier
-      type: date
-      required: false
-      default: ''
-      options:
-        time: false
-        format: yyyy-MM-dd
     - name: location
       label: Lieu
       type: string
@@ -247,6 +319,7 @@ content:
       label: Lien complémentaire
       type: string
     list:
+      max: 150
       collapsible:
         collapsed: true
         summary: '{title}'
