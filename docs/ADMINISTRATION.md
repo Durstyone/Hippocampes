@@ -9,22 +9,21 @@ Le pied de page du site contient **Administration du site**. Cette page propose 
 
 Le bouton **Espace club** reste également accessible en haut du site. Les droits de cet espace ne sont pas modifiés. Ses publications ne mettent pas automatiquement à jour GitHub Pages.
 
-## Première activation de l’éditeur
+## Accéder à l’éditeur
 
-La configuration `.pages.yml` est prête, mais l’autorisation de Pages CMS reste à effectuer.
+Pages CMS est activé depuis le **28 novembre 2026**, avec **Durstyone/Hippocampes** comme seul dépôt existant sélectionné. La configuration de l’éditeur est dans `.pages.yml`.
 
-1. Ouvrir `https://app.pagescms.org/` depuis **Se connecter à l’éditeur**.
-2. Utiliser le compte GitHub du club **Durstyone**.
-3. Autoriser l’application uniquement pour **Durstyone/Hippocampes**, après lecture des permissions affichées. Ne pas sélectionner tous les dépôts.
-4. Ouvrir le dépôt **Hippocampes**, branche **main**. Les rubriques configurées sont Actualités, Photos et albums, Le site et l’agenda.
+1. Cliquer sur **Ouvrir l’éditeur** pour accéder à [l’éditeur du site](https://app.pagescms.org/durstyone/hippocampes/main/file/site).
+2. Si une connexion est demandée, utiliser le compte GitHub du club **Durstyone**.
+3. Choisir la rubrique à modifier : **Actualités**, **Photos et albums** ou **Le site et l’agenda**. L’éditeur utilise le dépôt **Hippocampes**, branche **main**.
 
-Cette étape autorise un outil à modifier les fichiers du dépôt. Aucune autorisation n’a été accordée par l’ajout des sources. Aucun mot de passe ni jeton GitHub n’est inclus dans le site.
+L’application est autorisée à modifier les fichiers et gérer les Actions de ce dépôt, à lire l’adresse email du compte et à créer des dépôts sur Durstyone. Ces permissions ont été explicitement approuvées lors de l’installation. Aucun mot de passe ni jeton GitHub n’est inclus dans le site.
 
 ## Publier une actualité
 
 Dans **Actualités**, créer une entrée, renseigner le titre, la date, le résumé, le texte et, si souhaité, une photo de couverture. Le texte utilise des paragraphes séparés par une ligne vide. Enregistrer lance la publication du site.
 
-Les articles sont enregistrés dans `github-pages/content/news/`. Leur nom de fichier sert d’identifiant et le renommage est désactivé pour conserver leurs liens. Les anciennes actualités sont toujours prises en charge.
+Les articles sont enregistrés dans `github-pages/content/news/`. Leur nom de fichier sert d’identifiant et le renommage est désactivé pour conserver leurs liens. La collection commence vide : les trois récits historiques affichés sur l’accueil se modifient dans **Le site et l’agenda → Récits du blog mis en avant**. Les archives déjà reprises restent accessibles sur le site.
 
 ## Ajouter des photos à un album
 
@@ -33,6 +32,8 @@ Dans **Photos et albums**, ajouter une entrée par photo. Choisir l’image, don
 Les images sont conservées dans `public/images/publications/`. Les formats JPEG, PNG, WebP et GIF sont acceptés, dans la limite de **5 Mio par image**. Les dimensions sont détectées automatiquement. Cloudinary n’est pas nécessaire.
 
 Les albums historiques déjà repris restent accessibles et les photos des actualités sont conservées.
+
+La bibliothèque **Photos du site** contient le calendrier et les trois visuels d’accueil. Ces copies permettent de les sélectionner dans l’éditeur ; les originaux utilisés par les archives sont conservés. Importer les nouvelles images dans cette bibliothèque, puis les choisir avec **Select** dans le contenu concerné.
 
 ## Modifier les informations pratiques
 

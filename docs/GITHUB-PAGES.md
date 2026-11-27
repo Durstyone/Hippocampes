@@ -10,10 +10,10 @@ Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme s
 | --- | --- |
 | Présentation, activités, agenda de saison, contact | Fichiers du site sur GitHub Pages. Le contact prépare un e-mail dans la messagerie du visiteur. |
 | Archives importées, recherche et lecture | JSON et interface statique. Les 140 contenus repris comprennent 121 articles, 14 pages et 5 albums ; la reprise du blog reste partielle. |
-| Actualités et albums publics supplémentaires | Éditeur Pages CMS préparé ; contenus dans `github-pages/content/news/` et `photos/`. Les anciens fichiers publics restent compatibles. |
+| Actualités et albums publics supplémentaires | Éditeur Pages CMS connecté ; contenus dans `github-pages/content/news/` et `photos/`. Les anciens fichiers publics restent compatibles. |
 | Images des actualités, fond du site et albums récupérés | Images dans `public/`, déclarées dans `github-pages/local-media.json` et servies par GitHub Pages. |
 | Vidéos éventuelles | Hébergement externe et liens HTTPS. Aucune vidéo locale n’est incluse dans cette version. |
-| Administration du contenu public | Accès `/admin/`, puis Pages CMS après autorisation GitHub limitée au dépôt du club. |
+| Administration du contenu public | Accès `/admin/`, puis Pages CMS connecté avec le compte Durstyone et Hippocampes comme seul dépôt existant sélectionné. |
 | Comptes, inscriptions et documents privés | Espace club existant sur un serveur distinct, relié par `clubUrl`, avec ses accès actuels. |
 
 GitHub Pages ne fait pas fonctionner le serveur Node, SQLite, D1 ou les API de l’espace club. Les versions Sites et autonome restent disponibles dans le projet d’origine. Les publications de leur administration ne sont **pas synchronisées automatiquement** avec la version Pages : les copies publiques doivent être mises à jour puis republiées.
@@ -92,7 +92,7 @@ Les pages d’archives et d’actualités disposent de fichiers HTML pour que le
 - La présentation, les coordonnées, les horaires, l’agenda, les cartes historiques et la FAQ utilisent `github-pages/content/site-settings.json`.
 - Les anciens fichiers `public-club.json` et `public-media.json` restent pris en charge. Les identifiants des nouvelles entrées viennent du nom de fichier ; le renommage est désactivé dans l’éditeur pour préserver les liens.
 
-Le [guide d’administration](ADMINISTRATION.md) décrit l’activation restante et l’usage quotidien. La configuration ne donne elle-même aucun accès à GitHub : l’installation de Pages CMS reste à autoriser sur le seul dépôt du club.
+Le [guide d’administration](ADMINISTRATION.md) décrit l’usage quotidien et les permissions approuvées. Pages CMS est activé depuis le 28 novembre 2026 avec Hippocampes comme seul dépôt existant sélectionné. Les images du calendrier et des trois récits d’accueil sont sélectionnables dans la bibliothèque `public/images/publications/` ; leurs originaux restent conservés pour les archives.
 
 Pour reprendre une publication du serveur d’administration, exporter uniquement les champs publics attendus, relire le résultat puis mettre à jour ces fichiers. Enregistrer la modification dans le dépôt pour reconstruire et publier le site.
 
