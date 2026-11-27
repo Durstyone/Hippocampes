@@ -37,7 +37,29 @@ La bibliothèque **Photos du site** contient le calendrier et les trois visuels 
 
 ## Modifier les informations pratiques
 
-Dans **Le site et l’agenda**, modifier les coordonnées, la saison, le programme, les événements, la présentation, les récits mis en avant ou les questions fréquentes. Pour un événement daté, le site propose un fichier calendrier correspondant à cette date. Un rendez-vous sans date précise propose de contacter le club.
+Dans **Le site et l’agenda**, modifier les coordonnées, la saison, le programme, les événements, la présentation, les récits mis en avant ou les questions fréquentes.
+
+## Modifier le planning
+
+Le lien **L’agenda** ouvre [le calendrier du club](https://durstyone.github.io/Hippocampes/agenda/), avec une vue **Mois**, une vue **Agenda**, une recherche et des filtres par activité. L’accueil présente les deux créneaux habituels et les trois prochains événements du club, selon la date à Paris ; les jours fériés restent dans le calendrier complet.
+
+Dans **Le site et l’agenda → Agenda**, ouvrir ou ajouter un événement :
+
+- Renseigner le titre, le type d’activité et **Couleur et filtre du calendrier**.
+- Indiquer la **Date de début**. Pour plusieurs jours, **Date de fin, jour inclus** correspond au dernier jour de l’événement ; la laisser vide pour une seule journée.
+- Choisir **Prévu**, **Confirmé** ou **À confirmer**. Les dates rouges du programme d’origine restent **À confirmer** tant que le club ne les a pas validées.
+- Saisir uniquement les heures connues, au format `HH:MM`, à l’heure de Paris. Une heure de fin est facultative. Si l’horaire reste inconnu, laisser les heures vides et préciser « Horaire à préciser ».
+- Compléter la description, le lieu s’il est connu et, si disponible, le lien vers l’annonce du club.
+
+Les créneaux habituels du mardi et du jeudi conservent une date vide : ils sont affichés comme repères, sans générer automatiquement des séances. Un jour férié n’indique pas à lui seul que le club est fermé. Les dates des événements doivent rester comprises dans les dates de la saison.
+
+Le **planning d’origine** reste accessible en bas du calendrier. La reprise utilise [l’annonce de septembre 2026](https://les-hippocampes-du-robec.over-blog.com/2026/09/bonne-reprise-pour-notre-club-et-agenda-2026/2027.html), qui confirme notamment Conflans au **11 avril 2027** et l’AG du **17 octobre 2026 à 19 h 30**.
+
+### Ajouter les dates à un agenda personnel
+
+Un événement, le mois affiché ou toute la saison peuvent être téléchargés au format `.ics`, puis importés dans Google Agenda, Apple Calendrier ou Outlook. L’export du mois comprend toutes ses dates, même les catégories masquées à l’écran. Les créneaux sans date ne sont pas exportés ; sans horaire connu, le fichier conserve un repère à la journée.
+
+Il s’agit d’un import ponctuel : les modifications ultérieures du site ne sont pas synchronisées automatiquement dans l’agenda personnel.
 
 ## Vérifier une publication
 
