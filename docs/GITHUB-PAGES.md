@@ -9,6 +9,7 @@ Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme s
 | Élément | Hébergement et mise à jour |
 | --- | --- |
 | Présentation, activités, agenda de saison, contact | Fichiers du site sur GitHub Pages. Le contact prépare un e-mail dans la messagerie du visiteur. |
+| Calendrier interactif `/agenda/` | Vues Mois et Agenda, recherche, filtres par activité, détails et exports `.ics` par événement, mois ou saison. Données gérées dans Pages CMS. |
 | Archives importées, recherche et lecture | JSON et interface statique. Les 140 contenus repris comprennent 121 articles, 14 pages et 5 albums ; la reprise du blog reste partielle. |
 | Actualités et albums publics supplémentaires | Éditeur Pages CMS connecté ; contenus dans `github-pages/content/news/` et `photos/`. Les anciens fichiers publics restent compatibles. |
 | Images des actualités, fond du site et albums récupérés | Images dans `public/`, déclarées dans `github-pages/local-media.json` et servies par GitHub Pages. |
@@ -82,7 +83,7 @@ Le workflow `.github/workflows/pages.yml` effectue les contrôles puis transmet 
 
 Vérifier la réussite du travail **deploy**, puis ouvrir le site. Un contrôle de code réussi ou un travail de publication ignoré ne signifie pas que le site est en ligne. Le message `Publication en attente des médias` reste utile si un futur média n’a ni copie locale déclarée ni URL externe valide.
 
-Les pages d’archives et d’actualités disposent de fichiers HTML pour que leurs liens directs fonctionnent. Les chemins des liens, images et documents tiennent compte de `/Hippocampes/`.
+Les pages d’archives, d’actualités et `/agenda/` disposent de fichiers HTML pour que leurs liens directs fonctionnent. L’agenda possède son titre, sa description, son URL canonique et une entrée dans le sitemap. Les chemins des liens, images et documents tiennent compte de `/Hippocampes/`. `npm run check` vérifie aussi la page physique et les métadonnées de l’agenda.
 
 ## 4. Mettre à jour les contenus
 
@@ -93,6 +94,14 @@ Les pages d’archives et d’actualités disposent de fichiers HTML pour que le
 - Les anciens fichiers `public-club.json` et `public-media.json` restent pris en charge. Les identifiants des nouvelles entrées viennent du nom de fichier ; le renommage est désactivé dans l’éditeur pour préserver les liens.
 
 Le [guide d’administration](ADMINISTRATION.md) décrit l’usage quotidien et les permissions approuvées. Pages CMS est activé depuis le 28 novembre 2026 avec Hippocampes comme seul dépôt existant sélectionné. Les images du calendrier et des trois récits d’accueil sont sélectionnables dans la bibliothèque `public/images/publications/` ; leurs originaux restent conservés pour les archives.
+
+### Calendrier de saison
+
+Dans **Le site et l’agenda → Saison**, renseigner les dates de début et de fin. Dans **Agenda**, chaque événement utilise une date de début, une éventuelle date de fin **inclusive**, une catégorie et un statut : `scheduled` (prévu), `confirmed` (confirmé) ou `tentative` (à confirmer). Les heures facultatives sont au format `HH:MM`, dans le fuseau `Europe/Paris`. Laisser les heures inconnues vides. Les deux créneaux hebdomadaires restent sans date et ne créent aucune occurrence.
+
+L’accueil conserve un aperçu limité à ces deux créneaux et aux trois prochains événements datés hors jours fériés. Le calendrier complet conserve le lien vers le programme d’origine et les annonces sources ; la correction de Conflans au 11 avril 2027 est retenue.
+
+Les exports `.ics` peuvent être importés dans un agenda personnel. Le mois exporté inclut toutes ses dates, indépendamment des filtres visuels. Les imports sont ponctuels et ne constituent pas une synchronisation avec Google Agenda ou un abonnement. Une date sans horaire est exportée comme repère à la journée. Les dates provisoires restent signalées comme telles.
 
 Pour reprendre une publication du serveur d’administration, exporter uniquement les champs publics attendus, relire le résultat puis mettre à jour ces fichiers. Enregistrer la modification dans le dépôt pour reconstruire et publier le site.
 

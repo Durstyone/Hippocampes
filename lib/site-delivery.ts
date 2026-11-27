@@ -31,7 +31,7 @@ export function siteUrl(path: string) {
   const local = localSitePath(path);
   // Pages serves these routes from physical directories. Link to their
   // canonical slash form directly so redirects cannot discard filter queries.
-  const match = local.match(/^(\/(?:archives|actualites|admin)(?:\/[^/?#]+)?)([?#].*)?$/);
+  const match = local.match(/^(\/(?:archives|actualites|admin|agenda)(?:\/[^/?#]+)?)([?#].*)?$/);
   const canonical = match ? match[1] + '/' + (match[2] || '') : local;
   return (basePath === '/' ? '' : basePath) + canonical;
 }
