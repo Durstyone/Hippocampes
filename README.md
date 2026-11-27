@@ -51,9 +51,10 @@ récupérées restent des liens vers leur source.
 ## Administration
 
 Le lien **Administration du site** dans le pied de page ouvre `/admin/`.
-L’éditeur de contenu est préparé avec **Pages CMS** et `.pages.yml`. Son activation
-nécessite encore l’autorisation de l’application GitHub sur **Durstyone/Hippocampes uniquement**.
-Après activation, enregistrer un contenu dans l’éditeur crée une modification GitHub
+L’éditeur de contenu **Pages CMS**, configuré par `.pages.yml`, est activé depuis
+le **28 novembre 2026** sur **Durstyone/Hippocampes uniquement**. Le bouton
+**Ouvrir l’éditeur** donne accès aux contenus avec le compte GitHub du club **Durstyone**.
+Enregistrer un contenu dans l’éditeur crée une modification GitHub
 et déclenche automatiquement la publication. Aucun jeton n’est placé dans le site.
 
 Le bouton **Espace club** renvoie à l’administration associative existante, avec

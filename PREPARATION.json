@@ -4,9 +4,11 @@
   "mediaIncluded": true,
   "backendIncluded": false,
   "sourceSiteIdentityIncluded": false,
-  "mediaFiles": 123,
-  "mediaBytes": 8534026,
-  "localMediaFiles": 123,
+  "mediaFiles": 127,
+  "mediaBytes": 9267090,
+  "localMediaFiles": 127,
+  "cmsMediaFiles": 4,
+  "cmsMediaBytes": 733064,
   "mediaMode": "local-temporary",
   "nextSteps": [
     "Enregistrer les images locales et leur configuration dans le dépôt du club",
@@ -20,11 +22,13 @@
   "pagesSource": "GitHub Actions",
   "localNewsMediaFiles": 7,
   "externalMediaFiles": 0,
-  "mediaPolicy": "Les 123 images récupérées sont provisoirement hébergées sur GitHub Pages, dont les 7 fichiers des actualités. Cloudinary reste facultatif pour une migration ultérieure. Les vidéos restent externes.",
+  "mediaPolicy": "Les 123 images récupérées sont provisoirement hébergées sur GitHub Pages, dont les 7 fichiers des actualités. Quatre copies du calendrier et des visuels d’accueil sont disponibles dans la bibliothèque Pages CMS. Cloudinary reste facultatif pour une migration ultérieure. Les vidéos restent externes.",
   "siteUrl": "https://durstyone.github.io/Hippocampes/",
   "administration": {
     "publicContentEditor": "Pages CMS",
-    "editorAuthorization": "pending",
+    "editorAuthorization": "authorized",
+    "editorActivatedOn": "2026-11-28",
+    "editorUrl": "https://app.pagescms.org/durstyone/hippocampes/main/file/site",
     "clubPortal": "https://hippocampes-du-robec.espace-de-tr-9010.chatgpt.site/club",
     "privateBackendIncluded": false
   }
