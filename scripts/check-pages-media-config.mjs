@@ -48,7 +48,7 @@ export async function inspectPagesMediaConfiguration({ projectRoot = defaultProj
   const files = (await Promise.all(['images', 'media/archive'].map(path => filesIn(resolve(publicDir, path), publicDir)))).flat();
   const mediaPaths = new Set(files.filter(path => imagePattern.test(path) || videoPattern.test(path)).map(path => '/' + relative(publicDir, path).split(sep).join('/')));
   const inventoryFile = resolve(project, 'github-pages/media-inventory.json');
-  if (!existsSync(inventoryFile)) throw new Error('media-inventory.json est obligatoire : les images locales ne remplacent pas l’inventaire des médias externes.');
+  if (!existsSync(inventoryFile)) throw new Error('media-inventory.json est obligatoire : il recense les images locales et les médias externes.');
   {
     const inventory = object(await readJson(inventoryFile, project), 'media-inventory.json');
     if (!Array.isArray(inventory.files) || !inventory.files.length) throw new Error('media-inventory.json doit contenir un tableau files non vide.');
@@ -89,7 +89,7 @@ export async function inspectPagesMediaConfiguration({ projectRoot = defaultProj
 async function output(result) {
   if (process.env.GITHUB_OUTPUT) await appendFile(process.env.GITHUB_OUTPUT, `ready=${result.ready}\nmedia_total=${result.total}\nmedia_local=${result.local}\nmedia_missing=${result.missing.length}\n`);
   const summary = result.ready
-    ? `## Configuration des médias complète\n\nLes ${result.total} médias à héberger ailleurs ont une adresse externe configurée ; les ${result.local} images prévues dans le site sont présentes dans le dépôt. La construction, les contrôles du dossier public et la publication peuvent maintenant s’exécuter. Ce contrôle ne constitue pas une publication.\n`
+    ? `## Configuration des médias complète\n\n${result.local} images sont présentes dans le dépôt et seront servies par GitHub Pages. ${result.total ? `${result.total} médias externes ont aussi une adresse configurée.` : `Aucun hébergement média externe n’est nécessaire pour cette publication.`} La construction, les contrôles du dossier public et la publication peuvent maintenant s’exécuter. Ce contrôle ne constitue pas une publication.\n`
     : `## Publication en attente des médias\n\n**Le site n’est pas publié par cette exécution.**\n\n${result.local} image(s) sont conservées dans les fichiers du site. Parmi les ${result.total} médias à héberger ailleurs, ${result.missing.length} n’ont pas encore d’adresse externe (${result.configured} configuré(s)). Les étapes de configuration Pages, de construction, d’envoi de l’archive et de déploiement sont ignorées.\n\nTransférer les médias externes chez l’hébergeur choisi, puis renseigner une base HTTPS qui conserve leurs chemins dans \`PAGES_MEDIA_BASE_URL\` / \`mediaBaseUrl\`, ou une correspondance complète dans \`PAGES_MEDIA_MAP_FILE\` / \`mediaMap\`. Le guide \`docs/GITHUB-PAGES.md\` explique ces réglages. Enregistrer ensuite la configuration ou relancer ce workflow manuellement.\n\nUn contrôle de code réussi ne signifie pas que le site est en ligne.\n`;
   if (process.env.GITHUB_STEP_SUMMARY) await appendFile(process.env.GITHUB_STEP_SUMMARY, summary);
   console.log(JSON.stringify({ ready: result.ready, mediaTotal: result.total, mediaLocal: result.local, mediaConfigured: result.configured, mediaMissing: result.missing.length }));

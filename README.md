@@ -6,30 +6,33 @@ Ce compte et ce dépôt sont propres au club.
 ## Adresse et publication
 
 L’adresse GitHub Pages prévue pour ce dépôt est `https://durstyone.github.io/Hippocampes/`.
-Elle devient utilisable après activation de Pages et réussite d’une publication.
-Un nom de domaine payant est facultatif. Avec GitHub Free, le dépôt doit être public
-pour activer Pages ; choisir **Settings → Pages → Source : GitHub Actions**.
+Le dépôt est public et la source **Settings → Pages → Source : GitHub Actions**
+est activée. L’adresse devient utilisable après la réussite du déploiement.
+Un nom de domaine payant est facultatif.
 
-Le workflow vérifie le code puis les médias. Tant que les URL externes requises
-ne sont pas renseignées, il indique **Publication en attente des médias** et ne
-lance aucun déploiement. Un contrôle de code réussi ne signifie pas que le site est en ligne.
+Le workflow vérifie le code, les images et les fichiers construits, puis publie le
+site. Il faut vérifier la réussite de l’étape de déploiement dans **Actions** :
+un contrôle de code réussi ne signifie pas, à lui seul, que le site est en ligne.
 
-## Photos des actualités conservées
+## Publication provisoire sans Cloudinary
 
-Les **7 fichiers d’images actuellement utilisés par les actualités et les articles
-illustrés déjà repris** sont conservés dans `public/`, soit environ 1 Mo. Leurs
-chemins sont déclarés dans `github-pages/local-media.json`. Ils restent servis par
-GitHub Pages, même lorsqu’un hébergement externe est configuré pour les autres médias.
+Les **123 fichiers d’images récupérés**, soit **8 534 026 octets (environ 8,53 Mo)**,
+sont conservés dans `public/` et déclarés dans `github-pages/local-media.json`.
+GitHub Pages sert provisoirement ces images, y compris le fond du site, les albums
+et les **7 fichiers des actualités et articles illustrés déjà repris**.
+La publication de cette version ne demande aucun compte Cloudinary ni URL média externe.
 
 Pour conserver une nouvelle photo d’actualité : ajouter le fichier dans
 `public/images/`, déclarer `/images/nom-du-fichier.jpg` dans `github-pages/local-media.json`,
 puis utiliser ce chemin dans l’actualité. Cette liste autorise des images, jamais des vidéos.
 
-Les **116 autres chemins de médias** sont destinés à Cloudinary ou à l’hébergement
-média choisi. Ils ne sont pas copiés dans le dépôt. Leur inventaire reste dans
-`github-pages/media-inventory.json`, avec celui des images locales. Renseigner les
-URL HTTPS obtenues dans `mediaMap` de `github-pages/site.config.json`, ou une base
-`mediaBaseUrl` qui conserve exactement les chemins existants.
+Cloudinary reste une option pour la suite. Une migration consiste à importer les
+images choisies, vérifier leurs URL HTTPS, renseigner `mediaMap` dans
+`github-pages/site.config.json`, puis retirer **ces seuls chemins** de la liste
+locale. Une image présente dans cette liste reste prioritairement servie par
+GitHub Pages. Les 7 fichiers des actualités peuvent ainsi rester locaux pendant
+que les autres images sont déplacées. Voir le guide avant de supprimer les copies
+du dépôt. Les vidéos éventuelles restent hébergées séparément.
 
 ## Contenus et mises à jour
 
@@ -59,7 +62,8 @@ npm run build
 npm run check
 ```
 
-La construction de production exige la configuration complète des médias externes.
+La construction de production accepte les images locales déclarées et vérifiées.
+Une URL externe n’est nécessaire que pour un média qui n’est pas déclaré local.
 Le résultat destiné à Pages est `outputs/hippocampes-github-pages/www/`.
 
 Voir [le guide complet](docs/GITHUB-PAGES.md) pour les médias, la publication

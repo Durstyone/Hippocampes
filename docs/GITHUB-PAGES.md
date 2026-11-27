@@ -1,80 +1,33 @@
 # Publier le site du club sur GitHub Pages
 
-Cette cible publie la vitrine, les actualités publiques et les archives déjà reprises du blog. Les photos des actualités déclarées dans `github-pages/local-media.json` sont conservées dans les fichiers du site. Les autres médias et vidéos sont servis par un hébergement externe. Le compte, le dépôt, le domaine et les accès appartiennent au club ; ils sont indépendants de tout autre projet de Florent.
+Cette cible publie la vitrine, les actualités publiques et les archives déjà reprises du blog. À la demande du club, **les 123 fichiers d’images récupérés sont provisoirement hébergés avec le site sur GitHub Pages**, soit 8 534 026 octets (environ 8,53 Mo). Cloudinary n’est pas nécessaire pour cette publication.
+
+Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme source Pages. L’adresse prévue est `https://durstyone.github.io/Hippocampes/`. Elle devient accessible après la réussite du déploiement. Ce compte et ce dépôt sont réservés au club.
 
 ## Ce qui fonctionne sur Pages
 
 | Élément | Hébergement et mise à jour |
 | --- | --- |
 | Présentation, activités, agenda de saison, contact | Fichiers du site sur GitHub Pages. Le contact prépare un e-mail dans la messagerie du visiteur. |
-| Archives importées, recherche et lecture | JSON et interface statique, publiés avec le site. La reprise du blog reste partielle. |
-| Actualités et albums publics supplémentaires | Copies publiques dans `github-pages/content/public-club.json` et `github-pages/content/public-media.json`. Une nouvelle publication met ces copies à jour. |
-| Photos des actualités | Images présentes dans `public/` et déclarées dans `github-pages/local-media.json`, conservées sur GitHub Pages. |
-| Autres photos, fond et vidéos | URL HTTPS externes : Cloudinary ou hébergement média/CDN. |
-| Comptes, inscriptions, administration et documents privés | Serveur distinct obligatoire. Pages propose un lien vers cet espace si `clubUrl` est renseigné. |
+| Archives importées, recherche et lecture | JSON et interface statique. Les 140 contenus repris comprennent 121 articles, 14 pages et 5 albums ; la reprise du blog reste partielle. |
+| Actualités et albums publics supplémentaires | Copies publiques dans `github-pages/content/public-club.json` et `github-pages/content/public-media.json`. |
+| Images des actualités, fond du site et albums récupérés | Images dans `public/`, déclarées dans `github-pages/local-media.json` et servies par GitHub Pages. |
+| Vidéos éventuelles | Hébergement externe et liens HTTPS. Aucune vidéo locale n’est incluse dans cette version. |
+| Comptes, inscriptions, administration et documents privés | Serveur distinct obligatoire. Un lien peut être ajouté avec `clubUrl`. |
 
-GitHub Pages ne fait pas fonctionner le serveur Node, SQLite, D1 ou les API de l’espace club. Les versions Sites et autonome restent disponibles dans le projet. Les nouvelles publications de leur administration ne sont **pas synchronisées automatiquement** avec la version Pages : une copie publique doit être mise à jour puis republiée. Le secret Cloudinary utilisé pour signer les imports reste dans le serveur d’administration.
+GitHub Pages ne fait pas fonctionner le serveur Node, SQLite, D1 ou les API de l’espace club. Les versions Sites et autonome restent disponibles dans le projet d’origine. Les publications de leur administration ne sont **pas synchronisées automatiquement** avec la version Pages : les copies publiques doivent être mises à jour puis republiées.
 
-## 1. Utiliser un dépôt dédié au club
+Les anciennes images qui n’avaient pas pu être récupérées du blog restent des liens vers leur source.
 
-Sur GitHub Free, Pages est disponible pour un dépôt **public**. Créer ou choisir un compte ou une organisation du club, puis un dépôt réservé à ce site.
+## 1. Configuration actuelle
 
-Une adresse gratuite en `.github.io` suffit pour démarrer : aucun nom de domaine payant n’est nécessaire. Pour obtenir `https://<compte-du-club>.github.io/`, nommer le dépôt public exactement `<compte-du-club>.github.io`. Par exemple, un compte disponible et créé sous le nom `hippocampes-du-robec` utiliserait le dépôt `hippocampes-du-robec.github.io` et l’adresse correspondante. Ces noms sont des exemples non réservés. Un autre nom de dépôt donnera généralement `https://<compte-du-club>.github.io/<depot>/` ; le workflow fourni adapte les chemins aux deux cas.
+Les sources sont à la racine du dépôt, avec `package.json`, `package-lock.json` et `.github/workflows/pages.yml`. Dans GitHub, **Settings → Pages → Build and deployment → Source** est réglé sur **GitHub Actions**.
 
-Le ZIP fourni contient deux dossiers :
-
-| Dossier | Destination |
-| --- | --- |
-| `site-github/` | Sources publiques et configuration de publication. La version adaptée au dépôt conserve aussi les photos d’actualité explicitement autorisées. |
-| `medias-a-heberger/` | Les 123 images à transférer chez l’hébergeur média, avec leur inventaire, la correspondance d’URL à remplir et les consignes. Aucune vidéo locale n’a été trouvée dans cette version. |
-
-**Copier uniquement le contenu de `site-github/` à la racine du dépôt**, y compris le dossier `.github/`. Les fichiers `package.json` et `package-lock.json` doivent donc se trouver à la racine, sans niveau `site-github/` supplémentaire. Ne pas ajouter `medias-a-heberger/`, le ZIP entier, le projet source complet ou une sauvegarde de production au dépôt.
-
-Le dépôt ne doit contenir ni données adhérents, ni documents privés, ni fichiers `.env`, ni clés Cloudinary, ni sessions, ni base de données. Les fichiers et URL publiés par Pages sont consultables par les visiteurs.
-
-Dans le dépôt, choisir **Settings → Pages → Build and deployment → Source : GitHub Actions**. Le workflow de publication fourni construit le site puis transmet le seul dossier `www` à Pages. Une modification enregistrée sur la branche de publication déclenche une nouvelle construction ; il faut attendre sa réussite dans l’onglet **Actions**.
-
-Dans le dépôt `Durstyone/Hippocampes`, le contrôle initial indique `Publication en attente des médias` et saute toutes les étapes de publication si les URL externes ne sont pas encore configurées. Les 7 fichiers d’actualité conservés localement ne demandent aucune URL externe ; les 116 autres chemins restent à configurer. Un contrôle de code réussi n’est pas une publication.
-
-### Conserver les images des actualités
-
-Les images déclarées dans `github-pages/local-media.json` sont l’exception à l’externalisation des médias. Leur fichier doit exister dans `public/` et leur chemin doit commencer par `/images/` ou `/media/archive/`. Le constructeur les copie dans le site et les conserve locales même lorsqu’une base CDN est configurée. Pour ajouter une nouvelle photo d’actualité, ajouter le fichier, son chemin à cette liste et sa référence dans l’actualité. Les vidéos restent externes.
-
-## 2. Héberger les photos et vidéos séparément
-
-Dans le ZIP fourni, le lot est déjà préparé dans **`medias-a-heberger/`**. Il contient les images publiques copiées en conservant leurs chemins, un `manifest.json` avec tailles et empreintes SHA-256, et un `media-map.example.json` dont les URL sont à renseigner. Les PDF, ICS, identifiants et données privées n’y sont pas inclus. Aucun transfert sur Internet n’a été effectué.
-
-La commande suivante permet de régénérer ce lot **uniquement depuis le projet source complet** :
-
-```sh
-node scripts/export-public-media.mjs
-```
-
-Elle produit `outputs/hippocampes-medias/`, sans envoi réseau et sans modifier les originaux. Le script `export-public-media.mjs` et les médias locaux ne font pas partie du dossier public `site-github/` ; il n’est pas nécessaire d’exécuter cette commande pour utiliser le ZIP fourni.
-
-Deux méthodes sont possibles :
-
-- **Base d’URL commune** : conserver les chemins `images/...` et `media/archive/...` chez l’hébergeur média, puis renseigner `mediaBaseUrl`. Le site ajoute le chemin de chaque fichier à cette base.
-- **Correspondance fichier par fichier**, recommandée lorsque Cloudinary attribue des URL différentes : remplir une copie de `media-map.example.json` avec les URL HTTPS réellement obtenues après import. Placer cette correspondance dans `mediaMap`, ou utiliser `PAGES_MEDIA_MAP_FILE` pour charger le fichier JSON. Une correspondance explicite est prioritaire sur la base commune.
-
-Exemple de correspondance, à remplacer par de vraies URL :
+La configuration publique dans `github-pages/site.config.json` est :
 
 ```json
 {
-  "/images/fond-manta-robec.png": "https://cdn.example.org/images/fond-manta-robec.png",
-  "/images/reprise-club-2026.jpg": "https://cdn.example.org/images/reprise-club-2026.jpg"
-}
-```
-
-Les anciennes images qui n’ont pas été récupérées du blog restent des liens vers leur source ; cette préparation n’invente pas de copies distantes. Les futurs fichiers vidéo doivent également avoir une URL externe. Une vidéo hébergée sur une plateforme peut être proposée comme lien ; le simple déplacement de fichiers ne crée pas un nouveau lecteur vidéo dans le site.
-
-## 3. Renseigner la configuration publique
-
-Modifier `github-pages/site.config.json` :
-
-```json
-{
-  "basePath": "/",
+  "basePath": "/Hippocampes/",
   "domain": "",
   "mediaBaseUrl": "",
   "mediaMap": {},
@@ -82,71 +35,103 @@ Modifier `github-pages/site.config.json` :
 }
 ```
 
-| Clé | Valeur attendue |
+| Clé | Usage |
 | --- | --- |
-| `basePath` | `/` pour un domaine propre ou un site `<compte>.github.io` ; `/nom-du-depot/` pour un site de projet. |
-| `domain` | Nom de domaine réellement détenu par le club, sans `https://`, chemin ni barre finale. Vide tant qu’aucun domaine n’est choisi. |
-| `mediaBaseUrl` | Base HTTPS de l’hébergement média conservant les chemins, ou vide si la correspondance couvre tous les médias. |
-| `mediaMap` | Objet associant les chemins locaux des médias à leurs URL HTTPS externes. |
-| `clubUrl` | URL HTTPS de l’espace adhérent hébergé séparément. Vide tant que cet espace n’est pas ouvert. |
+| `basePath` | `/Hippocampes/` pour ce site de projet. Le workflow utilise également le chemin retourné par GitHub Pages. |
+| `domain` | Vide tant qu’aucun domaine propre n’est configuré. |
+| `mediaBaseUrl` | Base HTTPS facultative pour des médias externalisés en conservant leurs chemins. |
+| `mediaMap` | Correspondance facultative entre les chemins des médias et leurs URL HTTPS externes. |
+| `clubUrl` | Adresse HTTPS d’un espace adhérent hébergé séparément, lorsqu’il est disponible. |
 
-Les variables `PAGES_BASE_PATH`, `PAGES_DOMAIN`, `PAGES_MEDIA_BASE_URL`, `PAGES_CLUB_URL` et `PAGES_MEDIA_MAP_FILE` peuvent fournir ces paramètres lors de la construction. `PAGES_SITE_URL` permet d’indiquer l’adresse publique complète pour le sitemap et les URL canoniques lorsqu’aucun domaine propre n’est configuré. Elles contiennent des réglages publics ; aucun secret Cloudinary n’est nécessaire au navigateur ou au workflow Pages.
+Les variables `PAGES_BASE_PATH`, `PAGES_DOMAIN`, `PAGES_MEDIA_BASE_URL`, `PAGES_CLUB_URL` et `PAGES_MEDIA_MAP_FILE` peuvent fournir ces paramètres à la construction. `PAGES_SITE_URL` fournit l’adresse publique complète au sitemap et aux URL canoniques. Ces réglages sont publics ; aucun secret Cloudinary n’est nécessaire au site ou au workflow Pages.
 
-Avec un domaine personnalisé, la racine du site est `/`. Les chemins des pages, des documents et des ressources sont adaptés lors de la construction. Des fichiers HTML sont générés pour les routes des archives et des actualités publiées afin que leurs liens directs fonctionnent.
+Le dépôt contient uniquement les sources et contenus publics du site. Les données adhérents, documents privés, fichiers `.env`, clés, sessions et bases de données restent hors du dépôt public.
 
-## 4. Mettre à jour les contenus publics
+## 2. Gérer les images locales
 
-- Les archives reprises résident dans `public/content/archive-index.json` et `public/content/entries/`.
-- Les nouvelles actualités publiques utilisent `github-pages/content/public-club.json`, avec une liste `news`.
-- Les photos publiées dans les albums supplémentaires utilisent `github-pages/content/public-media.json`, avec une liste `photos` et les URL externes.
+`github-pages/local-media.json` déclare les **123 chemins d’images actuellement servis par GitHub Pages**. Chaque fichier doit exister dans `public/`, avec un chemin commençant par `/images/` ou `/media/archive/`. Les vidéos ne sont pas autorisées dans cette liste.
 
-Les listes initialement vides ne sont pas des données fictives. Pour reprendre une publication du serveur, exporter uniquement les champs publics attendus, relire le résultat puis mettre à jour ces fichiers. Ne pas y copier une réponse d’administration contenant des adhérents, des brouillons ou des informations privées. Enregistrer ensuite la modification dans le dépôt pour reconstruire et publier le site.
+`github-pages/media-inventory.json` conserve l’inventaire des images récupérées, avec leurs tailles et empreintes SHA-256. Les contrôles vérifient les fichiers déclarés et leur présence dans le site construit. Une image de la liste locale reste servie par GitHub Pages même si `mediaMap` ou `mediaBaseUrl` contient une correspondance pour elle.
 
-## 5. Construire et publier
+Pour ajouter une nouvelle image :
 
-Pour construire le paquet public sur un ordinateur, installer **Node.js 24**, puis ouvrir un terminal dans `site-github/` ou à la racine du dépôt qui en contient les fichiers. Après avoir renseigné les URL des médias :
+1. Placer le fichier dans `public/images/` ou `public/media/archive/`.
+2. Ajouter son chemin public, par exemple `/images/sortie-club.jpg`, dans `github-pages/local-media.json`.
+3. Utiliser ce chemin dans le contenu concerné, puis enregistrer la modification dans le dépôt.
+
+Les documents publics PDF et le calendrier ICS restent dans `public/media/archive/` ; ils ne font pas partie de la liste d’images.
+
+## 3. Construire et publier sans Cloudinary
+
+Avec **Node.js 24**, depuis la racine du dépôt :
 
 ```sh
 npm ci
+npm run typecheck
+node scripts/check-pages-media-config.mjs
 npm run build
 npm run check
 ```
 
-`npm ci` installe les versions figées dans le fichier de dépendances. La construction lance `scripts/build-github-pages.mjs`, puis le contrôle vérifie le dossier produit avec `scripts/check-github-pages.mjs`. Le résultat se trouve dans `outputs/hippocampes-github-pages/www/`. Le mode de production exige une configuration externe pour tous les médias requis et s’arrête si elle manque. Il ne faut pas déposer les photos et vidéos dans le dépôt pour contourner cette vérification.
+Le résultat est `outputs/hippocampes-github-pages/www/`. La construction de production copie les images locales déclarées. Elle exige une URL externe uniquement pour les médias requis qui ne sont pas déclarés locaux. Avec les 123 images présentes et déclarées, aucune configuration Cloudinary n’est attendue.
 
-Le workflow GitHub Actions réalise ces opérations de publication à partir du dépôt. Pour une construction manuelle depuis le projet source complet déjà équipé de ses dépendances, utiliser `node scripts/build-github-pages.mjs`, puis `node scripts/check-github-pages.mjs`.
+Le workflow `.github/workflows/pages.yml` effectue les contrôles puis transmet uniquement le dossier `www` à Pages. Une modification de `main` déclenche la publication ; un lancement manuel est aussi possible dans **Actions → Publier le site du club sur GitHub Pages → Run workflow**.
 
-L’aperçu avec copies locales des médias ci-dessous est réservé **au projet source complet**, qui conserve les images dans `public/`. Il n’est pas utilisable à partir du paquet public `site-github/`, dont ces fichiers sont exclus :
+Vérifier la réussite du travail **deploy**, puis ouvrir le site. Un contrôle de code réussi ou un travail de publication ignoré ne signifie pas que le site est en ligne. Le message `Publication en attente des médias` reste utile si un futur média n’a ni copie locale déclarée ni URL externe valide.
 
-```sh
-node scripts/build-github-pages.mjs --preview-local-media
+Les pages d’archives et d’actualités disposent de fichiers HTML pour que leurs liens directs fonctionnent. Les chemins des liens, images et documents tiennent compte de `/Hippocampes/`.
+
+## 4. Mettre à jour les contenus
+
+- Les archives reprises résident dans `public/content/archive-index.json` et `public/content/entries/`.
+- Les nouvelles actualités publiques utilisent `github-pages/content/public-club.json`, avec une liste `news`.
+- Les albums supplémentaires utilisent `github-pages/content/public-media.json`, avec une liste `photos` et des chemins locaux déclarés ou des URL HTTPS externes.
+
+Pour reprendre une publication du serveur d’administration, exporter uniquement les champs publics attendus, relire le résultat puis mettre à jour ces fichiers. Enregistrer la modification dans le dépôt pour reconstruire et publier le site.
+
+## 5. Déplacer les images vers Cloudinary plus tard
+
+Cette migration est facultative. Elle peut se faire progressivement tout en conservant les photos des actualités dans GitHub.
+
+1. Importer les images choisies dans le compte Cloudinary du club, ou chez l’hébergeur média retenu.
+2. Récupérer leurs **véritables URL HTTPS publiques** et vérifier qu’elles affichent bien les images attendues.
+3. Renseigner ces URL dans `mediaMap` de `github-pages/site.config.json`. Une base `mediaBaseUrl` convient aussi si les chemins `images/...` et `media/archive/...` sont conservés exactement.
+4. Retirer **uniquement les chemins externalisés** de `github-pages/local-media.json`. Cette étape est nécessaire, car la liste locale est prioritaire sur les URL externes.
+5. Construire, contrôler, publier puis vérifier sur le site les images, le fond et les albums concernés.
+6. Après cette vérification, retirer du dépôt les copies devenues inutiles. Conserver l’inventaire et les correspondances d’URL. Une sauvegarde des originaux reste utile.
+
+Les **7 fichiers d’images des actualités et articles illustrés** à conserver localement selon la préférence actuelle du club sont :
+
+```text
+/images/activites-piscine-2026.jpg
+/images/reprise-club-2026.jpg
+/images/sortie-nemo-2026.jpg
+/media/archive/0b5029b91de07bd7084c2fc5.jpg
+/media/archive/9301a6aa51fcb174bf36b901.jpg
+/media/archive/bab0b513fb09bb8fdaf49f61.jpg
+/media/archive/d2c24cf9bbf27149c98059f3.jpg
 ```
 
-Ce mode de contrôle conserve des copies locales des médias dans un dossier distinct, `outputs/hippocampes-github-pages-preview/www/`. **Il n’est pas destiné à la publication sur GitHub Pages.** Le workflow de production doit utiliser la première commande, sans cette option.
+La version statique utilise les URL publiques des médias. Les identifiants permettant d’importer ou d’administrer Cloudinary ne doivent pas être ajoutés au dépôt. Le simple déplacement d’une vidéo ne crée pas de lecteur vidéo supplémentaire dans le site.
 
 ## 6. Ajouter un nom de domaine
 
-GitHub Pages accepte un domaine acheté séparément chez un registrar. Par exemple, `hippocampesdurobec.fr` serait un nom possible ; **sa disponibilité n’a pas été vérifiée**, il n’a pas été réservé et aucun achat n’a été effectué.
+L’adresse gratuite en `.github.io` suffit pour publier. Un domaine propre peut être acheté séparément et configuré plus tard ; aucun achat n’est nécessaire pour cette version.
 
-Le domaine et son renouvellement sont distincts de l’hébergement Pages. GitHub fournit le HTTPS lorsque le domaine et les DNS sont correctement configurés. Prévoir le domaine au nom du club, avec des accès récupérables par son bureau.
+Une fois le domaine choisi et acheté au nom du club :
 
-Une fois le nom choisi et acheté :
+1. Vérifier sa propriété dans les réglages Pages du compte GitHub du club avec l’enregistrement TXT fourni par GitHub.
+2. Renseigner le domaine dans **Settings → Pages → Custom domain**, ainsi que dans `domain` pour la construction du site. Un domaine propre utilise le chemin racine `/`.
+3. Chez le registrar, appliquer les enregistrements indiqués par GitHub : `CNAME` de `www` vers `durstyone.github.io` et enregistrements `A` ou `ALIAS`/`ANAME` appropriés pour le domaine sans `www`. La cible CNAME ne contient pas `/Hippocampes/`.
+4. Une fois les DNS et le certificat prêts, vérifier **Enforce HTTPS** et contrôler les liens directs ainsi que les images.
 
-1. Vérifier le domaine dans les réglages Pages du compte ou de l’organisation GitHub du club, à l’aide du TXT fourni par GitHub.
-2. Renseigner le domaine dans **Settings → Pages → Custom domain** du dépôt, ainsi que dans `domain` pour la construction du site.
-3. Chez le registrar, appliquer les enregistrements indiqués par GitHub : `CNAME` de `www` vers `<compte-du-club>.github.io` et, pour le domaine sans `www`, les enregistrements `A` ou `ALIAS`/`ANAME` appropriés. La cible CNAME ne contient pas le nom du dépôt.
-4. Configurer les variantes avec et sans `www` pour laisser GitHub rediriger vers l’adresse retenue.
-5. Une fois la vérification DNS et le certificat prêts, activer **Enforce HTTPS** et contrôler les liens directs des archives ainsi que les médias externes.
-
-Cette configuration concerne le site web. Une adresse e-mail sur le domaine est un service distinct et n’est pas fournie par GitHub Pages. Si le domaine possède déjà une messagerie, conserver ses enregistrements MX/TXT.
+La messagerie sur le domaine est un service distinct de GitHub Pages. Si une messagerie existe déjà, conserver ses enregistrements MX/TXT.
 
 ## Documentation officielle
 
 - [Présentation de GitHub Pages](https://docs.github.com/en/pages/getting-started-with-github-pages/what-is-github-pages)
-- [Publication avec un workflow GitHub Actions](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
+- [Publication avec GitHub Actions](https://docs.github.com/en/pages/getting-started-with-github-pages/using-custom-workflows-with-github-pages)
 - [Domaines personnalisés](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/about-custom-domains-and-github-pages)
-- [Configuration du domaine et des DNS](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
+- [Configuration des DNS](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/managing-a-custom-domain-for-your-github-pages-site)
 - [Vérification du domaine](https://docs.github.com/en/pages/configuring-a-custom-domain-for-your-github-pages-site/verifying-your-custom-domain-for-github-pages)
 - [HTTPS](https://docs.github.com/en/pages/getting-started-with-github-pages/securing-your-github-pages-site-with-https)
-
-L’ouverture du compte et du dépôt dédiés, le choix du domaine, son achat, le transfert des médias et la publication effective restent à effectuer avec les accès du club.

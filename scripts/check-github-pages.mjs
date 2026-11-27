@@ -55,7 +55,7 @@ for (const path of paths) {
 }
 assert.equal(paths.has('PREVIEW-ONLY.txt'), preview);
 for (const path of localMedia) {
-  assert.ok(paths.has(path.slice(1)), `Image d’actualité conservée absente : ${path}`);
+  assert.ok(paths.has(path.slice(1)), `Image locale conservée absente : ${path}`);
   const source = await readFile(resolve(project, 'public', '.' + path));
   const publication = await readFile(resolve(root, '.' + path));
   assert.equal(publication.length, source.length, `Taille de l’image conservée incorrecte : ${path}`);
