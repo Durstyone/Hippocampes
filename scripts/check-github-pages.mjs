@@ -4,6 +4,7 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { dirname, extname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { inspectCmsImages } from './cms-content.mjs';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const preview = process.argv.includes('--preview');
@@ -29,6 +30,7 @@ for (const path of retained.files) {
   assert.ok(!localMedia.has(path), `Image locale déclarée deux fois : ${path}`);
   localMedia.add(path);
 }
+for (const path of (await inspectCmsImages(project)).keys()) localMedia.add(path);
 assert.equal(info.localMediaFiles, localMedia.size);
 assert.deepEqual(info.localMediaPaths, [...localMedia].sort());
 
@@ -46,7 +48,7 @@ async function walk(directory) {
 
 const files = await walk(root);
 const paths = new Set(files.map(path => relative(root, path).split('\\').join('/')));
-for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'archives/index.html', 'actualites/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
+for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'archives/index.html', 'actualites/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
 const forbidden = /(?:^|\/)(?:\.git|\.env[^/]*|\.openai|\.wrangler|club\.sqlite[^/]*|auth\.mjs|server\.mjs|package\.json)(?:\/|$)|\.(?:sqlite(?:-wal|-shm)?|pem|map)$/i;
 const mediaPattern = /\.(?:avif|gif|jpe?g|png|webp|bmp|tiff?|heic|heif|mp4|webm|mov|m4v|mkv|avi|ogv)$/i;
 for (const path of paths) {
@@ -75,10 +77,19 @@ for (const entry of index.entries) {
 assert.equal(index.entries.length, info.archivedEntries);
 const feed = JSON.parse(await readFile(resolve(root, 'content/public-club.json'), 'utf8'));
 assert.deepEqual(Object.keys(feed), ['news'], 'Le fichier public ne doit pas contenir les données de gestion du club.');
+assert.equal(feed.news.length, info.publishedNews);
 for (const item of feed.news) assert.ok(paths.has(`actualites/${item.id}/index.html`));
 const mediaFeed = JSON.parse(await readFile(resolve(root, 'content/public-media.json'), 'utf8'));
 assert.deepEqual(Object.keys(mediaFeed), ['photos']);
-for (const photo of mediaFeed.photos) assert.equal(photo.published, true);
+assert.equal(mediaFeed.photos.length, info.publishedPhotos);
+for (const photo of mediaFeed.photos) {
+  assert.equal(photo.published, true);
+  if (photo.secureUrl.startsWith('/')) {
+    assert.ok(localMedia.has(photo.secureUrl), `Image de photothèque locale non autorisée : ${photo.secureUrl}`);
+    assert.ok(paths.has(photo.secureUrl.slice(1)), `Image de photothèque absente : ${photo.secureUrl}`);
+  }
+}
+assert.ok((await readFile(resolve(root, 'admin/index.html'), 'utf8')).includes('noindex'), 'L’accès à l’administration ne doit pas être indexé.');
 
 let htmlPages = 0;
 for (const file of files) {

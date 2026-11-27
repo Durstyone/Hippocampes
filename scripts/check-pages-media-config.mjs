@@ -2,6 +2,7 @@ import { appendFile, readFile, readdir, stat } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
 import { dirname, relative, resolve, sep } from 'node:path';
 import { fileURLToPath } from 'node:url';
+import { inspectCmsImages } from './cms-content.mjs';
 
 const defaultProject = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const imagePattern = /\.(?:avif|gif|jpe?g|png|webp|bmp|tiff?|heic|heif)$/i;
@@ -73,6 +74,7 @@ export async function inspectPagesMediaConfiguration({ projectRoot = defaultProj
       localMediaPaths.add(path);
     }
   }
+  for (const path of (await inspectCmsImages(project)).keys()) localMediaPaths.add(path);
   const configuredMap = object(config.mediaMap ?? {}, 'mediaMap');
   const additionalMap = env.PAGES_MEDIA_MAP_FILE ? object(await readJson(resolve(project, env.PAGES_MEDIA_MAP_FILE), project), 'PAGES_MEDIA_MAP_FILE') : {};
   const mediaMap = Object.create(null);
