@@ -1,0 +1,125 @@
+{
+  "contact": {
+    "email": "hippocampesdurobec@gmail.com",
+    "venue": "Piscine municipale de Darnétal",
+    "venueShort": "Piscine de Darnétal",
+    "addressLines": [
+      "Complexe sportif Ferry",
+      "Rue du Champ des Oiseaux, 76160 Darnétal"
+    ],
+    "accessUrl": "https://www.mairie-darnetal.fr/vivre-a-darnetal/piscine/",
+    "trainingDays": "Mardi & jeudi",
+    "hoursLines": [
+      "Accueil dans le hall dès 20 h 15",
+      "Fin de séance à 22 h 30"
+    ],
+    "hoursSummary": "Mardi & jeudi, dès 20 h 15"
+  },
+  "season": {
+    "name": "2026–2027",
+    "calendarImage": "/images/calendrier-2026-2027.jpg",
+    "agendaNote": "Confirmez votre venue avec le club. Les dates rouges du programme restent à confirmer.",
+    "registrationCaption": "La saison 2026–2027, c’est par ici."
+  },
+  "club": {
+    "titleLines": [
+      "On vient pour plonger.",
+      "On reste pour le club."
+    ],
+    "paragraphs": [
+      "Depuis novembre 2001, les Hippocampes du Robec rassemblent les passionnés de plongée à Darnétal. Des entraînements en piscine aux escapades en mer, c’est d’abord une histoire de rencontres.",
+      "Des premières découvertes aux formations, chacun trouve son rythme, avec l’envie de progresser et le plaisir de partager."
+    ]
+  },
+  "events": [
+    {
+      "id": "piscine-mardi",
+      "dateLabel": "CHAQUE",
+      "dateValue": "MAR.",
+      "category": "Piscine",
+      "timeLabel": "20 h 15 – 22 h 30",
+      "title": "Un nouveau rendez-vous le mardi",
+      "description": "Plongée, apnée et entraînement selon les encadrants présents.",
+      "contactSubject": "Séance du mardi",
+      "date": "",
+      "location": "Piscine municipale de Darnétal",
+      "calendarDescription": "",
+      "sourceUrl": ""
+    },
+    {
+      "id": "piscine-jeudi",
+      "dateLabel": "CHAQUE",
+      "dateValue": "JEU.",
+      "category": "Piscine",
+      "timeLabel": "20 h 15 – 22 h 30",
+      "title": "Le jeudi, on se retrouve dans l’eau",
+      "description": "Notre rendez-vous hebdomadaire à la piscine de Darnétal.",
+      "contactSubject": "Séance du jeudi",
+      "date": "",
+      "location": "Piscine municipale de Darnétal",
+      "calendarDescription": "",
+      "sourceUrl": ""
+    },
+    {
+      "id": "conflans-20270411",
+      "dateLabel": "AVR. 2027",
+      "dateValue": "11",
+      "category": "Sortie en fosse",
+      "timeLabel": "Date confirmée",
+      "title": "Cap sur Conflans",
+      "description": "Une sortie pour les plongeurs et les apnéistes. Horaires à préciser.",
+      "contactSubject": "Sortie à Conflans",
+      "date": "2027-04-11",
+      "location": "Conflans-Sainte-Honorine",
+      "calendarDescription": "Sortie plongée et apnée annoncée par Les Hippocampes du Robec. Horaires et modalités à confirmer auprès du club.",
+      "sourceUrl": "https://les-hippocampes-du-robec.over-blog.com/2026/09/bonne-reprise-pour-notre-club-et-agenda-2026/2027.html"
+    }
+  ],
+  "featuredNews": [
+    {
+      "title": "Une nouvelle saison, deux rendez-vous par semaine",
+      "date": "24 septembre 2026",
+      "category": "Vie du club",
+      "image": "/images/reprise-club-2026.jpg",
+      "alt": "Les adhérents équipés de bouteilles et de palmes à la piscine de Darnétal, septembre 2026.",
+      "summary": "Retour à la piscine, nouveau créneau du mardi et premières dates des sorties 2026–2027.",
+      "url": "/archives/2026-09-bonne-reprise-pour-notre-club-et-agenda-2026-2027-90a44c59"
+    },
+    {
+      "title": "De Darnétal à Conflans, des moments partagés",
+      "date": "17 juin 2026",
+      "category": "Les sorties",
+      "image": "/images/activites-piscine-2026.jpg",
+      "alt": "Sept membres du club devant un véhicule lors de la sortie en fosse de juin 2026.",
+      "summary": "Nuit s’eaulidaire et sortie en fosse : plongée et apnée réunies autour de la même passion.",
+      "url": "https://les-hippocampes-du-robec.over-blog.com/2026/06/resume-de-nos-activites-de-mai-et-juin.html"
+    },
+    {
+      "title": "Un week-end à Todi et Némo",
+      "date": "1er avril 2026",
+      "category": "Les sorties",
+      "image": "/images/sortie-nemo-2026.jpg",
+      "alt": "Groupe des Hippocampes du Robec devant un petit sous-marin jaune, mars 2026.",
+      "summary": "Deux jours en Belgique, une belle ambiance et quatre nouveaux plongeurs niveau 1.",
+      "url": "https://les-hippocampes-du-robec.over-blog.com/2026/04/nemo-todi-2026.html"
+    }
+  ],
+  "faq": [
+    {
+      "question": "Je n’ai jamais plongé. Est-ce pour moi ?",
+      "answer": "Oui, vous pouvez prendre contact avec le club pour organiser un baptême. Les encadrants vous expliqueront le déroulement, le matériel et les conditions d’accueil."
+    },
+    {
+      "question": "Où et quand se retrouver ?",
+      "answer": "À la piscine municipale de Darnétal, complexe sportif Ferry, rue du Champ des Oiseaux. Les créneaux annoncés pour la saison sont le mardi et le jeudi, avec accueil dans le hall dès 20 h 15 et fin à 22 h 30. Confirmez votre venue avec le club, notamment pendant les vacances."
+    },
+    {
+      "question": "Comment rejoindre le club ?",
+      "answer": "Le dossier 2026–2027 est disponible ci-dessous. Contactez le club pour choisir votre activité et vérifier le tarif correspondant. Le dossier comporte notamment le formulaire d’inscription et les pièces demandées par l’association."
+    },
+    {
+      "question": "Puis-je venir découvrir le club avant de m’inscrire ?",
+      "answer": "Le plus simple est de nous écrire pour préparer votre venue. Précisez si vous souhaitez découvrir la plongée, l’apnée ou reprendre une activité que vous pratiquez déjà."
+    }
+  ]
+}
