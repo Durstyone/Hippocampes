@@ -1,0 +1,320 @@
+# Administration du contenu public de Durstyone/Hippocampes.
+# Aucun compte adhérent ou document privé ne doit être enregistré ici.
+media:
+- name: publications
+  label: Photos du site
+  input: public/images/publications
+  output: /images/publications
+  rename: random
+  extensions:
+  - jpg
+  - jpeg
+  - png
+  - webp
+  - gif
+content:
+- name: news
+  label: Actualités
+  type: collection
+  path: github-pages/content/news
+  format: json
+  subfolders: false
+  filename: '{primary}.json'
+  view:
+    primary: title
+    fields:
+    - title
+    - date
+    sort: date
+    order: desc
+  operations:
+    rename: false
+  fields:
+  - name: title
+    label: Titre
+    type: string
+    required: true
+  - name: date
+    label: Date de publication
+    type: date
+    required: true
+    default: ''
+    options:
+      time: false
+      format: yyyy-MM-dd
+  - name: excerpt
+    label: Résumé
+    type: text
+    required: true
+  - name: body
+    label: Texte de l’article
+    type: text
+    required: true
+    description: Séparez les paragraphes par une ligne vide.
+  - name: image
+    label: Photo de couverture
+    type: image
+    options: &id001
+      media: publications
+    description: JPG, PNG, WebP ou GIF, 5 Mo maximum.
+  - name: url
+    label: Lien complémentaire
+    type: string
+- name: photos
+  label: Photos et albums
+  type: collection
+  path: github-pages/content/photos
+  format: json
+  subfolders: false
+  filename: '{primary}.json'
+  view:
+    primary: title
+    fields:
+    - title
+    - album
+    - date
+    sort: date
+    order: desc
+  operations:
+    rename: false
+  fields:
+  - name: title
+    label: Titre de la photo
+    type: string
+    required: true
+  - name: image
+    label: Photo
+    type: image
+    required: true
+    options: *id001
+    description: JPG, PNG, WebP ou GIF, 5 Mo maximum.
+  - name: alt
+    label: Description de la photo
+    type: string
+    required: true
+  - name: album
+    label: Nom de l’album
+    type: string
+    required: true
+    description: Utilisez le même nom pour regrouper les photos d’une sortie.
+  - name: date
+    label: Date de la sortie
+    type: date
+    required: false
+    default: ''
+    options:
+      time: false
+      format: yyyy-MM-dd
+  - name: description
+    label: Légende
+    type: text
+  - name: order
+    label: Ordre dans l’album
+    type: number
+    default: 0
+    options:
+      min: 0
+      step: 1
+- name: site
+  label: Le site et l’agenda
+  type: file
+  path: github-pages/content/site-settings.json
+  format: json
+  fields:
+  - name: contact
+    label: Coordonnées et horaires
+    type: object
+    fields:
+    - name: email
+      label: Adresse email du club
+      type: string
+      required: true
+    - name: venue
+      label: Nom complet du lieu
+      type: string
+      required: true
+    - name: venueShort
+      label: Nom court du lieu
+      type: string
+      required: true
+    - name: addressLines
+      label: Adresse, ligne par ligne
+      type: string
+      list:
+        min: 1
+    - name: accessUrl
+      label: Lien du plan d’accès
+      type: string
+      required: true
+    - name: trainingDays
+      label: Jours d’entraînement
+      type: string
+      required: true
+    - name: hoursLines
+      label: Horaires détaillés
+      type: string
+      list:
+        min: 1
+    - name: hoursSummary
+      label: Résumé des horaires
+      type: string
+      required: true
+  - name: season
+    label: Saison
+    type: object
+    fields:
+    - name: name
+      label: Saison
+      type: string
+      required: true
+    - name: calendarImage
+      label: Image du programme de la saison
+      type: image
+      options: *id001
+      required: true
+    - name: agendaNote
+      label: Précision sous l’agenda
+      type: text
+      required: true
+    - name: registrationCaption
+      label: Légende du dossier d’inscription
+      type: string
+      required: true
+  - name: club
+    label: Présentation du club
+    type: object
+    fields:
+    - name: titleLines
+      label: Titre, ligne par ligne
+      type: string
+      list:
+        min: 1
+    - name: paragraphs
+      label: Paragraphes de présentation
+      type: text
+      list:
+        min: 1
+  - name: events
+    label: Agenda
+    type: object
+    fields:
+    - name: id
+      label: Identifiant
+      type: string
+      hidden: true
+    - name: dateLabel
+      label: Mois ou fréquence
+      type: string
+      description: 'Exemples : CHAQUE, AVR. 2027'
+    - name: dateValue
+      label: Jour affiché
+      type: string
+      description: 'Exemples : MAR., JEU., 11'
+    - name: category
+      label: Type d’activité
+      type: string
+      required: true
+    - name: timeLabel
+      label: Horaires ou précision
+      type: string
+      required: true
+    - name: title
+      label: Titre
+      type: string
+      required: true
+    - name: description
+      label: Description
+      type: text
+      required: true
+    - name: contactSubject
+      label: Objet de la demande de renseignements
+      type: string
+    - name: date
+      label: Date précise, pour proposer l’ajout au calendrier
+      type: date
+      required: false
+      default: ''
+      options:
+        time: false
+        format: yyyy-MM-dd
+    - name: location
+      label: Lieu
+      type: string
+    - name: calendarDescription
+      label: Détails pour le calendrier
+      type: text
+    - name: sourceUrl
+      label: Lien complémentaire
+      type: string
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+  - name: featuredNews
+    label: Récits du blog mis en avant
+    type: object
+    fields:
+    - name: title
+      label: Titre
+      type: string
+      required: true
+    - name: date
+      label: Date affichée
+      type: string
+      required: true
+    - name: category
+      label: Rubrique
+      type: select
+      options:
+        values:
+        - Vie du club
+        - Les sorties
+      required: true
+    - name: image
+      label: Photo
+      type: image
+      options: *id001
+      required: true
+    - name: alt
+      label: Description de la photo
+      type: string
+    - name: summary
+      label: Résumé
+      type: text
+      required: true
+    - name: url
+      label: Lien du récit
+      type: string
+      required: true
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{title}'
+  - name: faq
+    label: Questions fréquentes
+    type: object
+    fields:
+    - name: question
+      label: Question
+      type: string
+      required: true
+    - name: answer
+      label: Réponse
+      type: text
+      required: true
+    list:
+      collapsible:
+        collapsed: true
+        summary: '{question}'
+  operations:
+    create: false
+    delete: false
+    rename: false
+settings:
+  content:
+    merge: true
+  commit:
+    templates:
+      create: Ajouter {path} depuis l’administration du club
+      update: Mettre à jour {path} depuis l’administration du club
+      delete: Retirer {path} depuis l’administration du club
