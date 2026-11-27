@@ -4,6 +4,8 @@ import { cp, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:
 import { existsSync } from 'node:fs';
 import { dirname, extname, relative, resolve, sep } from 'node:path';
 import { domainToASCII, fileURLToPath } from 'node:url';
+import { inspectCmsImages, inspectLocalRaster, readCmsCollection } from './cms-content.mjs';
+import { validateSiteSettings } from '../lib/public-site-settings.mjs';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const publicDir = resolve(project, 'public');
@@ -95,12 +97,14 @@ for (const protectedName of ['.env', 'data', 'club.sqlite']) {
 }
 
 const config = object(await readJson(resolve(project, 'github-pages/site.config.json')), 'site.config.json');
+const siteSettings = validateSiteSettings(await readJson(resolve(project, 'github-pages/content/site-settings.json')));
 const domain = normalizeDomain(process.env.PAGES_DOMAIN || config.domain || '');
 const basePath = domain ? '/' : normalizeBase(process.env.PAGES_BASE_PATH ?? config.basePath ?? '/');
 const mediaBaseUrl = httpsUrl(process.env.PAGES_MEDIA_BASE_URL || config.mediaBaseUrl || '', 'mediaBaseUrl', { base: true });
 const clubUrl = httpsUrl(process.env.PAGES_CLUB_URL || config.clubUrl || '', 'clubUrl');
 const mediaFiles = (await Promise.all(['images', 'media/archive'].map(path => filesIn(resolve(publicDir, path))))).flat().filter(filename => imagePattern.test(filename) || videoPattern.test(filename));
 const mediaPaths = new Set(mediaFiles.map(asPublicPath));
+const cmsImages = await inspectCmsImages(project);
 const inventoryFile = resolve(project, 'github-pages/media-inventory.json');
 if (!existsSync(inventoryFile)) throw new Error('Conservez github-pages/media-inventory.json : il décrit aussi les médias hébergés ailleurs.');
 {
@@ -126,6 +130,7 @@ if (existsSync(localMediaFile)) {
     localMedia.add(path);
   }
 }
+for (const path of cmsImages.keys()) localMedia.add(path);
 const externalMediaPaths = [...mediaPaths].filter(path => !localMedia.has(path));
 if (preview && [...mediaPaths].some(path => !existsSync(resolve(publicDir, '.' + path)))) throw new Error('L’aperçu avec médias locaux nécessite les fichiers d’origine. Configurez les adresses externes et utilisez le build normal depuis le dépôt GitHub allégé.');
 const configuredMap = object(config.mediaMap ?? {}, 'mediaMap');
@@ -154,10 +159,13 @@ function publicImage(value, label) {
   if (typeof value === 'string' && mediaPaths.has(value)) return value;
   return httpsUrl(value, label, { optional: false });
 }
+publicImage(siteSettings.season.calendarImage, 'Le calendrier de la saison');
+for (const [index, item] of siteSettings.featuredNews.entries()) publicImage(item.image, `Actualité mise en avant ${index + 1}`);
 
 const rawNews = object(await readJson(resolve(project, 'github-pages/content/public-club.json')), 'public-club.json');
 if (!Array.isArray(rawNews.news)) throw new Error('public-club.json doit contenir un tableau news.');
-const news = rawNews.news.map((item, i) => {
+const cmsNews = await readCmsCollection(project, 'news');
+const news = [...rawNews.news, ...cmsNews].map((item, i) => {
   object(item, `news[${i}]`);
   if (item.published === false) throw new Error(`news[${i}] n’est pas publié. Retirez ce brouillon du fichier public.`);
   return {
@@ -175,12 +183,42 @@ news.sort((a, b) => b.date.localeCompare(a.date));
 
 const rawMedia = object(await readJson(resolve(project, 'github-pages/content/public-media.json')), 'public-media.json');
 if (!Array.isArray(rawMedia.photos)) throw new Error('public-media.json doit contenir un tableau photos.');
-const photos = rawMedia.photos.map((photo, i) => {
+const cmsPhotos = [];
+for (const item of await readCmsCollection(project, 'photos')) {
+  const label = `Photo ${item.id}`;
+  if (typeof item.image !== 'string' || !localMedia.has(item.image)) throw new Error(`${label} doit utiliser une image locale autorisée et présente dans le site.`);
+  if (item.order !== undefined && item.order !== null && (!Number.isSafeInteger(item.order) || item.order < 0 || item.order > 1000000)) throw new Error(`${label} : l’ordre doit être un entier entre 0 et 1 000 000.`);
+  const takenAt = validDate(item.date, `${label}.date`, true);
+  if (takenAt && !/^\d{4}-\d{2}-\d{2}$/.test(takenAt)) throw new Error(`${label} : la date doit être au format AAAA-MM-JJ.`);
+  const metadata = cmsImages.get(item.image) || await inspectLocalRaster(resolve(publicDir, '.' + item.image));
+  cmsPhotos.push({
+    id: item.id,
+    title: item.title,
+    alt: item.alt,
+    album: item.album,
+    caption: item.description,
+    credit: item.credit,
+    takenAt,
+    order: item.order ?? 0,
+    secureUrl: item.image,
+    publicId: `local/${item.id}`,
+    cloudName: '',
+    published: true,
+    version: 1,
+    createdAt: takenAt,
+    updatedAt: '',
+    ...metadata,
+  });
+}
+cmsPhotos.sort((a, b) => a.order - b.order || b.takenAt.localeCompare(a.takenAt) || a.id.localeCompare(b.id));
+const photos = [...cmsPhotos, ...rawMedia.photos].map((photo, i) => {
   object(photo, `photos[${i}]`);
   if (photo.published !== true) throw new Error(`photos[${i}] doit être explicitement publiée avant de figurer dans le site public.`);
-  const secureUrl = httpsUrl(photo.secureUrl, `photos[${i}].secureUrl`, { optional: false });
+  const isLocalPhoto = typeof photo.secureUrl === 'string' && localMedia.has(photo.secureUrl);
+  const secureUrl = isLocalPhoto ? photo.secureUrl : httpsUrl(photo.secureUrl, `photos[${i}].secureUrl`, { optional: false });
+  if (isLocalPhoto && !/\.(?:jpe?g|png|webp|gif)$/i.test(secureUrl)) throw new Error(`photos[${i}] doit utiliser un fichier JPG, PNG, WebP ou GIF.`);
   if (photo.takenAt && (typeof photo.takenAt !== 'string' || !/^\d{4}-\d{2}-\d{2}$/.test(photo.takenAt))) throw new Error(`photos[${i}].takenAt doit contenir une date au format AAAA-MM-JJ.`);
-  if (!/^https:\/\/res\.cloudinary\.com\/[A-Za-z0-9_-]+\/image\/upload\/v\d+\/hippocampes-du-robec\/[0-9a-f-]+\.(?:jpg|png|webp)$/.test(secureUrl)) throw new Error(`photos[${i}].secureUrl doit provenir de la photothèque Cloudinary du club.`);
+  if (!isLocalPhoto && !/^https:\/\/res\.cloudinary\.com\/[A-Za-z0-9_-]+\/image\/upload\/v\d+\/hippocampes-du-robec\/[0-9a-f-]+\.(?:jpg|png|webp)$/.test(secureUrl)) throw new Error(`photos[${i}].secureUrl doit correspondre à une image locale autorisée ou à la photothèque Cloudinary du club.`);
   for (const key of ['width', 'height']) if (!Number.isSafeInteger(photo[key]) || photo[key] <= 0 || photo[key] > 100000) throw new Error(`photos[${i}].${key} est invalide.`);
   return {
     id: routeId(photo.id, `photos[${i}]`),
@@ -198,7 +236,7 @@ const photos = rawMedia.photos.map((photo, i) => {
     width: photo.width,
     height: photo.height,
     bytes: Number.isSafeInteger(photo.bytes) && photo.bytes >= 0 ? photo.bytes : 0,
-    format: secureUrl.match(/\.(jpg|png|webp)$/)[1],
+    format: secureUrl.match(/\.(jpe?g|png|webp|gif)$/i)[1].toLowerCase().replace('jpeg', 'jpg'),
     createdAt: validDate(photo.createdAt, `photos[${i}].createdAt`, true),
     updatedAt: validDate(photo.updatedAt, `photos[${i}].updatedAt`, true),
   };
@@ -271,12 +309,13 @@ const routeRecords = [
   { path: '/', title },
   { path: '/archives/', title: 'Les archives — Les Hippocampes du Robec' },
   { path: '/actualites/', title: 'Les actualités — Les Hippocampes du Robec' },
+  { path: '/admin/', title: 'Administration — Les Hippocampes du Robec', noindex: true },
   ...archiveEntries.map(entry => ({ path: '/archives/' + entry.id + '/', title: entry.title + ' — Les Hippocampes du Robec' })),
   ...news.map(item => ({ path: '/actualites/' + item.id + '/', title: item.title + ' — Les Hippocampes du Robec' })),
 ];
 for (const record of routeRecords) {
   const canonical = siteUrl && !preview ? siteUrl.replace(/\/$/, '') + record.path : '';
-  const metadata = [`<style>${backgroundCss}</style>`, preview ? '<meta name="robots" content="noindex,nofollow" />' : '', canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}" />` : ''].filter(Boolean).join('\n    ');
+  const metadata = [`<style>${backgroundCss}</style>`, preview || record.noindex ? '<meta name="robots" content="noindex,nofollow" />' : '', canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}" />` : ''].filter(Boolean).join('\n    ');
   const html = template.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(record.title)}</title>`).replace('<!-- PAGES_METADATA -->', metadata);
   const target = resolve(www, '.' + record.path, 'index.html');
   await mkdir(dirname(target), { recursive: true });
@@ -287,7 +326,7 @@ const home = basePath;
 await writeFile(resolve(www, '404.html'), `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page introuvable — Les Hippocampes du Robec</title><style>body{margin:0;padding:12vh 24px;font:18px/1.6 system-ui,sans-serif;background:#06323a;color:#16333b}main{max-width:640px;margin:auto;padding:36px;background:#fff;border-radius:16px}h1{font-size:2rem;line-height:1.2}a{color:#087a72}</style></head><body><main><h1>Cette page n’est pas disponible.</h1><p>Retrouvez les informations, les photos et les récits du club depuis l’accueil.</p><p><a href="${escapeHtml(home)}">Retour au site du club</a></p></main></body></html>\n`);
 if (siteUrl && !preview) {
   const origin = siteUrl.replace(/\/$/, '');
-  const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + routeRecords.map(record => `  <url><loc>${escapeHtml(origin + record.path)}</loc></url>`).join('\n') + '\n</urlset>\n';
+  const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + routeRecords.filter(record => !record.noindex).map(record => `  <url><loc>${escapeHtml(origin + record.path)}</loc></url>`).join('\n') + '\n</urlset>\n';
   await writeFile(resolve(www, 'sitemap.xml'), sitemap);
   await writeFile(resolve(www, 'robots.txt'), `User-agent: *\nAllow: /\nSitemap: ${origin}/sitemap.xml\n`);
 } else await writeFile(resolve(www, 'robots.txt'), preview ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');

@@ -1,6 +1,6 @@
 {
   "target": "GitHub Pages",
-  "published": false,
+  "published": true,
   "mediaIncluded": true,
   "backendIncluded": false,
   "sourceSiteIdentityIncluded": false,
@@ -20,5 +20,12 @@
   "pagesSource": "GitHub Actions",
   "localNewsMediaFiles": 7,
   "externalMediaFiles": 0,
-  "mediaPolicy": "Les 123 images récupérées sont provisoirement hébergées sur GitHub Pages, dont les 7 fichiers des actualités. Cloudinary reste facultatif pour une migration ultérieure. Les vidéos restent externes."
+  "mediaPolicy": "Les 123 images récupérées sont provisoirement hébergées sur GitHub Pages, dont les 7 fichiers des actualités. Cloudinary reste facultatif pour une migration ultérieure. Les vidéos restent externes.",
+  "siteUrl": "https://durstyone.github.io/Hippocampes/",
+  "administration": {
+    "publicContentEditor": "Pages CMS",
+    "editorAuthorization": "pending",
+    "clubPortal": "https://hippocampes-du-robec.espace-de-tr-9010.chatgpt.site/club",
+    "privateBackendIncluded": false
+  }
 }

@@ -5,9 +5,9 @@ Ce compte et ce dépôt sont propres au club.
 
 ## Adresse et publication
 
-L’adresse GitHub Pages prévue pour ce dépôt est `https://durstyone.github.io/Hippocampes/`.
+L’adresse du site publié est `https://durstyone.github.io/Hippocampes/`.
 Le dépôt est public et la source **Settings → Pages → Source : GitHub Actions**
-est activée. L’adresse devient utilisable après la réussite du déploiement.
+est activée. Le premier déploiement public a été vérifié le 27 novembre 2026.
 Un nom de domaine payant est facultatif.
 
 Le workflow vérifie le code, les images et les fichiers construits, puis publie le
@@ -22,9 +22,10 @@ GitHub Pages sert provisoirement ces images, y compris le fond du site, les albu
 et les **7 fichiers des actualités et articles illustrés déjà repris**.
 La publication de cette version ne demande aucun compte Cloudinary ni URL média externe.
 
-Pour conserver une nouvelle photo d’actualité : ajouter le fichier dans
-`public/images/`, déclarer `/images/nom-du-fichier.jpg` dans `github-pages/local-media.json`,
-puis utiliser ce chemin dans l’actualité. Cette liste autorise des images, jamais des vidéos.
+Les nouvelles photos déposées par l’éditeur sont conservées dans
+`public/images/publications/` et reconnues automatiquement par la publication.
+JPG, JPEG, PNG, WebP et GIF sont acceptés jusqu’à 5 Mio par image.
+Les images historiques continuent d’utiliser la liste locale existante.
 
 Cloudinary reste une option pour la suite. Une migration consiste à importer les
 images choisies, vérifier leurs URL HTTPS, renseigner `mediaMap` dans
@@ -38,17 +39,29 @@ du dépôt. Les vidéos éventuelles restent hébergées séparément.
 
 - Les 140 contenus d’archives déjà repris : 121 articles, 14 pages et 5 albums.
 - Les archives dans `public/content/`.
-- Les nouvelles actualités dans `github-pages/content/public-club.json`.
-- Les albums supplémentaires dans `github-pages/content/public-media.json`.
+- Les actualités de l’éditeur dans `github-pages/content/news/`.
+- Les photos des nouveaux albums dans `github-pages/content/photos/`.
+- La présentation, les coordonnées et l’agenda dans `github-pages/content/site-settings.json`.
+- Les anciens fichiers `public-club.json` et `public-media.json` restent compatibles.
 - Les documents publics PDF et le calendrier ICS dans `public/media/archive/`.
 
 La reprise du blog reste partielle. Les images anciennes qui n’avaient pas pu être
 récupérées restent des liens vers leur source.
 
-Les comptes adhérents, inscriptions, administration et documents privés demandent
-un serveur distinct. `clubUrl` peut fournir un lien vers cet espace lorsqu’il est
-ouvert. Les publications de ce serveur ne sont pas synchronisées automatiquement
-avec les fichiers publics du dépôt.
+## Administration
+
+Le lien **Administration du site** dans le pied de page ouvre `/admin/`.
+L’éditeur de contenu est préparé avec **Pages CMS** et `.pages.yml`. Son activation
+nécessite encore l’autorisation de l’application GitHub sur **Durstyone/Hippocampes uniquement**.
+Après activation, enregistrer un contenu dans l’éditeur crée une modification GitHub
+et déclenche automatiquement la publication. Aucun jeton n’est placé dans le site.
+
+Le bouton **Espace club** renvoie à l’administration associative existante, avec
+ses accès actuels. Les adhérents, inscriptions, finances et documents privés
+restent sur ce serveur distinct. Ses publications ne sont pas synchronisées
+automatiquement avec le dépôt public.
+
+Voir [le guide d’administration](docs/ADMINISTRATION.md).
 
 ## Construction locale
 

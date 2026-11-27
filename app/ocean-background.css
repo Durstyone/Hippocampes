@@ -31,6 +31,95 @@ body.ocean-theme .club-app {
   background: transparent;
 }
 
+/* The navigation continues the underwater palette without a white band. */
+body.ocean-theme .site-header,
+body.ocean-theme .archive-header {
+  color: #eef6f2;
+  background: linear-gradient(110deg, rgba(3, 25, 34, .94), rgba(5, 43, 49, .91));
+  border-bottom-color: rgba(218, 229, 211, .18);
+  box-shadow: 0 6px 24px rgba(0, 17, 23, .12);
+  -webkit-backdrop-filter: blur(18px);
+  backdrop-filter: blur(18px);
+}
+
+body.ocean-theme .site-header .site-brand,
+body.ocean-theme .archive-header .archive-brand {
+  color: #f3f7f2;
+}
+
+body.ocean-theme .site-header .site-brand small,
+body.ocean-theme .archive-header .archive-brand small {
+  color: #b8ccc7;
+}
+
+body.ocean-theme .site-header .site-brand img,
+body.ocean-theme .archive-header .archive-brand img {
+  box-shadow: 0 0 0 1px rgba(236, 214, 160, .3), 0 3px 12px rgba(0, 16, 24, .2);
+}
+
+body.ocean-theme .site-header .site-nav > a,
+body.ocean-theme .archive-header .archive-header-nav > a {
+  color: #dce9e3;
+}
+
+body.ocean-theme .site-header .site-nav > a:hover,
+body.ocean-theme .archive-header .archive-header-nav > a:hover,
+body.ocean-theme .archive-header .archive-header-nav > a[aria-current] {
+  color: #ecd6a0;
+  border-bottom-color: rgba(236, 214, 160, .55);
+}
+
+body.ocean-theme .site-header .site-member-link,
+body.ocean-theme .archive-header .archive-member-link {
+  color: #f2dfa9 !important;
+  background: rgba(236, 214, 160, .09);
+  border-color: rgba(236, 214, 160, .32);
+}
+
+body.ocean-theme .site-header .site-member-link:hover,
+body.ocean-theme .archive-header .archive-member-link:hover {
+  color: #fff0ca !important;
+  background: rgba(236, 214, 160, .17);
+  border-color: rgba(236, 214, 160, .55);
+}
+
+body.ocean-theme .site-header .site-menu-toggle {
+  color: #eef6f2;
+  min-width: 42px;
+  min-height: 42px;
+  justify-content: center;
+  border-radius: 7px;
+}
+
+body.ocean-theme .site-header .site-menu-toggle:hover,
+body.ocean-theme .site-header .site-menu-toggle[aria-expanded="true"] {
+  color: #ecd6a0;
+  background: rgba(236, 214, 160, .1);
+}
+
+body.ocean-theme .site-header a:focus-visible,
+body.ocean-theme .site-header button:focus-visible,
+body.ocean-theme .archive-header a:focus-visible {
+  outline: 2px solid #ecd6a0;
+  outline-offset: 5px;
+}
+
+@media (max-width: 900px) {
+  body.ocean-theme .site-header .site-nav {
+    background: rgba(3, 31, 39, .98);
+    border-bottom-color: rgba(236, 214, 160, .2);
+    box-shadow: 0 18px 28px rgba(0, 17, 23, .26);
+  }
+
+  body.ocean-theme .site-header .site-nav > a {
+    border-radius: 6px;
+  }
+
+  body.ocean-theme .site-header .site-nav > a:hover {
+    background: rgba(236, 214, 160, .07);
+  }
+}
+
 /* The original hero participates in the same background instead of starting
    a separate copy of the photograph at each section. */
 body.ocean-theme .site-page .site-hero-underwater {
@@ -115,6 +204,362 @@ body.ocean-theme .archive-page .archive-reader-shell {
 
 body.ocean-theme .archive-page .archive-reader-shell {
   padding-top: 28px;
+}
+
+/* Public reading surfaces stay in the ocean palette. These variables are
+   scoped to the public pages so the administration keeps its own theme. */
+@media screen {
+  body.ocean-theme .site-page,
+  body.ocean-theme .archive-page {
+    --ocean-panel: rgba(3, 31, 39, .87);
+    --ocean-panel-line: rgba(191, 217, 207, .18);
+    --ocean-panel-shadow: 0 16px 45px rgba(0, 17, 24, .2);
+    --ocean-card: rgba(19, 54, 61, .82);
+    --ocean-card-hover: rgba(26, 67, 72, .94);
+    --ocean-field: #0b3039;
+    --ocean-text: #edf5f0;
+    --ocean-muted: #bbcec9;
+    --ocean-gold: #ecd6a0;
+    --ocean-line: rgba(191, 217, 207, .22);
+    --site-ink: var(--ocean-text);
+    --site-muted: var(--ocean-muted);
+    --site-teal: var(--ocean-gold);
+    --site-bg: #0b3039;
+    --site-border: var(--ocean-line);
+    --archive-ink: var(--ocean-text);
+    --archive-muted: var(--ocean-muted);
+    --archive-teal: var(--ocean-gold);
+    --archive-line: var(--ocean-line);
+    color-scheme: dark;
+  }
+
+  body.ocean-theme .site-page :is(.site-activity-card, .site-news-card,
+    .site-album-card, .site-resource, .site-club-note, .site-hero-label,
+    .site-contact-form) {
+    background: var(--ocean-card);
+    border-color: var(--ocean-line);
+    color: var(--ocean-text);
+    box-shadow: 0 8px 24px rgba(0, 18, 24, .1);
+  }
+
+  body.ocean-theme .site-page :is(.site-activity-card, .site-news-card,
+    .site-album-card, .site-resource):hover {
+    background: var(--ocean-card-hover);
+    border-color: rgba(236, 214, 160, .42);
+    box-shadow: 0 12px 28px rgba(0, 18, 24, .24);
+  }
+
+  body.ocean-theme .site-page :is(.site-activity-emblem, .site-activity-icon,
+    .site-resource-icon, .site-label-symbol, .site-event-date, .site-tag,
+    .site-tag-blue, .site-event-plus, .site-club-links a) {
+    background: rgba(139, 187, 171, .1);
+    color: var(--ocean-gold);
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .site-page :is(.site-event-plus, .site-club-links a):hover {
+    background: rgba(236, 214, 160, .15);
+    border-color: rgba(236, 214, 160, .45);
+  }
+
+  body.ocean-theme .site-page :is(.site-activity-body > small,
+    .site-event-date > span, .site-event-meta, .site-agenda-note,
+    .site-news-copy time, .site-latest-note, .site-join-grid > div > p,
+    .site-resource div > span, .site-photo-caption, .site-album-year,
+    .site-album-copy > div > span:first-child, .site-archive-banner p,
+    .site-form-note, .site-hero-label, .site-cloud-history-heading > span,
+    .site-published-heading h3) {
+    color: var(--ocean-muted);
+  }
+
+  body.ocean-theme .site-page :is(.site-latest-note > a, .site-resource > svg,
+    .site-faq-items summary > svg, .site-album-open, .site-archive-stats a,
+    .site-published-heading a, .site-select-wrap > svg) {
+    color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .site-page :is(.site-event, .site-quick-info > div,
+    .site-latest-note, .site-faq-items details, .site-album-copy > div,
+    .site-cloud-history-heading) {
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .site-page :is(.site-album-cover,
+    .site-club-visual > img, .site-news-image.site-news-no-image) {
+    background: #103940;
+    color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .site-page .site-news-image > span {
+    background: rgba(3, 31, 39, .94);
+    color: #f2e1b9;
+    border: 1px solid rgba(236, 214, 160, .3);
+  }
+
+  body.ocean-theme .site-page .site-filter-row button {
+    color: var(--ocean-muted);
+    border-color: var(--ocean-line);
+    background: rgba(10, 43, 51, .65);
+  }
+
+  body.ocean-theme .site-page .site-filter-row button:hover {
+    color: var(--ocean-gold);
+    border-color: rgba(236, 214, 160, .45);
+  }
+
+  body.ocean-theme .site-page .site-filter-row button.active,
+  body.ocean-theme .site-page :is(.site-button-primary, .site-button-white) {
+    color: #123b3b;
+    background: var(--ocean-gold);
+    border-color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .site-page :is(.site-button-primary, .site-button-white):hover {
+    background: #f7e6bd;
+    border-color: #f7e6bd;
+    color: #123b3b;
+  }
+
+  body.ocean-theme .site-page .site-button-outline {
+    color: var(--ocean-text);
+    background: rgba(18, 56, 63, .55);
+    border-color: rgba(191, 217, 207, .38);
+  }
+
+  body.ocean-theme .site-page .site-button-outline:hover {
+    color: #f4e2b8;
+    background: rgba(32, 72, 76, .9);
+    border-color: rgba(236, 214, 160, .5);
+  }
+
+  body.ocean-theme .site-page .site-contact-form :is(h3, label) {
+    color: var(--ocean-text);
+  }
+
+  body.ocean-theme .site-page .site-contact-form > p,
+  body.ocean-theme .site-page .site-contact-form .site-form-note {
+    color: var(--ocean-muted);
+  }
+
+  body.ocean-theme .site-page .site-contact-form :is(input, select, textarea),
+  body.ocean-theme .archive-page .archive-select select,
+  body.ocean-theme .archive-page .archive-search {
+    color: var(--ocean-text);
+    background: var(--ocean-field);
+    border-color: rgba(191, 217, 207, .34);
+  }
+
+  body.ocean-theme .site-page .site-contact-form :is(input, textarea)::placeholder,
+  body.ocean-theme .archive-page .archive-search input::placeholder {
+    color: #b4c8c3;
+    opacity: 1;
+  }
+
+  body.ocean-theme .site-page .site-contact-form select option,
+  body.ocean-theme .archive-page .archive-select select option {
+    color: var(--ocean-text);
+    background: #0b3039;
+  }
+
+  body.ocean-theme .site-page .site-mail-feedback {
+    color: #def1e5;
+    background: #17483f;
+    border: 1px solid rgba(191, 217, 207, .3);
+  }
+
+  body.ocean-theme .site-page :is(.site-dialog, .site-cloud-dialog) {
+    color: var(--ocean-text);
+    background: #092d36;
+    border: 1px solid rgba(191, 217, 207, .3);
+    box-shadow: 0 24px 90px rgba(0, 14, 23, .6);
+  }
+
+  body.ocean-theme .site-page :is(.site-dialog, .site-cloud-dialog)::backdrop {
+    background: rgba(0, 17, 25, .8);
+  }
+
+  body.ocean-theme .site-page :is(.site-dialog-close,
+    .site-cloud-dialog > header > button, .site-cloud-pagination > button) {
+    background: #204a52;
+    border-color: rgba(191, 217, 207, .38);
+    color: var(--ocean-text);
+  }
+
+  body.ocean-theme .site-page :is(.site-cloud-dialog > header small,
+    .site-cloud-photo small, .site-cloud-pagination > span) {
+    color: var(--ocean-muted);
+  }
+
+  body.ocean-theme .site-page .site-cloud-dialog > header {
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .site-page .site-cloud-thumbnails > button.active {
+    border-color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-card, .news-card,
+    .archive-collection-note, .archive-reader-note, .archive-empty,
+    .archive-attachment, .archive-body .archive-unavailable) {
+    color: var(--ocean-text);
+    background: var(--ocean-card);
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-card, .news-card,
+    .archive-attachment):hover {
+    background: var(--ocean-card-hover);
+    border-color: rgba(236, 214, 160, .42);
+    box-shadow: 0 12px 28px rgba(0, 18, 24, .24);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-card-image,
+    .archive-card-placeholder, .archive-photo-grid > button,
+    .archive-loading-icon, .news-card-symbol) {
+    color: #b6d4c7;
+    background: #15424a;
+  }
+
+  body.ocean-theme .archive-page :is(.archive-card-kind, .archive-kind-label) {
+    color: #f2e1b9;
+    background: rgba(3, 31, 39, .94);
+    border: 1px solid rgba(236, 214, 160, .28);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-kind-tabs button,
+    .archive-pagination button, .archive-button) {
+    color: var(--ocean-text) !important;
+    background: rgba(19, 54, 61, .85);
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .archive-page .archive-kind-tabs button > span {
+    background: rgba(191, 217, 207, .12);
+    color: inherit;
+  }
+
+  body.ocean-theme .archive-page :is(.archive-kind-tabs button:not(.is-active),
+    .archive-pagination button:not([aria-current]),
+    .archive-button:not(.archive-button-primary)):hover:not(:disabled) {
+    color: #f2e1b9 !important;
+    background: var(--ocean-card-hover);
+    border-color: rgba(236, 214, 160, .45);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-kind-tabs button.is-active,
+    .archive-pagination button[aria-current], .archive-button-primary) {
+    color: #123b3b !important;
+    background: var(--ocean-gold);
+    border-color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .archive-page .archive-button-primary:hover {
+    color: #123b3b !important;
+    background: #f7e6bd;
+    border-color: #f7e6bd;
+  }
+
+  body.ocean-theme .archive-page .archive-kind-tabs button.is-active > span {
+    color: #123b3b;
+    background: rgba(18, 59, 59, .1);
+  }
+
+  body.ocean-theme .archive-page .archive-pagination button:disabled {
+    color: var(--ocean-muted) !important;
+    background: rgba(19, 54, 61, .35);
+    border-color: rgba(191, 217, 207, .12);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-search-hint,
+    .archive-filter-intro, .archive-results-heading p, .archive-card-meta,
+    .archive-card-copy > p, .archive-pagination-dots, .archive-empty p,
+    .archive-loading, .archive-breadcrumbs, .archive-entry-labels > a,
+    .archive-entry-meta, .archive-album-intro, .archive-body figcaption,
+    .archive-reader-section-heading > span, .archive-gallery-progress > p,
+    .archive-photo-sources, .archive-photo-sources > summary,
+    .archive-attachment small, .archive-reader-source > div > span,
+    .archive-reader-source p, .news-date, .news-lead, .news-status,
+    .news-section-heading p, .news-card time, .news-card p) {
+    color: var(--ocean-muted);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-results-heading p strong,
+    .archive-loading strong, .archive-breadcrumbs > span,
+    .archive-body h2, .archive-body h3, .archive-body h4, .archive-body h5,
+    .archive-body h6, .archive-body strong, .archive-body b,
+    .archive-reader-section-heading h2, .archive-attachment strong,
+    .news-status h2, .news-status h3) {
+    color: var(--ocean-text);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-collection-note > svg,
+    .archive-collection-note a, .archive-search > svg, .archive-select > svg,
+    .archive-results-heading button, .archive-entry-meta > button,
+    .archive-reader-note > svg, .archive-body a, .archive-body summary,
+    .archive-photo-sources a, .archive-photo-sources > summary:hover,
+    .archive-attachment > svg, .archive-reader-source > a,
+    .archive-reader-back > a:last-child, .news-card span) {
+    color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .archive-page .news-link {
+    color: var(--ocean-gold) !important;
+  }
+
+  body.ocean-theme .archive-page .archive-body {
+    color: #d1e1da;
+  }
+
+  body.ocean-theme .archive-page :is(.archive-body blockquote,
+    .archive-body th, .archive-body pre, .archive-body code) {
+    color: #dbe9df;
+    background: rgba(139, 187, 171, .1);
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .archive-page .archive-body blockquote {
+    border-left-color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .archive-page .archive-body tr:nth-child(even) td {
+    background: rgba(139, 187, 171, .06);
+  }
+
+  body.ocean-theme .archive-page :is(.archive-search-hint,
+    .archive-reader-heading, .archive-photo-sources, .archive-attachments,
+    .archive-reader-source, .archive-related, .archive-body table,
+    .archive-body th, .archive-body td, .archive-body details,
+    .archive-body .archive-document-image) {
+    border-color: var(--ocean-line);
+  }
+
+  body.ocean-theme .archive-page .archive-body hr {
+    background: var(--ocean-line);
+  }
+
+  body.ocean-theme .archive-page .archive-lightbox-close:hover {
+    color: #123b3b;
+    background: var(--ocean-gold);
+    border-color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .archive-page .archive-search:focus-within {
+    border-color: var(--ocean-gold);
+    box-shadow: 0 0 0 3px rgba(236, 214, 160, .15);
+  }
+
+  body.ocean-theme .site-page .site-skip,
+  body.ocean-theme .archive-page .archive-skip {
+    color: #123b3b;
+    background: var(--ocean-gold);
+    border-color: var(--ocean-gold);
+  }
+
+  body.ocean-theme .site-page :focus-visible,
+  body.ocean-theme .archive-page :focus-visible {
+    outline: 2px solid var(--ocean-gold);
+    outline-offset: 4px;
+  }
 }
 
 /* The private tools remain readable and keep the same controls and data
