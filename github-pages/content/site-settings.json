@@ -17,7 +17,7 @@
   },
   "season": {
     "name": "2026–2027",
-    "calendarImage": "/images/calendrier-2026-2027.jpg",
+    "calendarImage": "/images/publications/mwzlnt9n-8ijk16ur.jpg",
     "agendaNote": "Confirmez votre venue avec le club. Les dates rouges du programme restent à confirmer.",
     "registrationCaption": "La saison 2026–2027, c’est par ici."
   },
@@ -41,10 +41,7 @@
       "title": "Un nouveau rendez-vous le mardi",
       "description": "Plongée, apnée et entraînement selon les encadrants présents.",
       "contactSubject": "Séance du mardi",
-      "date": "",
-      "location": "Piscine municipale de Darnétal",
-      "calendarDescription": "",
-      "sourceUrl": ""
+      "location": "Piscine municipale de Darnétal"
     },
     {
       "id": "piscine-jeudi",
@@ -55,10 +52,7 @@
       "title": "Le jeudi, on se retrouve dans l’eau",
       "description": "Notre rendez-vous hebdomadaire à la piscine de Darnétal.",
       "contactSubject": "Séance du jeudi",
-      "date": "",
-      "location": "Piscine municipale de Darnétal",
-      "calendarDescription": "",
-      "sourceUrl": ""
+      "location": "Piscine municipale de Darnétal"
     },
     {
       "id": "conflans-20270411",
@@ -80,7 +74,7 @@
       "title": "Une nouvelle saison, deux rendez-vous par semaine",
       "date": "24 septembre 2026",
       "category": "Vie du club",
-      "image": "/images/reprise-club-2026.jpg",
+      "image": "/images/publications/mwzlowv2-iz6h9qo0.jpg",
       "alt": "Les adhérents équipés de bouteilles et de palmes à la piscine de Darnétal, septembre 2026.",
       "summary": "Retour à la piscine, nouveau créneau du mardi et premières dates des sorties 2026–2027.",
       "url": "/archives/2026-09-bonne-reprise-pour-notre-club-et-agenda-2026-2027-90a44c59"
@@ -89,7 +83,7 @@
       "title": "De Darnétal à Conflans, des moments partagés",
       "date": "17 juin 2026",
       "category": "Les sorties",
-      "image": "/images/activites-piscine-2026.jpg",
+      "image": "/images/publications/mwzlp1so-jg4ls4tr.jpg",
       "alt": "Sept membres du club devant un véhicule lors de la sortie en fosse de juin 2026.",
       "summary": "Nuit s’eaulidaire et sortie en fosse : plongée et apnée réunies autour de la même passion.",
       "url": "https://les-hippocampes-du-robec.over-blog.com/2026/06/resume-de-nos-activites-de-mai-et-juin.html"
@@ -98,7 +92,7 @@
       "title": "Un week-end à Todi et Némo",
       "date": "1er avril 2026",
       "category": "Les sorties",
-      "image": "/images/sortie-nemo-2026.jpg",
+      "image": "/images/publications/mwzlp7de-psx89y7p.jpg",
       "alt": "Groupe des Hippocampes du Robec devant un petit sous-marin jaune, mars 2026.",
       "summary": "Deux jours en Belgique, une belle ambiance et quatre nouveaux plongeurs niveau 1.",
       "url": "https://les-hippocampes-du-robec.over-blog.com/2026/04/nemo-todi-2026.html"
