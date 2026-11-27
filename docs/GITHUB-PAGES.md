@@ -2,7 +2,7 @@
 
 Cette cible publie la vitrine, les actualités publiques et les archives déjà reprises du blog. À la demande du club, **les 123 fichiers d’images récupérés sont provisoirement hébergés avec le site sur GitHub Pages**, soit 8 534 026 octets (environ 8,53 Mo). Cloudinary n’est pas nécessaire pour cette publication.
 
-Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme source Pages. L’adresse prévue est `https://durstyone.github.io/Hippocampes/`. Elle devient accessible après la réussite du déploiement. Ce compte et ce dépôt sont réservés au club.
+Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme source Pages. Le site est publié à `https://durstyone.github.io/Hippocampes/`. Ce compte et ce dépôt sont réservés au club.
 
 ## Ce qui fonctionne sur Pages
 
@@ -10,10 +10,11 @@ Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme s
 | --- | --- |
 | Présentation, activités, agenda de saison, contact | Fichiers du site sur GitHub Pages. Le contact prépare un e-mail dans la messagerie du visiteur. |
 | Archives importées, recherche et lecture | JSON et interface statique. Les 140 contenus repris comprennent 121 articles, 14 pages et 5 albums ; la reprise du blog reste partielle. |
-| Actualités et albums publics supplémentaires | Copies publiques dans `github-pages/content/public-club.json` et `github-pages/content/public-media.json`. |
+| Actualités et albums publics supplémentaires | Éditeur Pages CMS préparé ; contenus dans `github-pages/content/news/` et `photos/`. Les anciens fichiers publics restent compatibles. |
 | Images des actualités, fond du site et albums récupérés | Images dans `public/`, déclarées dans `github-pages/local-media.json` et servies par GitHub Pages. |
 | Vidéos éventuelles | Hébergement externe et liens HTTPS. Aucune vidéo locale n’est incluse dans cette version. |
-| Comptes, inscriptions, administration et documents privés | Serveur distinct obligatoire. Un lien peut être ajouté avec `clubUrl`. |
+| Administration du contenu public | Accès `/admin/`, puis Pages CMS après autorisation GitHub limitée au dépôt du club. |
+| Comptes, inscriptions et documents privés | Espace club existant sur un serveur distinct, relié par `clubUrl`, avec ses accès actuels. |
 
 GitHub Pages ne fait pas fonctionner le serveur Node, SQLite, D1 ou les API de l’espace club. Les versions Sites et autonome restent disponibles dans le projet d’origine. Les publications de leur administration ne sont **pas synchronisées automatiquement** avec la version Pages : les copies publiques doivent être mises à jour puis republiées.
 
@@ -31,7 +32,7 @@ La configuration publique dans `github-pages/site.config.json` est :
   "domain": "",
   "mediaBaseUrl": "",
   "mediaMap": {},
-  "clubUrl": ""
+  "clubUrl": "https://hippocampes-du-robec.espace-de-tr-9010.chatgpt.site/club"
 }
 ```
 
@@ -53,7 +54,9 @@ Le dépôt contient uniquement les sources et contenus publics du site. Les donn
 
 `github-pages/media-inventory.json` conserve l’inventaire des images récupérées, avec leurs tailles et empreintes SHA-256. Les contrôles vérifient les fichiers déclarés et leur présence dans le site construit. Une image de la liste locale reste servie par GitHub Pages même si `mediaMap` ou `mediaBaseUrl` contient une correspondance pour elle.
 
-Pour ajouter une nouvelle image :
+Pour les nouvelles photos de l’éditeur, utiliser `public/images/publications/` : elles sont contrôlées et incluses automatiquement. Formats JPG, JPEG, PNG, WebP et GIF, maximum 5 Mio par fichier. Les vidéos et liens symboliques sont refusés.
+
+Pour ajouter manuellement une image en dehors de ce dossier :
 
 1. Placer le fichier dans `public/images/` ou `public/media/archive/`.
 2. Ajouter son chemin public, par exemple `/images/sortie-club.jpg`, dans `github-pages/local-media.json`.
@@ -84,8 +87,12 @@ Les pages d’archives et d’actualités disposent de fichiers HTML pour que le
 ## 4. Mettre à jour les contenus
 
 - Les archives reprises résident dans `public/content/archive-index.json` et `public/content/entries/`.
-- Les nouvelles actualités publiques utilisent `github-pages/content/public-club.json`, avec une liste `news`.
-- Les albums supplémentaires utilisent `github-pages/content/public-media.json`, avec une liste `photos` et des chemins locaux déclarés ou des URL HTTPS externes.
+- Les nouvelles actualités publiques de Pages CMS utilisent `github-pages/content/news/*.json`.
+- Les photos des nouveaux albums utilisent `github-pages/content/photos/*.json`, regroupées par nom d’album.
+- La présentation, les coordonnées, les horaires, l’agenda, les cartes historiques et la FAQ utilisent `github-pages/content/site-settings.json`.
+- Les anciens fichiers `public-club.json` et `public-media.json` restent pris en charge. Les identifiants des nouvelles entrées viennent du nom de fichier ; le renommage est désactivé dans l’éditeur pour préserver les liens.
+
+Le [guide d’administration](ADMINISTRATION.md) décrit l’activation restante et l’usage quotidien. La configuration ne donne elle-même aucun accès à GitHub : l’installation de Pages CMS reste à autoriser sur le seul dépôt du club.
 
 Pour reprendre une publication du serveur d’administration, exporter uniquement les champs publics attendus, relire le résultat puis mettre à jour ces fichiers. Enregistrer la modification dans le dépôt pour reconstruire et publier le site.
 
