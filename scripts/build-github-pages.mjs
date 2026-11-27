@@ -309,6 +309,7 @@ const routeRecords = [
   { path: '/', title },
   { path: '/archives/', title: 'Les archives — Les Hippocampes du Robec' },
   { path: '/actualites/', title: 'Les actualités — Les Hippocampes du Robec' },
+  { path: '/agenda/', title: `Agenda ${siteSettings.season.name} — Les Hippocampes du Robec`, description: `Le calendrier ${siteSettings.season.name} des Hippocampes du Robec : entraînements, formations, sorties et vie du club. Consultez les dates et ajoutez les rendez-vous à votre agenda.` },
   { path: '/admin/', title: 'Administration — Les Hippocampes du Robec', noindex: true },
   ...archiveEntries.map(entry => ({ path: '/archives/' + entry.id + '/', title: entry.title + ' — Les Hippocampes du Robec' })),
   ...news.map(item => ({ path: '/actualites/' + item.id + '/', title: item.title + ' — Les Hippocampes du Robec' })),
@@ -316,14 +317,14 @@ const routeRecords = [
 for (const record of routeRecords) {
   const canonical = siteUrl && !preview ? siteUrl.replace(/\/$/, '') + record.path : '';
   const metadata = [`<style>${backgroundCss}</style>`, preview || record.noindex ? '<meta name="robots" content="noindex,nofollow" />' : '', canonical ? `<link rel="canonical" href="${escapeHtml(canonical)}" />` : ''].filter(Boolean).join('\n    ');
-  const html = template.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(record.title)}</title>`).replace('<!-- PAGES_METADATA -->', metadata);
+  const html = template.replace(/<title>[\s\S]*?<\/title>/, `<title>${escapeHtml(record.title)}</title>`).replace(/<meta name="description" content="[^"]*"\s*\/>/, `<meta name="description" content="${escapeHtml(record.description || description)}" />`).replace('<!-- PAGES_METADATA -->', metadata);
   const target = resolve(www, '.' + record.path, 'index.html');
   await mkdir(dirname(target), { recursive: true });
   await writeFile(target, html);
 }
 
 const home = basePath;
-await writeFile(resolve(www, '404.html'), `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page introuvable — Les Hippocampes du Robec</title><style>body{margin:0;padding:12vh 24px;font:18px/1.6 system-ui,sans-serif;background:#06323a;color:#16333b}main{max-width:640px;margin:auto;padding:36px;background:#fff;border-radius:16px}h1{font-size:2rem;line-height:1.2}a{color:#087a72}</style></head><body><main><h1>Cette page n’est pas disponible.</h1><p>Retrouvez les informations, les photos et les récits du club depuis l’accueil.</p><p><a href="${escapeHtml(home)}">Retour au site du club</a></p></main></body></html>\n`);
+await writeFile(resolve(www, '404.html'), `<!doctype html><html lang="fr"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><meta name="robots" content="noindex"><title>Page introuvable — Les Hippocampes du Robec</title><style>body{margin:0;padding:12vh 24px;font:18px/1.6 system-ui,sans-serif;background:#06323a;color:#eaf5f3}main{max-width:640px;margin:auto;padding:36px;background:#0b3039;border:1px solid #27515a;border-radius:16px}h1{font-size:2rem;line-height:1.2}a{color:#8be5d5}</style></head><body><main><h1>Cette page n’est pas disponible.</h1><p>Retrouvez les informations, les photos et les récits du club depuis l’accueil.</p><p><a href="${escapeHtml(home)}">Retour au site du club</a></p></main></body></html>\n`);
 if (siteUrl && !preview) {
   const origin = siteUrl.replace(/\/$/, '');
   const sitemap = '<?xml version="1.0" encoding="UTF-8"?>\n<urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">\n' + routeRecords.filter(record => !record.noindex).map(record => `  <url><loc>${escapeHtml(origin + record.path)}</loc></url>`).join('\n') + '\n</urlset>\n';
