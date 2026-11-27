@@ -1,0 +1,75 @@
+name: Integrer les images locales pour la publication
+
+on:
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+concurrency:
+  group: integrer-medias-hippocampes
+  cancel-in-progress: false
+
+jobs:
+  import:
+    if: github.repository == 'Durstyone/Hippocampes' && github.ref == 'refs/heads/main'
+    runs-on: ubuntu-latest
+    timeout-minutes: 5
+    steps:
+      - name: Lire le depot du club
+        uses: actions/checkout@v6
+      - name: Verifier et integrer les images publiques
+        run: |
+          python3 - <<'PY'
+          import hashlib, json, os, stat, zipfile
+          from pathlib import Path, PurePosixPath
+          root = Path.cwd()
+          archive = root / 'publication-medias-locaux.zip'
+          if not archive.is_file():
+              raise SystemExit('Le lot de publication a deja ete integre ou est absent.')
+          expected = '186c24be1d3b522f01845822a25ffaedbbfebe2c39712e1efdd6e0d3ef8b32f3'
+          if hashlib.sha256(archive.read_bytes()).hexdigest() != expected:
+              raise SystemExit('Ce lot ne correspond pas a la version verifiee.')
+          inventory = json.loads((root / 'github-pages/media-inventory.json').read_text())['files']
+          images = {'public' + item['path']: item for item in inventory}
+          text_files = {'README.md', 'docs/GITHUB-PAGES.md', 'PREPARATION.json',
+                        'github-pages/local-media.json', 'scripts/check-pages-media-config.mjs',
+                        'scripts/check-github-pages.mjs'}
+          allowed = set(images) | text_files
+          with zipfile.ZipFile(archive) as zipped:
+              entries = zipped.infolist()
+              if len(entries) != len(allowed) or {i.filename for i in entries} != allowed:
+                  raise SystemExit('Inventaire du lot inattendu.')
+              if sum(i.file_size for i in entries) > 20000000:
+                  raise SystemExit('Lot trop volumineux.')
+              local_images = json.loads(zipped.read('github-pages/local-media.json'))['files']
+              if len(local_images) != len(images) or set(local_images) != {i['path'] for i in inventory}:
+                  raise SystemExit('La liste des images locales est incomplete.')
+              for item in entries:
+                  path = PurePosixPath(item.filename)
+                  if path.is_absolute() or '..' in path.parts or '\\' in item.filename:
+                      raise SystemExit('Chemin refuse.')
+                  if stat.S_ISLNK(item.external_attr >> 16) or item.is_dir():
+                      raise SystemExit('Entree speciale refusee.')
+                  if item.filename in images:
+                      original = images[item.filename]
+                      data = zipped.read(item)
+                      if len(data) != original['bytes'] or hashlib.sha256(data).hexdigest() != original['sha256']:
+                          raise SystemExit('Image differente de son original verifie.')
+              for item in entries:
+                  destination = root / item.filename
+                  destination.parent.mkdir(parents=True, exist_ok=True)
+                  destination.write_bytes(zipped.read(item))
+          with open(os.environ['GITHUB_STEP_SUMMARY'], 'a') as summary:
+              summary.write(f'## Images pretes pour GitHub Pages\n\n{len(images)} images publiques conservees avec le site, soit {sum(i["bytes"] for i in inventory):,} octets. Aucun compte Cloudinary necessaire pour cette publication. Aucun serveur prive ni video dans ce lot.\n')
+          PY
+      - name: Verifier la configuration complete des medias
+        run: node scripts/check-pages-media-config.mjs
+      - name: Enregistrer la publication locale dans le depot
+        run: |
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add -- public/images public/media/archive github-pages/local-media.json scripts/check-pages-media-config.mjs scripts/check-github-pages.mjs README.md docs/GITHUB-PAGES.md PREPARATION.json
+          git rm -- publication-medias-locaux.zip
+          git commit -m 'Publier les images avec le site sans Cloudinary'
+          git push origin HEAD:main
