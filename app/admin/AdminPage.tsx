@@ -3,7 +3,7 @@ import { CalendarDays, Check, ExternalLink, FilePenLine, Images, LockKeyhole, Se
 import { clubPortalUrl, mediaUrl, siteUrl } from '../../lib/site-delivery';
 import './admin.css';
 
-const EDITOR_URL = 'https://app.pagescms.org/';
+const EDITOR_URL = 'https://app.pagescms.org/durstyone/hippocampes/main/file/site';
 const PUBLICATION_URL = 'https://github.com/Durstyone/Hippocampes/actions/workflows/pages.yml';
 
 export default function AdminPage() {
@@ -19,8 +19,8 @@ export default function AdminPage() {
       <div className="club-admin-grid">
         <section className="club-admin-card"><span className="club-admin-icon"><FilePenLine size={26}/></span><h2>Le contenu du site</h2><p>Publiez les nouvelles du club, ajoutez des photos et actualisez les informations pratiques.</p>
           <ul><li><FilePenLine size={18}/>Actualités et récits</li><li><Images size={18}/>Photos et albums</li><li><CalendarDays size={18}/>Agenda et horaires</li><li><Settings size={18}/>Coordonnées et présentation</li></ul>
-          <a className="club-admin-button" href={EDITOR_URL} target="_blank" rel="noopener noreferrer">Se connecter à l’éditeur <ExternalLink size={16}/></a>
-          <div className="club-admin-first"><LockKeyhole size={17}/><p><strong>Première connexion</strong>L’éditeur Pages CMS doit être autorisé avec le compte GitHub du club, pour le dépôt Durstyone/Hippocampes. Cette activation reste à effectuer.</p></div>
+          <a className="club-admin-button" href={EDITOR_URL} target="_blank" rel="noopener noreferrer">Ouvrir l’éditeur <ExternalLink size={16}/></a>
+          <div className="club-admin-first"><LockKeyhole size={17}/><p><strong>Éditeur connecté</strong>Connectez-vous avec le compte GitHub du club, Durstyone. Choisissez une rubrique, puis enregistrez vos modifications pour lancer leur publication.</p></div>
         </section>
         <section className="club-admin-card club-admin-card-members"><span className="club-admin-icon"><Users size={26}/></span><h2>La gestion du club</h2><p>Retrouvez l’espace de gestion existant, avec ses accès réservés aux personnes autorisées.</p>
           <ul><li><Check size={18}/>Adhérents et inscriptions</li><li><Check size={18}/>Sorties, matériel et documents</li><li><Check size={18}/>Finances et vie associative</li><li><ShieldCheck size={18}/>Accès et droits des membres</li></ul>
@@ -28,7 +28,7 @@ export default function AdminPage() {
           <p className="club-admin-footnote">La connexion habituelle reste nécessaire. Pour mettre à jour le site public, utilisez l’éditeur de contenu : les publications de l’ancien espace ne sont pas synchronisées avec ce site.</p>
         </section>
       </div>
-      <section className="club-admin-publishing"><div><h2>De l’idée à la publication</h2><p>Une fois l’éditeur activé, chaque enregistrement lance la mise à jour du site. Les photos sont conservées avec le site pour le moment.</p><p className="club-admin-private-note">L’éditeur sert au contenu public. Les coordonnées des adhérents et les documents privés restent dans l’espace club.</p></div><a href={PUBLICATION_URL} target="_blank" rel="noopener noreferrer">Suivre une publication <ExternalLink size={15}/></a></section>
+      <section className="club-admin-publishing"><div><h2>De l’idée à la publication</h2><p>Chaque enregistrement dans l’éditeur lance la mise à jour du site. Les photos sont conservées avec le site pour le moment.</p><p className="club-admin-private-note">L’éditeur sert au contenu public. Les coordonnées des adhérents et les documents privés restent dans l’espace club.</p></div><a href={PUBLICATION_URL} target="_blank" rel="noopener noreferrer">Suivre une publication <ExternalLink size={15}/></a></section>
     </main>
     <footer className="club-admin-footer"><span>Les Hippocampes du Robec · Darnétal</span><a href={siteUrl('/')}>Retour au site</a></footer>
   </div>;
