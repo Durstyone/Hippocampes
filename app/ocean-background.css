@@ -45,21 +45,51 @@ body.ocean-theme .archive-header {
 body.ocean-theme .site-header .site-brand,
 body.ocean-theme .archive-header .archive-brand {
   color: #f3f7f2;
+  gap: 16px;
+}
+
+/* Give the club identity room to breathe in every public header. Footer
+   branding keeps its existing, more compact proportions. */
+html:has(body.ocean-theme) {
+  scroll-padding-top: 144px;
+}
+
+body.ocean-theme .site-header .site-header-inner,
+body.ocean-theme .archive-header .archive-header-inner {
+  height: auto;
+  min-height: 120px;
+  padding-block: 16px;
+  gap: 24px;
+}
+
+body.ocean-theme .site-header .site-brand > span,
+body.ocean-theme .archive-header .archive-brand > span {
+  font-size: 26px;
+  line-height: 1.25;
+  white-space: nowrap;
 }
 
 body.ocean-theme .site-header .site-brand small,
 body.ocean-theme .archive-header .archive-brand small {
   color: #b8ccc7;
+  font-size: 13px;
+  line-height: 1.8;
+  letter-spacing: 3.3px;
 }
 
 body.ocean-theme .site-header .site-brand img,
 body.ocean-theme .archive-header .archive-brand img {
+  width: 80px;
+  height: 80px;
+  flex-shrink: 0;
   box-shadow: 0 0 0 1px rgba(236, 214, 160, .3), 0 3px 12px rgba(0, 16, 24, .2);
 }
 
 body.ocean-theme .site-header .site-nav > a,
+body.ocean-theme .site-header .agenda-header-nav > a,
 body.ocean-theme .archive-header .archive-header-nav > a {
   color: #dce9e3;
+  font-size: 16px;
 }
 
 body.ocean-theme .site-header .site-nav > a:hover,
@@ -72,6 +102,8 @@ body.ocean-theme .archive-header .archive-header-nav > a[aria-current] {
 body.ocean-theme .site-header .site-member-link,
 body.ocean-theme .archive-header .archive-member-link {
   color: #f2dfa9 !important;
+  font-size: 16px;
+  padding: 12px 18px;
   background: rgba(236, 214, 160, .09);
   border-color: rgba(236, 214, 160, .32);
 }
@@ -104,19 +136,170 @@ body.ocean-theme .archive-header a:focus-visible {
   outline-offset: 5px;
 }
 
-@media (max-width: 900px) {
+@media (max-width: 1100px) {
+  html:has(body.ocean-theme) {
+    scroll-padding-top: 136px;
+  }
+
+  body.ocean-theme .site-header .site-header-inner,
+  body.ocean-theme .archive-header .archive-header-inner {
+    min-height: 112px;
+  }
+
+  body.ocean-theme .site-header .site-brand img,
+  body.ocean-theme .archive-header .archive-brand img {
+    width: 72px;
+    height: 72px;
+  }
+
+  body.ocean-theme .site-header .site-brand > span,
+  body.ocean-theme .archive-header .archive-brand > span {
+    font-size: 24px;
+  }
+
   body.ocean-theme .site-header .site-nav {
+    display: none;
+    position: absolute;
+    top: 100%;
+    left: 0;
+    right: 0;
+    flex-direction: column;
+    align-items: stretch;
+    gap: 0;
+    padding: 16px 24px;
+    max-height: calc(100dvh - 160px);
+    overflow-y: auto;
     background: rgba(3, 31, 39, .98);
+    border-bottom: 1px solid;
     border-bottom-color: rgba(236, 214, 160, .2);
     box-shadow: 0 18px 28px rgba(0, 17, 23, .26);
   }
 
+  body.ocean-theme .site-header .site-nav.is-open,
+  body.ocean-theme .site-header .site-menu-toggle {
+    display: flex;
+  }
+
+  body.ocean-theme .site-header .site-menu-toggle {
+    align-items: center;
+  }
+
   body.ocean-theme .site-header .site-nav > a {
+    padding: 12px;
     border-radius: 6px;
   }
 
   body.ocean-theme .site-header .site-nav > a:hover {
     background: rgba(236, 214, 160, .07);
+  }
+}
+
+@media (max-width: 850px) {
+  body.ocean-theme .archive-header .archive-header-inner {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr) auto;
+    gap: 12px 16px;
+  }
+
+  body.ocean-theme .archive-header .archive-brand {
+    grid-column: 1 / -1;
+  }
+
+  body.ocean-theme .archive-header .archive-header-nav {
+    grid-column: 1;
+    grid-row: 2;
+    order: initial;
+    width: auto;
+    margin: 0;
+    padding: 0;
+    justify-content: flex-start;
+    flex-wrap: wrap;
+    gap: 4px 16px;
+  }
+
+  body.ocean-theme .archive-header .archive-member-link {
+    grid-column: 2;
+    grid-row: 2;
+    margin: 0;
+  }
+}
+
+@media (max-width: 760px) {
+  html:has(body.ocean-theme) {
+    scroll-padding-top: 190px;
+  }
+
+  body.ocean-theme .site-header .site-header-inner,
+  body.ocean-theme .archive-header .archive-header-inner {
+    min-height: 96px;
+    padding-block: 12px;
+    gap: 12px;
+  }
+
+  body.ocean-theme .site-header .site-brand,
+  body.ocean-theme .archive-header .archive-brand {
+    gap: 12px;
+  }
+
+  body.ocean-theme .site-header .site-brand img,
+  body.ocean-theme .archive-header .archive-brand img {
+    width: 64px;
+    height: 64px;
+  }
+
+  body.ocean-theme .site-header .site-brand > span,
+  body.ocean-theme .archive-header .archive-brand > span {
+    font-size: 21px;
+  }
+
+  body.ocean-theme .site-header .site-brand small,
+  body.ocean-theme .archive-header .archive-brand small {
+    font-size: 12px;
+    letter-spacing: 2.8px;
+  }
+
+  body.ocean-theme .site-header .site-member-link,
+  body.ocean-theme .archive-header .archive-member-link {
+    font-size: 14px;
+    padding: 10px 12px;
+    min-height: 44px;
+  }
+
+  body.ocean-theme .site-header .agenda-header-nav > a,
+  body.ocean-theme .archive-header .archive-header-nav > a {
+    font-size: 14px;
+  }
+
+  body.ocean-theme .archive-header .archive-header-nav > a {
+    padding: 8px 0;
+  }
+}
+
+@media (max-width: 640px) {
+  body.ocean-theme .site-header .site-header-inner {
+    flex-wrap: wrap;
+  }
+
+  body.ocean-theme .site-header .site-brand,
+  body.ocean-theme .site-header .site-header-actions {
+    width: 100%;
+  }
+
+  body.ocean-theme .site-header .site-header-actions {
+    justify-content: space-between;
+  }
+}
+
+@media (max-width: 370px) {
+  body.ocean-theme .site-header .site-brand img,
+  body.ocean-theme .archive-header .archive-brand img {
+    width: 56px;
+    height: 56px;
+  }
+
+  body.ocean-theme .site-header .site-brand > span,
+  body.ocean-theme .archive-header .archive-brand > span {
+    font-size: 19px;
   }
 }
 
