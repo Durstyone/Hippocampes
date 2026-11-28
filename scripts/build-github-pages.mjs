@@ -2,7 +2,8 @@ import { build } from 'vite';
 import react from '@vitejs/plugin-react';
 import { cp, mkdir, readFile, readdir, rename, rm, stat, writeFile } from 'node:fs/promises';
 import { existsSync } from 'node:fs';
-import { dirname, extname, relative, resolve, sep } from 'node:path';
+import { createHash } from 'node:crypto';
+import { basename, dirname, extname, relative, resolve, sep } from 'node:path';
 import { domainToASCII, fileURLToPath } from 'node:url';
 import { inspectCmsImages, inspectLocalRaster, readCmsCollection } from './cms-content.mjs';
 import { validateSiteSettings } from '../lib/public-site-settings.mjs';
@@ -184,7 +185,8 @@ news.sort((a, b) => b.date.localeCompare(a.date));
 const rawMedia = object(await readJson(resolve(project, 'github-pages/content/public-media.json')), 'public-media.json');
 if (!Array.isArray(rawMedia.photos)) throw new Error('public-media.json doit contenir un tableau photos.');
 const cmsPhotos = [];
-for (const item of await readCmsCollection(project, 'photos')) {
+const rawCmsPhotos = await readCmsCollection(project, 'photos');
+for (const item of rawCmsPhotos) {
   const label = `Photo ${item.id}`;
   if (typeof item.image !== 'string' || !localMedia.has(item.image)) throw new Error(`${label} doit utiliser une image locale autorisée et présente dans le site.`);
   if (item.order !== undefined && item.order !== null && (!Number.isSafeInteger(item.order) || item.order < 0 || item.order > 1000000)) throw new Error(`${label} : l’ordre doit être un entier entre 0 et 1 000 000.`);
@@ -299,6 +301,38 @@ if (preview) {
 }
 await writeFile(resolve(www, 'content/public-club.json'), JSON.stringify({ news }, null, 2) + '\n');
 await writeFile(resolve(www, 'content/public-media.json'), JSON.stringify({ photos }, null, 2) + '\n');
+
+// This snapshot contains only the public, editable content already checked
+// above. It lets the administration display its lists without an API token.
+// Exact source blob SHAs protect against overwriting a newer GitHub edit.
+const adminFileShas = Object.create(null);
+async function adminSource(path) {
+  const bytes = await readFile(resolve(project, path));
+  const sha = createHash('sha1').update(`blob ${bytes.length}\0`).update(bytes).digest('hex');
+  adminFileShas[path] = sha;
+  return { sha, size: bytes.length };
+}
+async function adminCollection(name, items, fields) {
+  return Promise.all(items.map(async item => {
+    const path = `github-pages/content/${name}/${item.id}.json`;
+    const { sha } = await adminSource(path);
+    const data = Object.fromEntries(fields.map(field => [field, item[field] ?? (field === 'order' ? 0 : '')]));
+    return { id: item.id, path, sha, data };
+  }));
+}
+const settingsPath = 'github-pages/content/site-settings.json';
+const { sha: settingsSha } = await adminSource(settingsPath);
+const adminNews = await adminCollection('news', cmsNews, ['title', 'date', 'excerpt', 'body', 'image', 'url']);
+const adminPhotos = await adminCollection('photos', rawCmsPhotos, ['title', 'image', 'alt', 'album', 'date', 'description', 'credit', 'order']);
+const adminMedia = await Promise.all(mediaFiles.filter(filename => localMedia.has(asPublicPath(filename)) && /\.(?:jpe?g|png|webp|gif)$/i.test(filename)).map(async filename => {
+  const path = asPublicPath(filename);
+  const repoPath = 'public' + path;
+  return { path, repoPath, ...(await adminSource(repoPath)), name: basename(filename) };
+}));
+await writeFile(resolve(www, 'content/admin-content.json'), JSON.stringify({
+  headSha: '', treeSha: '', settings: siteSettings, settingsSha,
+  news: adminNews, photos: adminPhotos, media: adminMedia, fileShas: adminFileShas,
+}, null, 2) + '\n');
 await writeFile(resolve(www, '.nojekyll'), '');
 if (domain && !preview) await writeFile(resolve(www, 'CNAME'), domain + '\n');
 
