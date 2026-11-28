@@ -48,7 +48,7 @@ async function walk(directory) {
 
 const files = await walk(root);
 const paths = new Set(files.map(path => relative(root, path).split('\\').join('/')));
-for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'le-club/index.html', 'activites/index.html', 'archives/index.html', 'actualites/index.html', 'agenda/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
+for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'content/admin-content.json', 'le-club/index.html', 'activites/index.html', 'archives/index.html', 'actualites/index.html', 'agenda/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
 const forbidden = /(?:^|\/)(?:\.git|\.env[^/]*|\.openai|\.wrangler|club\.sqlite[^/]*|auth\.mjs|server\.mjs|package\.json)(?:\/|$)|\.(?:sqlite(?:-wal|-shm)?|pem|map)$/i;
 const mediaPattern = /\.(?:avif|gif|jpe?g|png|webp|bmp|tiff?|heic|heif|mp4|webm|mov|m4v|mkv|avi|ogv)$/i;
 for (const path of paths) {
@@ -88,6 +88,41 @@ for (const photo of mediaFeed.photos) {
     assert.ok(localMedia.has(photo.secureUrl), `Image de photothèque locale non autorisée : ${photo.secureUrl}`);
     assert.ok(paths.has(photo.secureUrl.slice(1)), `Image de photothèque absente : ${photo.secureUrl}`);
   }
+}
+// The administration's public snapshot must stay narrowly scoped, and its
+// hashes must describe source files rather than the normalized public feeds.
+const adminContent = JSON.parse(await readFile(resolve(root, 'content/admin-content.json'), 'utf8'));
+assert.deepEqual(Object.keys(adminContent).sort(), ['headSha', 'treeSha', 'settings', 'settingsSha', 'news', 'photos', 'media', 'fileShas'].sort());
+assert.equal(adminContent.headSha, '');
+assert.equal(adminContent.treeSha, '');
+const adminPaths = new Set(['github-pages/content/site-settings.json']);
+assert.deepEqual(Object.keys(adminContent.settings).sort(), ['contact', 'season', 'club', 'events', 'featuredNews', 'faq'].sort());
+assert.equal(adminContent.settingsSha, adminContent.fileShas['github-pages/content/site-settings.json']);
+for (const [name, allowed] of [['news', ['title', 'date', 'excerpt', 'body', 'image', 'url']], ['photos', ['title', 'image', 'alt', 'album', 'date', 'description', 'credit', 'order']]]) {
+  assert.ok(Array.isArray(adminContent[name]));
+  for (const item of adminContent[name]) {
+    assert.match(item.id, /^[A-Za-z0-9][A-Za-z0-9._~-]{0,219}$/);
+    assert.equal(item.path, `github-pages/content/${name}/${item.id}.json`);
+    assert.deepEqual(Object.keys(item.data).sort(), [...allowed].sort(), 'Le contenu administratif exporté doit exclure les propriétés inconnues.');
+    assert.equal(item.sha, adminContent.fileShas[item.path]);
+    assert.ok(!adminPaths.has(item.path), 'Publication administrative dupliquée.');
+    adminPaths.add(item.path);
+  }
+}
+assert.ok(Array.isArray(adminContent.media));
+for (const item of adminContent.media) {
+  assert.ok(localMedia.has(item.path), 'Le catalogue administratif doit contenir uniquement les images publiques conservées.');
+  assert.equal(item.repoPath, 'public' + item.path);
+  assert.ok(paths.has(item.path.slice(1)), 'Image administrative absente de la publication.');
+  assert.equal(item.sha, adminContent.fileShas[item.repoPath]);
+  assert.ok(!adminPaths.has(item.repoPath), 'Image administrative dupliquée.');
+  adminPaths.add(item.repoPath);
+}
+assert.deepEqual(Object.keys(adminContent.fileShas).sort(), [...adminPaths].sort(), 'Aucun autre fichier du dépôt ne doit apparaître dans les données d’administration.');
+for (const path of adminPaths) {
+  const source = await readFile(resolve(project, path));
+  const sha = createHash('sha1').update(`blob ${source.length}\0`).update(source).digest('hex');
+  assert.equal(adminContent.fileShas[path], sha, `Le SHA de l’administration ne correspond pas au fichier source : ${path}`);
 }
 assert.ok((await readFile(resolve(root, 'admin/index.html'), 'utf8')).includes('noindex'), 'L’accès à l’administration ne doit pas être indexé.');
 const agendaHtml = await readFile(resolve(root, 'agenda/index.html'), 'utf8');

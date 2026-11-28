@@ -1,86 +1,77 @@
 # Administrer le site des Hippocampes
 
-## Une administration reliée à GitHub
+## Une interface de gestion dans le site
 
-Le bouton **Administration** en haut du site et le lien **Administration du site**
-en pied de page ouvrent [l’administration du site](https://durstyone.github.io/Hippocampes/admin/).
-Cette page propose :
+Le bouton **Administration** ouvre [l’espace d’administration du club](https://durstyone.github.io/Hippocampes/admin/). Il regroupe le tableau de bord, les actualités, la photothèque, l’agenda et les informations du club. Les listes et formulaires s’utilisent dans cette interface ; les contenus sont enregistrés dans **Durstyone/Hippocampes**, branche **main**, puis publiés par GitHub Pages.
 
-- **L’éditeur du site**, pour les actualités, les photos, l’agenda, les coordonnées et les textes de présentation.
-- **Le dépôt GitHub**, pour consulter les fichiers et l’historique de **Durstyone/Hippocampes**.
+Le lien **Voir le site** reste accessible et ouvre toujours [le site public](https://durstyone.github.io/Hippocampes/).
 
-Les contenus sont enregistrés dans ce même dépôt et publiés par GitHub Pages.
-L’éditeur Pages CMS fournit l’interface de saisie. Aucun autre espace de gestion
-n’est relié depuis le site public.
+## Se connecter pour enregistrer
 
-## Accéder à l’éditeur
+La consultation des contenus publics ne demande aucune connexion. Les données affichées au chargement correspondent à la dernière version publiée. Pour enregistrer directement depuis cette administration, utiliser un **jeton personnel GitHub à permissions fines** (*fine-grained personal access token*) :
 
-Pages CMS est activé depuis le **28 novembre 2026**, avec **Durstyone/Hippocampes** comme seul dépôt existant sélectionné. La configuration de l’éditeur est dans `.pages.yml`.
+1. Se connecter à GitHub avec le compte du club **Durstyone**.
+2. Dans les paramètres GitHub, ouvrir **Developer settings → Personal access tokens → Fine-grained tokens**.
+3. Créer un jeton avec **Durstyone** comme propriétaire, choisir **Only select repositories** et sélectionner uniquement **Hippocampes**.
+4. Autoriser **Repository permissions → Contents → Read and write**. La lecture des métadonnées du dépôt est ajoutée automatiquement par GitHub ; aucune permission d’administration ou de workflow n’est nécessaire.
+5. Copier le jeton dans le champ de connexion de l’administration et valider. L’identité retournée par GitHub est affichée après vérification.
 
-1. Cliquer sur **Modifier le site avec Pages CMS** pour accéder à [l’éditeur du site](https://app.pagescms.org/durstyone/hippocampes/main/file/site).
-2. Si une connexion est demandée, utiliser le compte GitHub du club **Durstyone**.
-3. Choisir la rubrique à modifier : **Actualités**, **Photos et albums** ou **Le site et l’agenda**. L’éditeur utilise le dépôt **Hippocampes**, branche **main**.
+Cette connexion par jeton est distincte de la session ouverte sur github.com. Elle ne réutilise pas automatiquement les autorisations de Pages CMS. Le jeton reste uniquement en mémoire dans l’onglet : il n’est enregistré ni dans les fichiers du site, ni dans le stockage local du navigateur. Il est envoyé uniquement à l’API officielle GitHub et supprimé à la déconnexion ou au rechargement de la page.
 
-L’application est autorisée à modifier les fichiers et gérer les Actions de ce dépôt, à lire l’adresse email du compte et à créer des dépôts sur Durstyone. Ces permissions ont été explicitement approuvées lors de l’installation. Aucun mot de passe ni jeton GitHub n’est inclus dans le site.
+Ne pas placer le jeton dans une URL, un article ou un fichier du dépôt. Il doit rester limité au dépôt du club et avoir une durée adaptée à son usage.
 
-### Revenir au site public
+## Actualités et récits à la une
 
-Les liens **Voir le site** et **Retour au site** de la page d’administration
-ouvrent [le site GitHub Pages](https://durstyone.github.io/Hippocampes/).
-Pages CMS et le dépôt GitHub s’ouvrent dans un autre onglet : l’onglet du site
-reste disponible pour consulter le résultat après la publication.
+La rubrique **Actualités** distingue les nouvelles publications et les récits historiques mis en avant sur l’accueil. Ces récits sont déjà présents : ils ne correspondent pas à des articles vides à recréer.
 
-## Publier une actualité
+Pour une nouvelle actualité, renseigner le titre, la date, le résumé, le texte et une éventuelle photo de couverture. Le texte utilise des paragraphes séparés par une ligne vide. L’aperçu permet de vérifier la présentation avant l’enregistrement.
 
-Dans **Actualités**, créer une entrée, renseigner le titre, la date, le résumé, le texte et, si souhaité, une photo de couverture. Le texte utilise des paragraphes séparés par une ligne vide. Enregistrer lance la publication du site.
+Les nouvelles actualités sont enregistrées dans `github-pages/content/news/`. Leur nom de fichier sert d’identifiant et reste stable pour préserver les liens publics. Les récits historiques mis en avant sont enregistrés dans `featuredNews`, dans `github-pages/content/site-settings.json`.
 
-Les articles sont enregistrés dans `github-pages/content/news/`. Leur nom de fichier sert d’identifiant et le renommage est désactivé pour conserver leurs liens. La collection commence vide : les trois récits historiques affichés sur l’accueil se modifient dans **Le site et l’agenda → Récits du blog mis en avant**. Les archives déjà reprises restent accessibles sur le site.
+## Photos et albums
 
-## Ajouter des photos à un album
+La photothèque présente les images déjà conservées dans le site. Une image peut être choisie pour une actualité ou une publication photo. Pour organiser les nouvelles photos en albums, renseigner un titre, une description, une légende éventuelle et le même nom d’album pour les images d’une même sortie. Le champ d’ordre permet de classer les photos.
 
-Dans **Photos et albums**, ajouter une entrée par photo. Choisir l’image, donner un titre et une description, puis indiquer le même nom d’album pour les photos d’une même sortie. L’ordre permet d’organiser les photos dans l’album.
+Les nouveaux fichiers sont conservés dans `public/images/publications/`. Les formats **JPEG, PNG, WebP et GIF** sont acceptés, avec une limite de **5 Mio par image**. Cloudinary n’est pas nécessaire. Les fiches d’albums sont enregistrées dans `github-pages/content/photos/`.
 
-Les images sont conservées dans `public/images/publications/`. Les formats JPEG, PNG, WebP et GIF sont acceptés, dans la limite de **5 Mio par image**. Les dimensions sont détectées automatiquement. Cloudinary n’est pas nécessaire.
+Les photos historiques, leurs liens et les archives déjà importées restent conservés. Les archives servent de mémoire documentaire ; leur consultation n’implique pas que toutes leurs pages disposent du même formulaire d’édition que les nouvelles publications.
 
-Les albums historiques déjà repris restent accessibles et les photos des actualités sont conservées.
+## Agenda et créneaux habituels
 
-La bibliothèque **Photos du site** contient le calendrier et les trois visuels d’accueil. Ces copies permettent de les sélectionner dans l’éditeur ; les originaux utilisés par les archives sont conservés. Importer les nouvelles images dans cette bibliothèque, puis les choisir avec **Select** dans le contenu concerné.
+L’agenda permet de créer et modifier les rendez-vous de la saison :
 
-## Modifier les informations pratiques
+- Le type d’activité détermine la couleur et le filtre du calendrier.
+- La date de fin, facultative, désigne le dernier jour inclus d’un événement sur plusieurs jours.
+- Les statuts sont **Prévu**, **Confirmé** et **À confirmer**.
+- Les heures sont saisies à l’heure de Paris. Laisser vide une heure inconnue ; ne pas inventer d’heure de fin.
+- Les dates doivent se situer dans les limites de la saison.
 
-Dans **Le site et l’agenda**, modifier les coordonnées, la saison, le programme, les événements, la présentation, les récits mis en avant ou les questions fréquentes.
+Les créneaux habituels du mardi et du jeudi restent sans date. Ils donnent une fréquence indicative et ne créent pas automatiquement de séances. Un jour férié est un repère du calendrier ; il ne signifie pas à lui seul que le club est fermé.
 
-## Modifier le planning
+Le calendrier public conserve ses vues, ses filtres et ses exports `.ics`. Ces exports sont des imports ponctuels dans les agendas personnels, sans synchronisation automatique des changements ultérieurs.
 
-Le lien **L’agenda** ouvre [le calendrier du club](https://durstyone.github.io/Hippocampes/agenda/), avec une vue **Mois**, une vue **Agenda**, une recherche et des filtres par activité. L’accueil présente les deux créneaux habituels et les trois prochains événements du club, selon la date à Paris ; les jours fériés restent dans le calendrier complet.
+## Présentation, coordonnées, saison et FAQ
 
-Dans **Le site et l’agenda → Agenda**, ouvrir ou ajouter un événement :
+La rubrique du club permet de modifier les paragraphes de présentation, les coordonnées, l’adresse, les jours et horaires d’entraînement, la saison et les questions fréquentes. Les champs non modifiés sont conservés.
 
-- Renseigner le titre, le type d’activité et **Couleur et filtre du calendrier**.
-- Indiquer la **Date de début**. Pour plusieurs jours, **Date de fin, jour inclus** correspond au dernier jour de l’événement ; la laisser vide pour une seule journée.
-- Choisir **Prévu**, **Confirmé** ou **À confirmer**. Les dates rouges du programme d’origine restent **À confirmer** tant que le club ne les a pas validées.
-- Saisir uniquement les heures connues, au format `HH:MM`, à l’heure de Paris. Une heure de fin est facultative. Si l’horaire reste inconnu, laisser les heures vides et préciser « Horaire à préciser ».
-- Compléter la description, le lieu s’il est connu et, si disponible, le lien vers l’annonce du club.
+L’ensemble de ces informations et l’agenda utilisent `github-pages/content/site-settings.json`. Les mêmes validations s’appliquent dans l’administration et lors de la construction du site.
 
-Les créneaux habituels du mardi et du jeudi conservent une date vide : ils sont affichés comme repères, sans générer automatiquement des séances. Un jour férié n’indique pas à lui seul que le club est fermé. Les dates des événements doivent rester comprises dans les dates de la saison.
+## Enregistrement et publication
 
-Le **planning d’origine** reste accessible en bas du calendrier. La reprise utilise [l’annonce de septembre 2026](https://les-hippocampes-du-robec.over-blog.com/2026/09/bonne-reprise-pour-notre-club-et-agenda-2026/2027.html), qui confirme notamment Conflans au **11 avril 2027** et l’AG du **17 octobre 2026 à 19 h 30**.
+Enregistrer crée un commit GitHub avec les fichiers concernés. Les images et leurs données peuvent être enregistrées ensemble dans un même commit. Le client vérifie les versions des fichiers avant d’écrire : si quelqu’un a modifié le même contenu entre-temps, il signale le conflit et conserve la saisie au lieu d’écraser cette modification.
 
-### Ajouter les dates à un agenda personnel
+**Enregistré sur GitHub** et **publié sur le site** correspondent à deux étapes différentes. GitHub Actions construit puis déploie la nouvelle version. Une réussite de l’étape **deploy** confirme sa publication. En cas d’échec, la dernière version correctement déployée reste accessible ; le contenu signalé doit être corrigé avant une nouvelle publication.
 
-Un événement, le mois affiché ou toute la saison peuvent être téléchargés au format `.ics`, puis importés dans Google Agenda, Apple Calendrier ou Outlook. L’export du mois comprend toutes ses dates, même les catégories masquées à l’écran. Les créneaux sans date ne sont pas exportés ; sans horaire connu, le fichier conserve un repère à la journée.
+Les changements saisis dans un formulaire mais non enregistrés restent dans l’onglet. Ils ne sont pas des brouillons sauvegardés sur GitHub. Le dépôt ne gère pas de brouillon privé : son contenu est public.
 
-Il s’agit d’un import ponctuel : les modifications ultérieures du site ne sont pas synchronisées automatiquement dans l’agenda personnel.
+## Pages CMS reste disponible
 
-## Vérifier une publication
+L’[éditeur Pages CMS existant](https://app.pagescms.org/durstyone/hippocampes/main/file/site) reste un autre moyen de modifier les mêmes contenus. Il utilise sa propre connexion GitHub et sa configuration `.pages.yml`. Les modifications effectuées dans l’un des éditeurs doivent être rechargées dans l’autre avant de poursuivre sur le même fichier.
 
-Après l’enregistrement, GitHub Actions contrôle les données et construit le site. Le lien **Suivre une publication** permet de voir sa progression. Une réussite du travail **deploy** confirme la mise en ligne ; en cas d’échec, la dernière version correctement déployée reste accessible. Corriger le contenu signalé puis enregistrer de nouveau.
+## Périmètre de cette administration
 
-## Périmètre public de l’administration
+Cette interface administre les **contenus publics du site**. Le dépôt est public : toute donnée enregistrée dans ses fichiers est visible dans GitHub, même avant le déploiement du site.
 
-Le dépôt est public. Les textes et les images enregistrés dans l’éditeur sont donc visibles dans GitHub, même avant leur apparition sur le site. Les coordonnées des adhérents, les certificats, les paiements et les documents confidentiels restent hors de ce dépôt.
+Les fonctions privées de l’ancien espace club — adhérents, paiements, inscriptions, palanquées, matériel, certificats et documents confidentiels — ne sont pas migrées dans cette version. Elles nécessitent un stockage privé et des contrôles d’accès adaptés. Ne pas enregistrer ces informations dans les contenus publics.
 
-Cette version ne contient pas de base adhérents ni de gestion des paiements. Les
-droits de modification du site sont ceux accordés sur GitHub au dépôt du club.
-
-Références : [démarrage de Pages CMS](https://pagescms.org/docs/quick-start/), [configuration](https://pagescms.org/docs/configuration/), [médias](https://pagescms.org/docs/configuration/media/).
+Références officielles : [jetons personnels GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), [API GitHub et requêtes depuis le navigateur](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests), [configuration de Pages CMS](https://pagescms.org/docs/configuration/).
