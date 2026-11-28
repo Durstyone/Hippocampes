@@ -10,10 +10,16 @@ const fixture = { title: 'Une plongée à Darnétal', date: '2026-11-28', excerp
 const png = 'iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAQAAAC1HAwCAAAAC0lEQVR42mP8/x8AAwMCAO+aP1cAAAAASUVORK5CYII=';
 const newsPath = 'github-pages/content/news/sortie.json';
 const imagePath = 'public/images/publications/une-sortie.png';
+const existingPdfPath = 'public/documents/fichiers/dossier-existant.pdf';
+const newPdfPath = 'public/documents/fichiers/dossier-renouvele.pdf';
+const documentPath = 'github-pages/content/documents/dossier-adhesion.json';
+const newDocumentPath = 'github-pages/content/documents/dossier-renouvele.json';
+const documentFixture = { title: 'Dossier d’adhésion — apnée', description: 'Formulaire vierge à imprimer.', category: 'adhesion', season: '2026–2027', url: existingPdfPath.slice(6), date: '', format: 'pdf', order: 10 };
+const pdf = (await readFile(new URL('../public/media/archive/1eddff43697a4fd88c8bc87a.pdf', import.meta.url))).toString('base64');
 const headers = { 'Content-Type': 'application/json' };
 function result(value, status = 200, otherHeaders = {}) { return new Response(JSON.stringify(value), { status, headers: { ...headers, ...otherHeaders } }); }
 
-function backend({ changedNews = false, unrelatedUpdate = false, racingUpdate = false, errorStatus = 0, permissions = { push: true }, login = 'Durstyone' } = {}) {
+function backend({ changedNews = false, unrelatedUpdate = false, racingUpdate = false, errorStatus = 0, permissions = { push: true }, login = 'Durstyone', credential = token, withDocument = false } = {}) {
   const calls = [];
   let reads = 0;
   let current = false;
@@ -21,6 +27,11 @@ function backend({ changedNews = false, unrelatedUpdate = false, racingUpdate = 
   const entries = [
     { path: ADMIN_SETTINGS_PATH, sha: sha(3), type: 'blob', mode: '100644' },
     { path: newsPath, sha: sha(4), type: 'blob', mode: '100644' },
+    ...(withDocument ? [
+      { path: documentPath, sha: sha(5), type: 'blob', mode: '100644' },
+      { path: existingPdfPath, sha: sha(6), type: 'blob', mode: '100644', size: Buffer.from(pdf, 'base64').byteLength },
+      { path: 'public/media/archive/formulaire-source.pdf', sha: sha(7), type: 'blob', mode: '100644', size: Buffer.from(pdf, 'base64').byteLength },
+    ] : []),
     ...[...mediaPaths].map((path, i) => ({ path: 'public' + path, sha: sha(100 + i), type: 'blob', mode: '100644', size: 100 })),
   ];
   const fetcher = async (url, options) => {
@@ -29,8 +40,8 @@ function backend({ changedNews = false, unrelatedUpdate = false, racingUpdate = 
     assert.equal(options.cache, 'no-store');
     assert.equal(options.referrerPolicy, 'no-referrer');
     assert.equal(options.redirect, 'error');
-    assert.equal(options.headers.Authorization, `Bearer ${token}`);
-    assert.ok(!String(url).includes(token));
+    assert.equal(options.headers.Authorization, `Bearer ${credential}`);
+    assert.ok(!String(url).includes(credential));
     const method = options.method;
     const path = new URL(url).pathname;
     const body = options.body ? JSON.parse(options.body) : undefined;
@@ -42,7 +53,7 @@ function backend({ changedNews = false, unrelatedUpdate = false, racingUpdate = 
     if (method === 'GET' && /\/git\/commits\//.test(path)) return result({ tree: { sha: sha(current && unrelatedUpdate ? 22 : 2) } });
     if (method === 'GET' && /\/git\/trees\//.test(path)) return result({ truncated: false, tree: entries.map(item => item.path === newsPath && current && changedNews ? { ...item, sha: sha(44) } : item) });
     if (method === 'GET' && /\/git\/blobs\//.test(path)) {
-      const value = path.endsWith(sha(3)) ? settings : fixture;
+      const value = path.endsWith(sha(3)) ? settings : path.endsWith(sha(5)) && withDocument ? documentFixture : fixture;
       const bytes = Buffer.from(JSON.stringify(value));
       return result({ encoding: 'base64', size: bytes.byteLength, content: bytes.toString('base64') });
     }
@@ -145,4 +156,93 @@ assert.throws(() => validateAdminPhoto({ title: 'Photo', image: '/images/publica
   await assert.rejects(() => new GitHubAdminClient(token, unknownAccount.fetcher).connect(), error => error.code === 'permission');
 }
 
-console.log('GitHub admin: validation, restricted paths, UTF-8, atomic publication, conflict protection, raster checks and credential cleanup passed. No network or repository writes.');
+{
+  const api = backend({ withDocument: true, unrelatedUpdate: true });
+  const client = new GitHubAdminClient(token, api.fetcher);
+  const snapshot = await client.load();
+  assert.equal(snapshot.documents[0].data.title, documentFixture.title, 'Document titles must retain accented characters.');
+  assert.deepEqual(snapshot.documentFiles.map(file => file.repoPath).sort(), [existingPdfPath, 'public/media/archive/formulaire-source.pdf'].sort());
+  assert.equal(snapshot.documentFiles.find(file => file.repoPath === existingPdfPath).sha, snapshot.fileShas[existingPdfPath]);
+  const saved = await client.commit([
+    { path: newPdfPath, content: pdf, encoding: 'base64' },
+    { path: newDocumentPath, content: JSON.stringify({ ...documentFixture, url: newPdfPath.slice(6) }) },
+  ], 'Publier le dossier d’adhésion et son PDF', snapshot);
+  assert.equal(saved.sha, sha(10));
+  const writes = api.writes();
+  assert.equal(writes.filter(call => call.path.endsWith('/git/blobs')).length, 1);
+  const uploadedPdf = writes.find(call => call.path.endsWith('/git/blobs')).body;
+  assert.equal(uploadedPdf.encoding, 'base64');
+  assert.equal(uploadedPdf.content, pdf, 'The public PDF must be uploaded without changing its bytes.');
+  const tree = writes.find(call => call.path.endsWith('/git/trees')).body;
+  assert.equal(tree.base_tree, sha(22), 'A document upload must retain unrelated repository changes.');
+  assert.equal(tree.tree.length, 2);
+  assert.equal(tree.tree.find(item => item.path === newPdfPath).sha, sha(8));
+  assert.deepEqual(JSON.parse(tree.tree.find(item => item.path === newDocumentPath).content), { ...documentFixture, url: newPdfPath.slice(6) });
+  assert.equal(writes.filter(call => call.path.endsWith('/git/commits')).length, 1);
+  assert.equal(writes.filter(call => call.method === 'PATCH').length, 1, 'The PDF and its metadata must become visible in the same branch update.');
+  assert.deepEqual(writes.at(-1).body, { sha: sha(10), force: false });
+  client.destroy();
+}
+
+{
+  const api = backend({ withDocument: true });
+  const client = new GitHubAdminClient(token, api.fetcher);
+  const snapshot = await client.load();
+  const validPdf = { path: newPdfPath, content: pdf, encoding: 'base64' };
+  const metadata = value => ({ path: newDocumentPath, content: JSON.stringify(value) });
+  for (const changes of [
+    [validPdf, metadata({ ...documentFixture, url: newPdfPath.slice(6), memberId: 'private-member' })],
+    [validPdf, metadata({ ...documentFixture, url: newPdfPath.slice(6), privateNotes: 'private-notes' })],
+    [{ ...validPdf, content: Buffer.from('<html>Not a public PDF.</html>').toString('base64') }, metadata({ ...documentFixture, url: newPdfPath.slice(6) })],
+    [metadata({ ...documentFixture, url: '/documents/fichiers/missing.pdf' })],
+    [metadata({ ...documentFixture, url: '/archives/missing/', format: 'page' })],
+    [metadata({ ...documentFixture, url: '/api/files/private.pdf' })],
+  ]) {
+    await assert.rejects(() => client.commit(changes, 'Vérifier un document', snapshot));
+    assert.equal(api.writes().length, 0, 'Invalid metadata or references must prevent even an otherwise valid PDF upload.');
+  }
+  await assert.rejects(() => client.commit([{ path: existingPdfPath, content: null }], 'Retirer un PDF encore utilisé', snapshot), /PDF choisi est absent/);
+  assert.equal(api.writes().length, 0, 'A PDF referenced by an unchanged public document must not be removed.');
+  // Removing the record and its upload together is valid, and remains one reversible Git change.
+  await client.commit([{ path: documentPath, content: null }, { path: existingPdfPath, content: null }], 'Retirer le document et son PDF', snapshot);
+  const deletionTree = api.writes().find(call => call.path.endsWith('/git/trees')).body.tree;
+  assert.deepEqual(deletionTree.map(item => [item.path, item.sha]), [[documentPath, null], [existingPdfPath, null]]);
+  assert.equal(api.writes().filter(call => call.method === 'PATCH').length, 1);
+  client.destroy();
+}
+
+{
+  // Supporting documents must not widen the public editor into code, archives or private member records.
+  const api = backend({ withDocument: true });
+  const client = new GitHubAdminClient(token, api.fetcher);
+  const snapshot = await client.load();
+  for (const path of [
+    '.github/workflows/pages.yml', 'club/members.json', 'club/documents.json',
+    'public/content/entries/members.json', 'public/media/archive/formulaire-source.pdf',
+    'public/documents/fichiers/../private.pdf', 'public/documents/fichiers/subfolder/document.pdf',
+    'public/documents/fichiers/' + 'a'.repeat(177) + '.pdf',
+    'github-pages/content/documents/nom.ambigu.json', 'github-pages/content/documents/' + 'a'.repeat(161) + '.json',
+  ]) {
+    await assert.rejects(() => client.commit([{ path, content: path.endsWith('.pdf') ? pdf : JSON.stringify(documentFixture), encoding: path.endsWith('.pdf') ? 'base64' : 'utf-8' }], 'Vérifier le périmètre', snapshot));
+    assert.equal(api.writes().length, 0, `A protected path must be rejected before any upload: ${path}`);
+  }
+  client.destroy();
+}
+
+{
+  const classicToken = 'ghp_' + 'TestOnly123'.repeat(4);
+  const api = backend({ credential: classicToken, withDocument: true, login: 'ClubEditor', permissions: { push: true } });
+  const client = new GitHubAdminClient(classicToken, api.fetcher);
+  assert.equal((await client.connect()).login, 'ClubEditor', 'A collaborator with verified push permission can use a classic token.');
+  const snapshot = await client.load();
+  await client.commit([{ path: documentPath, content: JSON.stringify({ ...documentFixture, description: 'Description modifiée par le responsable.' }) }], 'Modifier le document du club', snapshot);
+  assert.ok(api.calls.every(call => call.path === '/user' || call.path === '/repos/Durstyone/Hippocampes' || call.path.startsWith('/repos/Durstyone/Hippocampes/')), 'A classic token must not change the destination repository.');
+  client.destroy();
+  for (const permissions of [null, { push: false }, { push: 'true' }]) {
+    const denied = backend({ credential: classicToken, login: 'ClubEditor', permissions });
+    await assert.rejects(() => new GitHubAdminClient(classicToken, denied.fetcher).connect(), error => error.code === 'permission');
+    assert.equal(denied.writes().length, 0, 'Accepting classic tokens must not bypass the repository permission check.');
+  }
+}
+
+console.log('GitHub admin: content validation, confined paths, UTF-8, atomic image/PDF publication, document references, conflict protection, collaborator permissions and credential cleanup passed. No network or repository writes.');

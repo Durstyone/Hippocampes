@@ -1,11 +1,14 @@
 import { lstat, readFile, readdir } from 'node:fs/promises';
 import { dirname, extname, relative, resolve, sep } from 'node:path';
+import { MAX_PUBLIC_PDF_BYTES, validatePublicDocument, validatePublicPdf } from '../lib/public-documents.mjs';
 
 export const CMS_IMAGE_DIRECTORY = '/images/publications/';
 export const CMS_MAX_IMAGE_BYTES = 5 * 1024 * 1024;
 const imageExtensions = new Set(['.jpg', '.jpeg', '.png', '.webp', '.gif']);
 const safeSegment = /^[A-Za-z0-9][A-Za-z0-9._~-]*$/;
 const safeId = /^[A-Za-z0-9][A-Za-z0-9._~-]{0,219}$/;
+const safeDocumentId = /^[A-Za-z0-9][A-Za-z0-9_-]{0,159}$/;
+const safePdfName = /^[A-Za-z0-9][A-Za-z0-9_-]*\.pdf$/;
 
 async function existingStat(path) {
   try { return await lstat(path); }
@@ -97,11 +100,59 @@ export async function inspectCmsImages(projectRoot) {
   return result;
 }
 
+export async function inspectLocalPdf(filename) {
+  const details = await lstat(filename);
+  if (details.isSymbolicLink() || !details.isFile()) throw new Error(`Un PDF doit être un fichier ordinaire, sans lien symbolique : ${filename}`);
+  if (!details.size || details.size > MAX_PUBLIC_PDF_BYTES) throw new Error(`Chaque PDF public doit peser entre 1 octet et 5 Mio : ${filename}`);
+  if (extname(filename) !== '.pdf') throw new Error(`Extension PDF invalide : ${filename}`);
+  validatePublicPdf(await readFile(filename));
+  return { bytes: details.size, format: 'pdf' };
+}
+
+/** Only verified public PDFs enter the export; member attachments use a different repository. */
+export async function inspectCmsDocuments(projectRoot) {
+  const publicDir = resolve(projectRoot, 'public');
+  const result = new Map();
+  if (!(await requireRealDirectory(publicDir))) return result;
+  for (const [parentName, directoryName, uploads] of [['documents', 'fichiers', true], ['media', 'archive', false]]) {
+    const parent = resolve(publicDir, parentName);
+    const directory = resolve(parent, directoryName);
+    if (!(await requireRealDirectory(parent)) || !(await requireRealDirectory(directory))) continue;
+    for (const entry of (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
+      const filename = resolve(directory, entry.name);
+      if (entry.isSymbolicLink()) throw new Error(`Lien symbolique interdit dans les documents publics : ${filename}`);
+      if (uploads && (entry.name === '.gitkeep' || entry.name === 'README.md')) {
+        if (!entry.isFile()) throw new Error(`Fichier de suivi invalide dans les documents : ${entry.name}`);
+        continue;
+      }
+      if (!uploads && extname(entry.name).toLowerCase() !== '.pdf') continue;
+      if (!entry.isFile() || !safePdfName.test(entry.name) || entry.name.length > 180) throw new Error(`Les documents publics doivent être des PDF avec un nom simple, sans sous-dossier : ${entry.name}`);
+      result.set('/' + relative(publicDir, filename).split(sep).join('/'), await inspectLocalPdf(filename));
+    }
+  }
+  return result;
+}
+
+/** Every local document reference must point to something the exporter will actually publish. */
+export function assertPublicDocumentTargets(documents, pdfPaths, archiveIds) {
+  const pdfs = new Set(pdfPaths);
+  const archives = new Set(archiveIds);
+  for (const document of documents) {
+    if (!document.url.startsWith('/')) continue;
+    if (document.format === 'pdf') {
+      if (!pdfs.has(document.url)) throw new Error(`Le PDF public est absent ou non autorisé : ${document.url}`);
+    } else {
+      const id = /^\/archives\/([^/]+)\/$/.exec(document.url)?.[1];
+      if (!id || !archives.has(id)) throw new Error(`La page du document n’existe pas dans les archives : ${document.url}`);
+    }
+  }
+}
+
 /** CMS collections are public and flat. Unknown/private properties never enter the public feed. */
 export async function readCmsCollection(projectRoot, name) {
-  if (!['news', 'photos'].includes(name)) throw new Error('Collection CMS inconnue.');
+  if (!['news', 'photos', 'documents'].includes(name)) throw new Error('Collection CMS inconnue.');
   const directory = resolve(projectRoot, 'github-pages/content', name);
-  if (!(await requireRealDirectory(dirname(directory))) || !(await requireRealDirectory(directory))) return [];
+  if (!(await requireRealDirectory(resolve(projectRoot, 'github-pages'))) || !(await requireRealDirectory(dirname(directory))) || !(await requireRealDirectory(directory))) return [];
   const result = [];
   for (const entry of (await readdir(directory, { withFileTypes: true })).sort((a, b) => a.name.localeCompare(b.name))) {
     if (entry.name === '.gitkeep' || entry.name === 'README.md') {
@@ -111,6 +162,7 @@ export async function readCmsCollection(projectRoot, name) {
     if (!entry.isFile() || entry.isSymbolicLink() || !entry.name.endsWith('.json')) throw new Error(`La collection ${name} doit contenir uniquement des fichiers JSON, sans sous-dossier ni lien symbolique.`);
     const id = entry.name.slice(0, -5);
     if (!safeId.test(id) || id === '.' || id === '..') throw new Error(`Nom de publication invalide : ${name}/${entry.name}`);
+    if (name === 'documents' && !safeDocumentId.test(id)) throw new Error(`Identifiant de document invalide : ${entry.name}`);
     const filename = resolve(directory, entry.name);
     if ((await lstat(filename)).size > 512 * 1024) throw new Error(`Publication trop volumineuse : ${name}/${entry.name}`);
     let item;
@@ -118,7 +170,7 @@ export async function readCmsCollection(projectRoot, name) {
     catch { throw new Error(`Publication JSON invalide : ${name}/${entry.name}`); }
     if (!item || typeof item !== 'object' || Array.isArray(item)) throw new Error(`La publication doit être un objet : ${name}/${entry.name}`);
     if (item.published === false) throw new Error(`Les brouillons privés ne doivent pas être enregistrés dans ce dépôt public : ${name}/${entry.name}`);
-    result.push({ ...item, id });
+    result.push({ ...(name === 'documents' ? validatePublicDocument(item) : item), id });
   }
   return result;
 }

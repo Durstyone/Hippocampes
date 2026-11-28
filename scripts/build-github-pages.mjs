@@ -5,7 +5,7 @@ import { existsSync } from 'node:fs';
 import { createHash } from 'node:crypto';
 import { basename, dirname, extname, relative, resolve, sep } from 'node:path';
 import { domainToASCII, fileURLToPath } from 'node:url';
-import { inspectCmsImages, inspectLocalRaster, readCmsCollection } from './cms-content.mjs';
+import { assertPublicDocumentTargets, inspectCmsDocuments, inspectCmsImages, inspectLocalRaster, readCmsCollection } from './cms-content.mjs';
 import { validateSiteSettings } from '../lib/public-site-settings.mjs';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
@@ -106,6 +106,7 @@ const clubUrl = httpsUrl(process.env.PAGES_CLUB_URL || config.clubUrl || '', 'cl
 const mediaFiles = (await Promise.all(['images', 'media/archive'].map(path => filesIn(resolve(publicDir, path))))).flat().filter(filename => imagePattern.test(filename) || videoPattern.test(filename));
 const mediaPaths = new Set(mediaFiles.map(asPublicPath));
 const cmsImages = await inspectCmsImages(project);
+const publicPdfs = await inspectCmsDocuments(project);
 const inventoryFile = resolve(project, 'github-pages/media-inventory.json');
 if (!existsSync(inventoryFile)) throw new Error('Conservez github-pages/media-inventory.json : il décrit aussi les médias hébergés ailleurs.');
 {
@@ -245,6 +246,9 @@ const photos = [...cmsPhotos, ...rawMedia.photos].map((photo, i) => {
 });
 if (new Set(photos.map(photo => photo.id)).size !== photos.length) throw new Error('Les identifiants de la photothèque doivent être uniques.');
 
+const cmsDocuments = await readCmsCollection(project, 'documents');
+const documents = [...cmsDocuments].sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, 'fr'));
+
 const archiveIndex = object(await readJson(resolve(publicDir, 'content/archive-index.json')), 'archive-index.json');
 if (!Array.isArray(archiveIndex.entries)) throw new Error('L’index des archives est invalide.');
 const archiveEntries = [];
@@ -256,6 +260,7 @@ for (const entry of archiveIndex.entries) {
   archiveEntries.push({ id, title: textValue(entry.title, `archive ${id}.title`, { limit: 5000 }), filename });
 }
 if (new Set(archiveEntries.map(entry => entry.id)).size !== archiveEntries.length) throw new Error('L’index des archives contient des identifiants en double.');
+assertPublicDocumentTargets(documents, publicPdfs.keys(), archiveEntries.map(entry => entry.id));
 
 await mkdir(outputs, { recursive: true });
 await rm(staging, { recursive: true, force: true });
@@ -278,10 +283,15 @@ await cp(resolve(publicDir, 'favicon.svg'), resolve(www, 'favicon.svg'));
 await cp(resolve(publicDir, 'content/archive-index.json'), resolve(www, 'content/archive-index.json'));
 for (const entry of archiveEntries) await cp(entry.filename, resolve(www, 'content/entries', entry.id + '.json'));
 for (const filename of await filesIn(resolve(publicDir, 'media/archive'))) {
-  if (!['.pdf', '.ics'].includes(extname(filename).toLowerCase())) continue;
+  if (extname(filename).toLowerCase() !== '.ics') continue;
   const target = resolve(www, relative(publicDir, filename));
   await mkdir(dirname(target), { recursive: true });
   await cp(filename, target);
+}
+for (const path of publicPdfs.keys()) {
+  const target = resolve(www, '.' + path);
+  await mkdir(dirname(target), { recursive: true });
+  await cp(resolve(publicDir, '.' + path), target);
 }
 for (const filename of await filesIn(resolve(publicDir, 'images'))) {
   if (extname(filename).toLowerCase() !== '.svg') continue;
@@ -301,6 +311,7 @@ if (preview) {
 }
 await writeFile(resolve(www, 'content/public-club.json'), JSON.stringify({ news }, null, 2) + '\n');
 await writeFile(resolve(www, 'content/public-media.json'), JSON.stringify({ photos }, null, 2) + '\n');
+await writeFile(resolve(www, 'content/public-documents.json'), JSON.stringify({ documents }, null, 2) + '\n');
 
 // This snapshot contains only the public, editable content already checked
 // above. It lets the administration display its lists without an API token.
@@ -324,14 +335,19 @@ const settingsPath = 'github-pages/content/site-settings.json';
 const { sha: settingsSha } = await adminSource(settingsPath);
 const adminNews = await adminCollection('news', cmsNews, ['title', 'date', 'excerpt', 'body', 'image', 'url']);
 const adminPhotos = await adminCollection('photos', rawCmsPhotos, ['title', 'image', 'alt', 'album', 'date', 'description', 'credit', 'order']);
+const adminDocuments = await adminCollection('documents', cmsDocuments, ['title', 'description', 'category', 'season', 'url', 'date', 'format', 'order']);
 const adminMedia = await Promise.all(mediaFiles.filter(filename => localMedia.has(asPublicPath(filename)) && /\.(?:jpe?g|png|webp|gif)$/i.test(filename)).map(async filename => {
   const path = asPublicPath(filename);
   const repoPath = 'public' + path;
   return { path, repoPath, ...(await adminSource(repoPath)), name: basename(filename) };
 }));
+const adminDocumentFiles = await Promise.all([...publicPdfs.keys()].map(async path => {
+  const repoPath = 'public' + path;
+  return { path, repoPath, ...(await adminSource(repoPath)), name: basename(path) };
+}));
 await writeFile(resolve(www, 'content/admin-content.json'), JSON.stringify({
   headSha: '', treeSha: '', settings: siteSettings, settingsSha,
-  news: adminNews, photos: adminPhotos, media: adminMedia, fileShas: adminFileShas,
+  news: adminNews, photos: adminPhotos, documents: adminDocuments, media: adminMedia, documentFiles: adminDocumentFiles, fileShas: adminFileShas,
 }, null, 2) + '\n');
 await writeFile(resolve(www, '.nojekyll'), '');
 if (domain && !preview) await writeFile(resolve(www, 'CNAME'), domain + '\n');
@@ -347,6 +363,7 @@ const routeRecords = [
   { path: '/archives/', title: 'Les archives — Les Hippocampes du Robec' },
   { path: '/actualites/', title: 'Les actualités — Les Hippocampes du Robec' },
   { path: '/agenda/', title: `Agenda ${siteSettings.season.name} — Les Hippocampes du Robec`, description: `Le calendrier ${siteSettings.season.name} des Hippocampes du Robec : entraînements, formations, sorties et vie du club. Consultez les dates et ajoutez les rendez-vous à votre agenda.` },
+  { path: '/documents/', title: 'Documents — Les Hippocampes du Robec', description: `Les documents des Hippocampes du Robec : dossier d’adhésion ${siteSettings.season.name} à télécharger, règlement intérieur, statuts et ressources du club.` },
   { path: '/admin/', title: 'Administration — Les Hippocampes du Robec', noindex: true },
   ...archiveEntries.map(entry => ({ path: '/archives/' + entry.id + '/', title: entry.title + ' — Les Hippocampes du Robec' })),
   ...news.map(item => ({ path: '/actualites/' + item.id + '/', title: item.title + ' — Les Hippocampes du Robec' })),
@@ -370,6 +387,10 @@ if (siteUrl && !preview) {
 } else await writeFile(resolve(www, 'robots.txt'), preview ? 'User-agent: *\nDisallow: /\n' : 'User-agent: *\nAllow: /\n');
 
 const outputFiles = await filesIn(www);
+for (const filename of outputFiles) {
+  const path = relative(www, filename).split(sep).join('/');
+  if (/^(?:club|data|private|members)\/|(?:^|\/)(?:members|club-records|club-documents|private-members|private-documents)\.json$/i.test(path)) throw new Error(`Donnée privée interdite dans la publication : ${path}`);
+}
 const publishedMedia = outputFiles.filter(filename => imagePattern.test(filename) || videoPattern.test(filename));
 const unexpectedMedia = publishedMedia.filter(filename => !localMedia.has('/' + relative(www, filename).split(sep).join('/')));
 if (!preview && unexpectedMedia.length) throw new Error('L’export de production contient des médias locaux non autorisés. Publication interrompue.');
@@ -388,6 +409,9 @@ await writeFile(resolve(staging, 'BUILD-INFO.json'), JSON.stringify({
   archivedEntries: archiveEntries.length,
   publishedNews: news.length,
   publishedPhotos: photos.length,
+  publishedDocuments: documents.length,
+  publicPdfFiles: publicPdfs.size,
+  publicPdfPaths: [...publicPdfs.keys()].sort(),
   externalMediaFiles: externalMediaPaths.length,
   localMediaFiles: localMedia.size,
   localMediaPaths: [...localMedia].sort(),
