@@ -1,0 +1,114 @@
+.apnea-home{--apnea-ink:#eef7fa;--apnea-muted:#a9c5d4;--apnea-accent:#92d7e9;color:var(--apnea-ink)}
+.apnea-home h1,.apnea-home h2,.apnea-home h3{color:var(--apnea-ink);text-wrap:balance}
+.apnea-home .apnea-kicker{font-size:.875rem;letter-spacing:.14em;font-weight:650;line-height:1.6;color:var(--apnea-accent)}
+.apnea-home-hero{position:relative;min-height:620px;background:linear-gradient(90deg,rgba(3,18,31,.42),transparent 78%)}
+.apnea-home-hero-inner{min-height:620px;display:flex;align-items:center;position:relative;padding-block:76px 112px}
+.apnea-home-hero-copy{max-width:740px}
+.apnea-home-hero h1{font-size:clamp(3.75rem,6.4vw,6rem);letter-spacing:-.055em;line-height:1.02;font-weight:550;margin:28px 0}
+.apnea-home-hero h1 span{color:var(--apnea-accent);font-weight:350}
+.apnea-home .apnea-home-lead{color:#d1e4ec;font-size:1.2rem;line-height:1.8;margin:0}
+.apnea-home-actions{display:flex;gap:14px;flex-wrap:wrap;margin-top:34px}
+.apnea-home-button{display:inline-flex;align-items:center;justify-content:center;gap:10px;min-height:52px;padding:14px 23px;border:1px solid rgba(146,215,233,.43);border-radius:5px;color:var(--apnea-ink);background:rgba(4,28,44,.48);font-size:1rem;font-weight:650;line-height:1.4;transition:background .2s,border-color .2s}
+.apnea-home-button:hover{background:#123e54;border-color:var(--apnea-accent)}
+.apnea-home .apnea-home-button-primary{background:var(--apnea-accent);border-color:var(--apnea-accent);color:#052333}
+.apnea-home .apnea-home-button-primary:hover{background:#c1ecf6;border-color:#c1ecf6}
+.apnea-home-hero-note{position:absolute;bottom:30px;right:0;display:flex;flex-direction:column;gap:7px;border-left:1px solid rgba(146,215,233,.45);padding-left:18px;font-size:.875rem;color:var(--apnea-muted)}
+.apnea-home-hero-note strong{color:var(--apnea-ink);font-size:1rem;font-weight:500}
+.apnea-home-meeting{border-block:1px solid rgba(146,215,233,.2);background:rgba(3,20,33,.8)}
+.apnea-home-meeting>.site-container{display:flex;gap:22px;align-items:center;justify-content:space-between;min-height:76px;padding-block:18px}
+.apnea-home-meeting p{display:flex;align-items:center;gap:10px;font-size:1rem;color:var(--apnea-muted)}
+.apnea-home-meeting p:first-child{color:var(--apnea-ink)}
+.apnea-home-meeting a{color:var(--apnea-accent);font-size:.9375rem;text-decoration:underline;text-underline-offset:5px}
+.apnea-home-section{padding-block:86px}
+.apnea-home h2{font-size:clamp(2.15rem,3.5vw,3.4rem);letter-spacing:-.04em;line-height:1.12;font-weight:500;margin-top:18px}
+.apnea-home h2 span{color:var(--apnea-muted)}
+.apnea-home-intro{display:grid;grid-template-columns:.9fr 1.1fr;gap:80px;align-items:center}
+.apnea-home-intro>div>p:not(.apnea-kicker){font-size:1.0625rem;line-height:1.85;color:var(--apnea-muted);margin:26px 0}
+.apnea-home-intro figure{margin:0;min-width:0}
+.apnea-home-intro img{display:block;width:100%;aspect-ratio:4/3;height:auto;object-fit:cover;border-radius:5px}
+.apnea-home-intro figcaption{font-size:.875rem;color:var(--apnea-muted);line-height:1.6;margin-top:12px}
+.apnea-home-text-link{display:inline-block;color:var(--apnea-accent);font-size:1rem;line-height:1.6;font-weight:600;text-decoration:underline;text-decoration-color:rgba(146,215,233,.5);text-underline-offset:6px}
+.apnea-home-text-link:hover{text-decoration-color:currentColor;color:#d6f5fc}
+.apnea-home-section-heading{display:flex;gap:30px;align-items:flex-end;justify-content:space-between;margin-bottom:42px}
+.apnea-home-section-heading>.apnea-home-text-link{flex-shrink:0}
+.apnea-home-practices{padding-top:12px}
+.apnea-home-practice-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:36px}
+.apnea-home-practice{border-top:1px solid rgba(146,215,233,.34);padding-top:27px;display:flex;flex-direction:column;align-items:flex-start}
+.apnea-home-practice>p{font-size:.875rem;color:var(--apnea-accent);line-height:1.6}
+.apnea-home-practice>h3{font-size:1.65rem;font-weight:550;letter-spacing:-.025em;line-height:1.2;margin:12px 0 17px}
+.apnea-home-practice>span{font-size:1rem;line-height:1.8;color:var(--apnea-muted);margin-bottom:22px;max-width:36ch}
+.apnea-home-practice>strong{font-size:.9375rem;font-weight:600;color:var(--apnea-accent);margin-top:auto;border-bottom:1px solid transparent;padding-bottom:4px}
+.apnea-home-practice:hover>strong{border-color:currentColor}
+.apnea-home-rendezvous{background:rgba(5,27,43,.85);border-block:1px solid rgba(146,215,233,.18);padding-block:70px}
+.apnea-home-agenda-grid{display:grid;grid-template-columns:.85fr 1.15fr;gap:90px;align-items:start}
+.apnea-home-agenda-grid>div>p:not(.apnea-kicker){font-size:1rem;line-height:1.8;color:var(--apnea-muted);margin:23px 0 28px}
+.apnea-home-events{border-top:1px solid rgba(146,215,233,.23)}
+.apnea-home-event{display:grid;grid-template-columns:82px minmax(0,1fr);gap:25px;padding:25px 0;border-bottom:1px solid rgba(146,215,233,.23)}
+.apnea-home-event time{display:flex;flex-direction:column;gap:7px;text-align:center;justify-content:center}
+.apnea-home-event time strong{font-size:2.4rem;font-weight:400;line-height:1;color:var(--apnea-accent)}
+.apnea-home-event time span{font-size:.875rem;line-height:1.5;color:var(--apnea-muted)}
+.apnea-home-event>div>p{font-size:.875rem;color:var(--apnea-accent);display:flex;gap:10px;align-items:center;flex-wrap:wrap;margin-bottom:6px}
+.apnea-home-event h3{font-size:1.125rem;font-weight:600;line-height:1.45;margin-bottom:6px}
+.apnea-home-event>div>span{font-size:.9375rem;color:var(--apnea-muted);line-height:1.5}
+.apnea-home-event:hover h3{color:var(--apnea-accent)}
+.apnea-home-tentative{font-size:.875rem;padding:2px 6px;border:1px solid rgba(146,215,233,.35);border-radius:4px;color:var(--apnea-muted)}
+.apnea-home-news-grid{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:30px}
+.apnea-home-news-story{min-width:0;display:flex;flex-direction:column;align-items:flex-start}
+.apnea-home-news-image{width:100%;aspect-ratio:3/2;overflow:hidden;background:#082638;display:grid;place-items:center;border-radius:5px;color:var(--apnea-accent)}
+.apnea-home-news-image img{width:100%;height:100%;object-fit:cover;transition:transform .3s}
+.apnea-home-news-story:hover img{transform:scale(1.025)}
+.apnea-home-story-meta{font-size:.875rem;color:var(--apnea-accent);line-height:1.6;margin-top:18px}
+.apnea-home-news-story h3{font-size:1.375rem;line-height:1.35;font-weight:550;letter-spacing:-.025em;margin:12px 0}
+.apnea-home-news-story>p:not(.apnea-home-story-meta){font-size:1rem;color:var(--apnea-muted);line-height:1.75;margin-bottom:22px}
+.apnea-home-news-story>.apnea-home-text-link{margin-top:auto;font-size:.9375rem}
+.apnea-home-invitation{display:flex;justify-content:space-between;align-items:center;gap:35px;border-top:1px solid rgba(146,215,233,.3);padding-block:45px 75px}
+.apnea-home-invitation h2{font-size:clamp(2rem,3.2vw,2.8rem);margin-top:12px}
+.apnea-home-invitation p:not(.apnea-kicker){font-size:1rem;line-height:1.8;color:var(--apnea-muted);margin-top:16px}
+.apnea-home-invitation>.apnea-home-button{flex-shrink:0}
+.apnea-home a:focus-visible{outline:2px solid var(--apnea-accent);outline-offset:6px}
+.apnea-home .site-info-dialog .apnea-kicker{color:#176378}
+.apnea-home .site-info-dialog a{text-decoration:underline;text-underline-offset:4px}
+@media(max-width:1100px){.apnea-home-intro,.apnea-home-agenda-grid{gap:46px}.apnea-home-hero h1{font-size:clamp(3.4rem,7vw,5.2rem)}.apnea-home-news-grid{gap:22px}.apnea-home-section{padding-block:65px}.apnea-home-practices{padding-top:8px}}
+@media(max-width:850px){.apnea-home-intro{grid-template-columns:1fr;gap:30px}.apnea-home-intro>div{max-width:620px}.apnea-home-intro img{aspect-ratio:16/9}.apnea-home-practice-grid{gap:24px}.apnea-home-practice>h3{font-size:1.35rem}.apnea-home-agenda-grid{grid-template-columns:1fr;gap:35px}.apnea-home-agenda-grid>div:first-child{max-width:620px}.apnea-home-news-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.apnea-home-news-story:last-child{grid-column:1/-1;display:grid;grid-template-columns:1fr 1fr;gap:0 25px}.apnea-home-news-story:last-child>.apnea-home-news-image{grid-column:1;grid-row:1/5;align-self:start}.apnea-home-news-story:last-child>.apnea-home-story-meta{margin-top:0}.apnea-home-invitation{align-items:flex-start;flex-direction:column}.apnea-home-meeting>.site-container{flex-wrap:wrap;gap:10px 25px}.apnea-home-meeting a{width:100%}}
+@media(max-width:640px){.apnea-home-hero,.apnea-home-hero-inner{min-height:570px}.apnea-home-hero-inner{padding-block:55px 100px}.apnea-home-hero h1{font-size:clamp(2.8rem,11.5vw,4rem);letter-spacing:-.05em;margin-block:24px}.apnea-home .apnea-kicker{font-size:.8125rem;letter-spacing:.1em}.apnea-home .apnea-home-lead{font-size:1.0625rem}.apnea-desktop-break{display:none}.apnea-home-actions{gap:10px;margin-top:27px}.apnea-home-button{font-size:.9375rem;padding:13px 18px;min-height:48px}.apnea-home-hero-note{right:auto;left:0;bottom:26px}.apnea-home-hero-note span{font-size:.8125rem}.apnea-home-hero-note strong{font-size:.9375rem}.apnea-home-section{padding-block:48px}.apnea-home h2{font-size:2.1rem;line-height:1.15}.apnea-home-section-heading{align-items:flex-start;flex-direction:column;gap:20px;margin-bottom:30px}.apnea-home-intro{gap:26px}.apnea-home-intro img{aspect-ratio:4/3}.apnea-home-practices{padding-top:0}.apnea-home-practice-grid{grid-template-columns:1fr;gap:28px}.apnea-home-practice{padding-top:22px}.apnea-home-practice>h3{font-size:1.6rem}.apnea-home-practice>span{max-width:none;margin-bottom:15px}.apnea-home-rendezvous{padding-block:42px}.apnea-home-event{grid-template-columns:66px minmax(0,1fr);gap:17px;padding-block:22px}.apnea-home-event time strong{font-size:2rem}.apnea-home-news-grid{grid-template-columns:1fr;gap:38px}.apnea-home-news-story:last-child{display:flex;grid-column:auto}.apnea-home-news-story:last-child>.apnea-home-story-meta{margin-top:18px}.apnea-home-news-story h3{font-size:1.4rem}.apnea-home-invitation{padding-block:35px 48px;gap:25px}.apnea-home-meeting p{font-size:.9375rem}.apnea-home-meeting>.site-container{gap:9px;padding-block:18px}.apnea-home-meeting p,.apnea-home-meeting a{width:100%}.apnea-home-meeting a{font-size:.875rem}}
+@media(prefers-reduced-motion:reduce){.apnea-home *{transition:none!important}}
+
+/* Each publication page keeps its own rhythm: a journal for recent stories,
+   a quieter catalogue for the club's memory. */
+.apnea-news .archive-hero{padding-block:68px 64px}
+.apnea-news .archive-hero h1{font-size:clamp(3rem,5vw,4.7rem);line-height:1.08;letter-spacing:-.045em;font-weight:500}
+.apnea-news .archive-hero-copy>p{max-width:620px;font-size:1.125rem;line-height:1.8}
+.apnea-journal-aside{border-left:1px solid rgba(146,215,233,.4);padding-left:30px;min-width:250px}
+.apnea-journal-aside>span{font-size:.8125rem;letter-spacing:.12em;color:#92d7e9;line-height:1.5}
+.apnea-journal-aside>p{font-size:1.6rem;font-weight:350;line-height:1.6;color:#c5dfeb;margin-top:20px}
+.apnea-journal-aside strong{font-weight:500;color:#eef7fa}
+.apnea-news .news-section-heading{align-items:flex-end}
+.apnea-news .news-section-heading h2{font-size:1.8rem;font-weight:550;line-height:1.25}
+.apnea-news .apnea-news-intro{font-size:1rem;line-height:1.8;color:#a9c5d4;max-width:740px;margin-bottom:30px}
+.apnea-news-blog{border-top:1px solid rgba(146,215,233,.24);padding-top:35px;margin-top:35px}
+.apnea-news .apnea-journal-grid{grid-template-columns:1.35fr 1fr;gap:24px 36px}
+.apnea-news .apnea-journal-grid>.news-card:first-child{grid-row:1/3;display:block}
+.apnea-news .apnea-journal-grid>.news-card:first-child>img{aspect-ratio:4/3;width:100%}
+.apnea-news .apnea-journal-grid>.news-card:first-child h3{font-size:1.65rem}
+.apnea-news .apnea-journal-grid>.news-card:not(:first-child){display:grid;grid-template-columns:.95fr 1.05fr;align-items:start;gap:20px}
+.apnea-news .apnea-journal-grid>.news-card:not(:first-child)>img{aspect-ratio:4/3;width:100%;height:auto}
+.apnea-news .apnea-journal-grid>.news-card:not(:first-child)>div{padding:0}
+.apnea-news .apnea-journal-grid>.news-card:not(:first-child) h3{font-size:1.125rem;margin-top:9px!important}
+.apnea-news .apnea-journal-grid>.news-card:not(:first-child) p{font-size:1rem;line-height:1.7}
+.apnea-news .apnea-journal-grid>.news-card{border:0;border-radius:0;background:transparent;box-shadow:none;transform:none}
+.apnea-news .apnea-journal-grid>.news-card img{border-radius:4px}
+.apnea-news .apnea-journal-grid>.news-card:first-child>div{padding:24px 0 0}
+.apnea-news .apnea-journal-grid>.news-card:hover h3{text-decoration:underline;text-underline-offset:5px;text-decoration-thickness:1px}
+.apnea-archives .archive-hero{padding-block:65px 52px}
+.apnea-archives .archive-hero h1{font-size:clamp(2.8rem,4.6vw,4.5rem);font-weight:450;letter-spacing:-.04em;line-height:1.1}
+.apnea-archives .archive-hero-summary{border-left:1px solid rgba(146,215,233,.35);border-radius:0;padding:0 0 0 35px;background:transparent;box-shadow:none}
+.apnea-archives .archive-hero-summary>svg{display:none}
+.apnea-archives .archive-hero-summary>p{font-weight:350;font-size:1.6rem;line-height:1.4}
+@media(max-width:1100px){.apnea-news .apnea-journal-grid{gap:24px}.apnea-news .apnea-journal-grid>.news-card:not(:first-child){display:block}.apnea-news .apnea-journal-grid>.news-card:not(:first-child)>div{padding-top:18px}.apnea-news .apnea-journal-grid>.news-card:first-child{grid-row:auto}.apnea-news .apnea-journal-grid{grid-template-columns:repeat(2,minmax(0,1fr))}.apnea-journal-aside{min-width:180px;padding-left:24px}.apnea-journal-aside>p{font-size:1.3rem}}
+@media(max-width:850px){.apnea-journal-aside{display:none}.apnea-news .archive-hero,.apnea-archives .archive-hero{padding-block:45px}.apnea-news .archive-hero>.archive-container{gap:0}}
+@media(max-width:640px){.apnea-news .archive-hero h1,.apnea-archives .archive-hero h1{font-size:2.8rem}.apnea-news .apnea-journal-grid{grid-template-columns:1fr;gap:35px}.apnea-news .apnea-journal-grid>.news-card:first-child h3,.apnea-news .apnea-journal-grid>.news-card:not(:first-child) h3{font-size:1.4rem}.apnea-news .apnea-journal-grid>.news-card>div{padding-top:18px}.apnea-news-blog{padding-top:28px;margin-top:28px}.apnea-news .news-section-heading{align-items:flex-start}.apnea-archives .archive-hero-summary{margin-top:26px;padding-left:20px}.apnea-archives .archive-hero-summary>p{font-size:1.3rem}}
+
+.apnea-published-albums{margin-bottom:36px}
+.apnea-published-albums:empty{display:none}
+
+.apnea-news .apnea-news-blog-first{border-top:0;margin-top:0;padding-top:0}

@@ -1,20 +1,30 @@
-# Fond sous-marin du site
+# Direction artistique — apnée
 
-Le fond décoratif `public/images/fond-manta-robec.png` a été créé le 27 novembre 2026 avec l’outil de génération d’images intégré, à partir de l’image de référence fournie par l’utilisateur dans cette conversation.
+La version du 28 novembre 2026 utilise une ambiance bleu profond et une lumière sous-marine bleue. Le fond décoratif est continu sur le site public. Les textes sont en HTML, les panneaux de lecture sont sombres et les accents bleu glacier. Les photos documentaires des activités du club restent distinctes de cette illustration.
 
-Il constitue désormais un fond fixe continu sur l’ensemble de l’accueil, des archives, des lecteurs et de l’espace club. Le thème partagé `app/ocean-background.css` affiche des panneaux de lecture clairs et laisse le fond visible dans les espaces entre les sections et les gouttières. La page de connexion autonome utilise le même visuel. Les textes longs et les documents conservent des surfaces de lecture claires. Le fond est une illustration générée, et n’est pas présenté comme une photographie d’une sortie du club. Les photographies documentaires restent celles du blog d’origine.
+## Visuel intégré
+
+- Fichier : `public/images/apnee-immersion.webp`.
+- Dimensions : 1 774 × 887 pixels ; 47 248 octets.
+- Création : outil intégré de génération d’images, puis conversion WebP pour le site.
+- Usage : illustration décorative d’apnée, sans attribution aux adhérents du club.
+- L’ancien visuel `fond-manta-robec.png` est conservé dans les fichiers, mais il n’est plus le fond du site publié.
 
 ## Prompt de création
 
-Use case: photorealistic-natural. Asset type: a premium, immersive full-width website background for the French diving club Les Hippocampes du Robec. Input image 1 is a reference for underwater atmosphere, light, subject and colors, not a layout to reproduce exactly. Create an original cinematic underwater scene inspired by this reference: one graceful, anatomically credible manta ray swimming beneath the surface, deep emerald and blue-green water, beautiful warm golden sunlight shafts entering from upper right, subtle fine bubbles and tiny distant fish. Wide landscape composition approximately 2:1. Place the manta in the right half to right two-thirds, with flowing silhouette and visible wings; leave the left 40 percent quiet dark teal open water to carry a large white website heading in CSS. The brightest sunlight should stay above/right of the ray, away from the left text area. Natural texture and fine detail, sophisticated calm mood, authentic underwater photography feel. Darker water toward bottom for a seamless gradient into website sections. No text, no words, no logo, no border, no watermark, no typography, no interface, no divers. This is decorative background artwork; create a polished image ready to incorporate into a modern website.
+Use case: photorealistic-natural. Asset type: full-width immersive background for a French freediving club website, very wide landscape approximately 2:1. Create an atmospheric editorial underwater photograph of freediving: a single small graceful freediver wearing long bi-fins and a simple dark wetsuit, no scuba tank, no bubbles, seen at a distance underwater in the right third of the composition, descending gently into blue water. A much smaller distant buddy silhouette near the surface gives quiet context. Deep midnight navy and clear ocean blue fading to soft turquoise beams filtering diagonally from the upper right water surface. Left 50 percent is mostly calm dark blue negative space so white website headlines can be placed over it later. The divers should occupy little of the image so the sense of depth and silence dominates. Refined natural lighting, very subtle particles, realistic water texture, cinematic fine art underwater photography, calm and expansive rather than dramatic action. No text, no numbers, no logos, no border, no interface, no coral reef, no tropical fish, no gold or green color cast. This is a decorative illustration of freediving, not a photograph of actual named club members.
 
-## Contrôles réalisés
+## Identité des pages
 
-- Fond vérifié sur l’accueil avec le texte blanc et doré.
-- Mise en page de l’accueil et des archives vérifiée sur une largeur mobile de 375 px (360 px utiles avec la barre de défilement de l’environnement de contrôle).
-- Aucun texte informatif n’est intégré dans le fichier image ; les titres et les boutons restent des éléments HTML accessibles.
-- Les crédits du site distinguent ce fond des photographies des activités du club.
+- Accueil : entrée immersive, présentation courte et liens vers les rubriques.
+- Le club : personnes, photo authentique, histoire, horaires, ressources et contact.
+- Nos activités : apnée et PMT, plongée bouteille, sorties, en séquences éditoriales.
+- Agenda : interface de calendrier, filtres, détails et export iCalendar.
+- Actualités : composition de journal avec récits et photographies du club.
+- Archives : carnet de souvenirs, recherche et classement des contenus déjà importés.
 
-## Contrôle du fond continu
+Le menu principal utilise cinq adresses distinctes. Les ancres servent uniquement à atteindre une section pertinente à l’intérieur d’une page, par exemple le contact du club ou une pratique.
 
-Le thème global a été vérifié au cours du défilement de l’accueil et sur les lecteurs des archives. Le contrôle mobile de l’accueil, de l’album Marseille et de l’espace club utilise une largeur utile de 375 px ; aucune de ces trois pages ne dépasse cette largeur. Le fond reste visible dans les gouttières tandis que les textes et commandes sont sur une surface de lecture claire.
+## Contrôles
+
+Le nouvel accueil, les pages du club et des activités, le journal et les archives ont été inspectés dans le navigateur. Les cinq rubriques ont été contrôlées sur un écran mobile de 390 px ; la page du club a aussi été vérifiée à 320 px. Aucun débordement horizontal de page n’a été observé. Le menu mobile reste sous l’en-tête agrandi. Les liens de rendez-vous sélectionnent le bon mois dans le calendrier.

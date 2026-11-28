@@ -15,9 +15,11 @@ Le dépôt public est **Durstyone/Hippocampes**, avec **GitHub Actions** comme s
 | Images des actualités, fond du site et albums récupérés | Images dans `public/`, déclarées dans `github-pages/local-media.json` et servies par GitHub Pages. |
 | Vidéos éventuelles | Hébergement externe et liens HTTPS. Aucune vidéo locale n’est incluse dans cette version. |
 | Administration du contenu public | Accès `/admin/`, puis Pages CMS connecté avec le compte Durstyone et Hippocampes comme seul dépôt existant sélectionné. |
-| Comptes, inscriptions et documents privés | Espace club existant sur un serveur distinct, relié par `clubUrl`, avec ses accès actuels. |
+| Comptes adhérents, paiements et documents confidentiels | Hors du périmètre du dépôt public et de cette administration. |
 
-GitHub Pages ne fait pas fonctionner le serveur Node, SQLite, D1 ou les API de l’espace club. Les versions Sites et autonome restent disponibles dans le projet d’origine. Les publications de leur administration ne sont **pas synchronisées automatiquement** avec la version Pages : les copies publiques doivent être mises à jour puis republiées.
+Le site public est statique. Son administration passe par `/admin/`, Pages CMS et
+le dépôt **Durstyone/Hippocampes**. Aucun serveur de gestion associative, aucune
+base adhérents ni aucun ancien espace de gestion n’est relié depuis cette version.
 
 Les anciennes images qui n’avaient pas pu être récupérées du blog restent des liens vers leur source.
 
@@ -33,7 +35,7 @@ La configuration publique dans `github-pages/site.config.json` est :
   "domain": "",
   "mediaBaseUrl": "",
   "mediaMap": {},
-  "clubUrl": "https://hippocampes-du-robec.espace-de-tr-9010.chatgpt.site/club"
+  "clubUrl": ""
 }
 ```
 
@@ -43,9 +45,14 @@ La configuration publique dans `github-pages/site.config.json` est :
 | `domain` | Vide tant qu’aucun domaine propre n’est configuré. |
 | `mediaBaseUrl` | Base HTTPS facultative pour des médias externalisés en conservant leurs chemins. |
 | `mediaMap` | Correspondance facultative entre les chemins des médias et leurs URL HTTPS externes. |
-| `clubUrl` | Adresse HTTPS d’un espace adhérent hébergé séparément, lorsqu’il est disponible. |
+| `clubUrl` | À laisser vide. Les anciens liens d’espace club sont désactivés dans l’interface GitHub Pages. |
 
-Les variables `PAGES_BASE_PATH`, `PAGES_DOMAIN`, `PAGES_MEDIA_BASE_URL`, `PAGES_CLUB_URL` et `PAGES_MEDIA_MAP_FILE` peuvent fournir ces paramètres à la construction. `PAGES_SITE_URL` fournit l’adresse publique complète au sitemap et aux URL canoniques. Ces réglages sont publics ; aucun secret Cloudinary n’est nécessaire au site ou au workflow Pages.
+Les variables `PAGES_BASE_PATH`, `PAGES_DOMAIN`, `PAGES_MEDIA_BASE_URL` et
+`PAGES_MEDIA_MAP_FILE` peuvent fournir ces paramètres à la construction.
+`PAGES_SITE_URL` fournit l’adresse publique complète au sitemap et aux URL
+canoniques. Une ancienne valeur `PAGES_CLUB_URL` ne réactive aucun lien dans
+l’interface statique. Ces réglages sont publics ; aucun secret Cloudinary n’est
+nécessaire au site ou au workflow Pages.
 
 Le dépôt contient uniquement les sources et contenus publics du site. Les données adhérents, documents privés, fichiers `.env`, clés, sessions et bases de données restent hors du dépôt public.
 
@@ -103,7 +110,9 @@ L’accueil conserve un aperçu limité à ces deux créneaux et aux trois proch
 
 Les exports `.ics` peuvent être importés dans un agenda personnel. Le mois exporté inclut toutes ses dates, indépendamment des filtres visuels. Les imports sont ponctuels et ne constituent pas une synchronisation avec Google Agenda ou un abonnement. Une date sans horaire est exportée comme repère à la journée. Les dates provisoires restent signalées comme telles.
 
-Pour reprendre une publication du serveur d’administration, exporter uniquement les champs publics attendus, relire le résultat puis mettre à jour ces fichiers. Enregistrer la modification dans le dépôt pour reconstruire et publier le site.
+Enregistrer les modifications dans Pages CMS ou directement dans le dépôt pour
+reconstruire et publier le site. Le contenu éditorial et les médias doivent être
+destinés à une publication publique.
 
 ## 5. Déplacer les images vers Cloudinary plus tard
 

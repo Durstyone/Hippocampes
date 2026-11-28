@@ -1,144 +1,121 @@
 'use client';
 
-import { Fragment, useEffect, useRef, useState } from 'react';
-import { Anchor, CalendarDays, Check, ChevronRight, Clock3, Compass, Copy, Download, ExternalLink, FileText, Fish, Heart, Image as ImageIcon, Mail, MapPin, Menu, Plus, ShieldCheck, Users, Waves, X } from 'lucide-react';
-import './site.css';
-import { clubPortalUrl, isStaticSite, mediaUrl, publicFeedUrl, siteUrl } from '../../lib/site-delivery';
-import PublishedAlbums from './PublishedAlbums';
-import archiveHome from './archive-links.json';
+import { useEffect, useRef, useState } from 'react';
+import { CalendarDays, MapPin, Waves, X } from 'lucide-react';
+import { PublicHeader, PublicFooter } from './PublicLayout';
+import { isStaticSite, mediaUrl, publicFeedUrl, siteUrl } from '../../lib/site-delivery';
+import { publicSiteSettings as settings } from '../../lib/public-site-content';
 import type { PublicNews } from '../actualites/NewsPage';
-import '../actualites/news.css';
-import { publicSiteSettings as settings, buildEventCalendar, type PublicEvent } from '../../lib/public-site-content';
+import { newsDate } from '../actualites/NewsPage';
+import './apnea-home.css';
 
-const BLOG='https://les-hippocampes-du-robec.over-blog.com';
-const EMAIL=settings.contact.email;
-const DOSSIER=archiveHome.links.registration;
-const photos=[
- {src:'/images/reprise-club-2026.jpg',title:'On se retrouve à la piscine',caption:'Reprise du club · septembre 2026',alt:'Les adhérents équipés de bouteilles et de palmes à la piscine de Darnétal, septembre 2026.'},
- {src:'/images/plongee-sous-marine.jpg',title:'Le grand bleu, ensemble',caption:'Marseille · archives du club, 2010',alt:'Plongeur en combinaison noire et masque jaune en immersion au large de Marseille, archive du club de 2010.'},
- {src:'/images/faune-marine.jpg',title:'Un autre monde à découvrir',caption:'Marseille · archives du club, 2010',alt:'Poissons roses devant des gorgones rouges en Méditerranée, archive du club de 2010.'},
- {src:'/images/sortie-nemo-2026.jpg',title:'Un week-end en Belgique',caption:'Todi & Némo · mars 2026',alt:'Groupe des Hippocampes du Robec devant un petit sous-marin jaune, mars 2026.'},
- {src:'/images/sortie-en-mer.jpg',title:'L’appel du large',caption:'Marseille · archives du club, 2010',alt:'Des plongeurs du club équipés sur un bateau à Marseille, archive 2010.'},
- {src:'/images/activites-piscine-2026.jpg',title:'Les sorties, c’est aussi ça',caption:'Sortie en fosse · juin 2026',alt:'Sept membres du club devant un véhicule lors de la sortie en fosse de juin 2026.'}
+const BLOG = 'https://les-hippocampes-du-robec.over-blog.com/';
+const practices = [
+  { title: 'Apnée & palmes', label: 'Les sensations, simplement.', description: 'Prendre le temps, écouter ses sensations et partager l’entraînement en piscine.', href: '/activites/#apnee' },
+  { title: 'Plongée bouteille', label: 'Un nouveau regard sous l’eau.', description: 'Du baptême aux formations, découvrir la plongée et progresser avec les encadrants du club.', href: '/activites/#plongee' },
+  { title: 'Sorties & découvertes', label: 'L’envie de prendre le large.', description: 'Fosses, mer et voyages : prolonger les rencontres et explorer d’autres horizons.', href: '/activites/#sorties' },
 ];
-const activities=[
- {title:'Plongée bouteille',tag:'DÉCOUVRIR & PROGRESSER',description:'Du premier souffle sous l’eau aux formations niveaux 1, 2 et 3. On avance à son rythme, entouré du club.',image:'/images/plongee-sous-marine.jpg',alt:photos[1].alt,icon:Compass,body:'Envie de découvrir les sensations de la plongée ? Le club propose des baptêmes en piscine ainsi que des formations aux niveaux 1, 2 et 3. Les entraînements permettent de découvrir le matériel, de prendre ses repères et de progresser avec les encadrants.',extra:'Pour un baptême ou une inscription, contactez le club afin de convenir d’une séance et de connaître les conditions d’accueil.'},
- {title:'Apnée & palmes',tag:'RESPIRER & SE RETROUVER',description:'Prendre le temps, travailler ses sensations et partager les entraînements en piscine.',image:'/images/reprise-club-2026.jpg',alt:photos[0].alt,icon:Waves,body:'Les séances du club accueillent la pratique de l’apnée et l’entraînement avec palmes, masque et tuba. Une autre manière de vivre l’eau, dans un cadre collectif.',extra:'Le programme du mardi dépend des encadrants présents. Contactez le club pour connaître les séances adaptées à votre pratique.'},
- {title:'Sorties & découvertes',tag:'EXPLORER & PARTAGER',description:'Fosses, mer et voyages : on se retrouve aussi loin du bord de la piscine.',image:'/images/sortie-en-mer.jpg',alt:photos[4].alt,icon:Anchor,body:'Le club organise des sorties en fosse, des plongées en milieu naturel et des voyages. Les archives racontent des moments à Marseille, à Némo et à Todi, entre apprentissage, découverte et convivialité.',extra:'Le calendrier 2026–2027 annonce une sortie à Conflans-Sainte-Honorine le 11 avril 2027. Les autres projets sont précisés au fil de la saison.'}
-];
-const articles=settings.featuredNews;
-const faqs=settings.faq;
 
-function Brand({light=false}:{light?:boolean}){return <a className={'site-brand'+(light?' site-brand-light':'')} href={siteUrl('/')} aria-label='Les Hippocampes du Robec, accueil'><img src={mediaUrl('/images/logo-club.jpg')} alt='' width='50' height='50'/><span>Les Hippocampes<small>DU ROBEC</small></span></a>}
-function Badge({children}:{children:React.ReactNode}){return <span className='site-eyebrow'>{children}</span>}
-function downloadCalendar(event:PublicEvent){
- const url=URL.createObjectURL(new Blob([buildEventCalendar(event)],{type:'text/calendar;charset=utf-8'}));const a=document.createElement('a');a.href=url;a.download=`hippocampes-${event.id}.ics`;a.click();setTimeout(()=>URL.revokeObjectURL(url),1000);
-}
-function todayInParis(){
- const parts=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Paris',year:'numeric',month:'2-digit',day:'2-digit'}).formatToParts(new Date());
- return `${parts.find(part=>part.type==='year')?.value}-${parts.find(part=>part.type==='month')?.value}-${parts.find(part=>part.type==='day')?.value}`;
+function todayInParis() {
+  const parts = new Intl.DateTimeFormat('en-GB', { timeZone: 'Europe/Paris', year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(new Date());
+  return `${parts.find(part => part.type === 'year')?.value}-${parts.find(part => part.type === 'month')?.value}-${parts.find(part => part.type === 'day')?.value}`;
 }
 
-export default function ClubWebsite(){
- const [menu,setMenu]=useState(false);
- const [activity,setActivity]=useState<number|null>(null);
- const [info,setInfo]=useState<'privacy'|'sources'|null>(null);
- const [subject,setSubject]=useState('Découvrir la plongée');
- const [copied,setCopied]=useState(false);
- const [mailPrepared,setMailPrepared]=useState(false);
- const [newsFilter,setNewsFilter]=useState('Tout');
- const [publishedNews,setPublishedNews]=useState<PublicNews[]>([]);
- const [today,setToday]=useState(todayInParis);
- const regularEvents=settings.events.filter(event=>!event.date).slice(0,2);
- const upcomingEvents=settings.events.filter(event=>event.date&&event.calendarCategory!=='ferie'&&(event.endDate||event.date)>=today).sort((left,right)=>left.date.localeCompare(right.date)||left.startTime.localeCompare(right.startTime)||left.title.localeCompare(right.title,'fr')).slice(0,3);
- const featuredEvents=[...regularEvents,...upcomingEvents];
- const contactSubjects=Array.from(new Set(['Découvrir la plongée','Faire un baptême de plongée','Découvrir l’apnée','Rejoindre le club','Reprendre la plongée','Me renseigner sur les entraînements','Me renseigner sur les formations','Participer à une sortie','La vie du club',...featuredEvents.map(event=>event.contactSubject),'Autre question',subject]));
- const modalRef=useRef<HTMLDialogElement>(null);
- const infoRef=useRef<HTMLDialogElement>(null);
- useEffect(()=>{const refresh=()=>setToday(todayInParis());const timer=window.setInterval(refresh,60000);window.addEventListener('focus',refresh);return()=>{window.clearInterval(timer);window.removeEventListener('focus',refresh)}},[]);
- useEffect(()=>{const controller=new AbortController();fetch(publicFeedUrl('club')+(isStaticSite?'':'?summary=1&limit=3'),{cache:'no-store',signal:controller.signal}).then(async res=>{if(res.ok){const data=await res.json() as {news?:PublicNews[]};setPublishedNews((data.news||[]).slice(0,3))}}).catch(()=>{});return()=>controller.abort()},[]);
- useEffect(()=>{if(activity!==null)modalRef.current?.showModal();else modalRef.current?.close()},[activity]);
- useEffect(()=>{if(info!==null)infoRef.current?.showModal();else infoRef.current?.close()},[info]);
- useEffect(()=>{document.body.style.overflow=activity!==null||info!==null?'hidden':'';return()=>{document.body.style.overflow=''}},[activity,info]);
- function contactFor(value:string){setSubject(value);setActivity(null);setMenu(false);setTimeout(()=>document.getElementById('contact')?.scrollIntoView({behavior:'smooth'}),0)}
- async function copyEmail(){try{await navigator.clipboard.writeText(EMAIL);setCopied(true);setTimeout(()=>setCopied(false),2500)}catch{setCopied(false)}}
- function emailSubmit(event:React.FormEvent<HTMLFormElement>){event.preventDefault();const f=new FormData(event.currentTarget);const body=`Bonjour les Hippocampes,\n\n${f.get('message')}\n\nNom : ${f.get('name')}\nEmail : ${f.get('email')}\nIntérêt : ${f.get('interest')}\n\nÀ bientôt !`;window.location.href=`mailto:${EMAIL}?subject=${encodeURIComponent(String(f.get('interest'))+' — Prise de contact')}&body=${encodeURIComponent(body)}`;setMailPrepared(true)}
- return <div className='site-page'>
-  <a className='site-skip' href='#contenu'>Aller au contenu</a>
-  <header className='site-header'><div className='site-container site-header-inner'>
-   <Brand/>
-   <nav className={'site-nav'+(menu?' is-open':'')} aria-label='Navigation principale'>
-    <a href='#club' onClick={()=>setMenu(false)}>Le club</a><a href='#activites' onClick={()=>setMenu(false)}>Nos activités</a><a href={siteUrl('/agenda')} onClick={()=>setMenu(false)}>L’agenda</a><a href='#actualites' onClick={()=>setMenu(false)}>Actualités</a><a href={siteUrl('/archives')} onClick={()=>setMenu(false)}>Archives</a>
-    <a className='site-mobile-contact' href='#contact' onClick={()=>setMenu(false)}>Nous contacter</a>
-   </nav>
-   <div className='site-header-actions'>{clubPortalUrl&&<a className='site-member-link' href={clubPortalUrl}><Users size={17}/><span>Espace club</span></a>}<button className='site-menu-toggle' aria-expanded={menu} aria-label={menu?'Fermer le menu':'Ouvrir le menu'} onClick={()=>setMenu(!menu)}>{menu?<X/>:<Menu/>}</button></div>
-  </div></header>
-  <main id='contenu'>
-   <section className='site-hero site-hero-underwater'><img className='site-ocean-backdrop' src={mediaUrl('/images/fond-manta-robec.png')} alt='' aria-hidden='true' width='1774' height='887' fetchPriority='high'/><div className='site-container site-hero-grid'>
-    <div className='site-hero-copy'>
-     <Badge><span className='site-eyebrow-line'/> PLONGÉE & APNÉE À DARNÉTAL</Badge>
-     <h1>La tête sous l’eau.<br/><span>L’esprit ailleurs.</span></h1>
-     <p>Le plaisir de plonger, la joie de se retrouver.<br className='site-desktop-break'/> Près de Rouen, partagez l’aventure avec<br className='site-desktop-break'/> les Hippocampes du Robec.</p>
-     <div className='site-hero-buttons'><button className='site-button site-button-primary' onClick={()=>contactFor('Faire un baptême de plongée')}><Waves size={20}/>Faire un baptême</button><a className='site-button site-button-outline' href='#club'>Découvrir le club</a></div>
-     <div className='site-hero-proof'><span className='site-proof-icon'><ShieldCheck size={20}/></span><span>Club associatif depuis 2001<small>Affilié à la FFESSM · Darnétal, Normandie</small></span></div>
-    </div>
-    <div className='site-ocean-signature'><span>LES HIPPOCAMPES DU ROBEC</span><strong>L’envie d’explorer.<br/>Le plaisir de partager.</strong></div>
-   </div></section>
-   <div className='site-container'><div className='site-quick-info'>
-    <div><MapPin/><p>Tout près de Rouen<strong>{settings.contact.venueShort}</strong></p></div>
-    <div><Clock3/><p>On se retrouve<strong>{settings.contact.hoursSummary}</strong></p></div>
-    <div><Heart/><p>Le plaisir, à votre rythme<strong>Découvrir, progresser, partager</strong></p></div>
-   </div></div>
+export default function ClubWebsite() {
+  const [publishedNews, setPublishedNews] = useState<PublicNews[]>([]);
+  const [today, setToday] = useState(todayInParis);
+  const [info, setInfo] = useState<'privacy' | 'sources' | null>(null);
+  const infoRef = useRef<HTMLDialogElement>(null);
+  const upcoming = settings.events.filter(event => event.date && event.calendarCategory !== 'ferie' && (event.endDate || event.date) >= today)
+    .sort((a, b) => a.date.localeCompare(b.date) || a.startTime.localeCompare(b.startTime) || a.title.localeCompare(b.title, 'fr')).slice(0, 3);
+  const news = [
+    ...publishedNews.map(item => ({ title: item.title, date: newsDate(item.date), category: 'Vie du club', image: item.image, alt: '', summary: item.excerpt, url: '/actualites/' + encodeURIComponent(item.id) + '/' })),
+    ...settings.featuredNews,
+  ].slice(0, 3);
 
-   <section className='site-section site-container' id='activites'>
-    <div className='site-section-heading'><div><Badge>VOTRE PROCHAINE IMMERSION</Badge><h2>Une passion.<br/>Plusieurs façons de la vivre.</h2></div><p>Premières bulles ou nouvelles aventures :<br/>trouvez votre place dans le club.</p></div>
-    <div className='site-activity-grid'>{activities.map((a,i)=><button className='site-activity-card' key={a.title} onClick={()=>setActivity(i)} aria-label={'Découvrir : '+a.title}>
-     <div className='site-activity-body'><span className='site-activity-emblem'><a.icon size={28}/></span><small>{a.tag}</small><h3>{a.title}</h3><p>{a.description}</p><span className='site-text-action'>En savoir plus <Plus size={17}/></span></div>
-    </button>)}</div>
-   </section>
+  useEffect(() => {
+    const refresh = () => setToday(todayInParis());
+    const timer = window.setInterval(refresh, 60000);
+    window.addEventListener('focus', refresh);
+    return () => { window.clearInterval(timer); window.removeEventListener('focus', refresh); };
+  }, []);
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(publicFeedUrl('club') + (isStaticSite ? '' : '?summary=1&limit=3'), { cache: 'no-store', signal: controller.signal })
+      .then(async response => { if (response.ok) { const data = await response.json() as { news?: PublicNews[] }; setPublishedNews((data.news || []).slice(0, 3)); } }).catch(() => {});
+    return () => controller.abort();
+  }, []);
+  useEffect(() => {
+    if (info) infoRef.current?.showModal(); else infoRef.current?.close();
+    document.body.style.overflow = info ? 'hidden' : '';
+    return () => { document.body.style.overflow = ''; };
+  }, [info]);
 
-   <section className='site-club-section' id='club'><div className='site-container site-club-grid'>
-    <div className='site-club-visual'><img src={mediaUrl('/images/reprise-club-2026.jpg')} alt={photos[0].alt} width='1600' height='720' loading='lazy'/><p className='site-photo-caption'>Reprise à la piscine · septembre 2026</p></div>
-    <div className='site-club-copy'><Badge>BIENVENUE CHEZ LES HIPPOCAMPES</Badge><h2>{settings.club.titleLines.map((line,i)=><Fragment key={i}>{i>0&&<br/>}{line}</Fragment>)}</h2>{settings.club.paragraphs.map((paragraph,i)=><p key={i}>{paragraph}</p>)}<div className='site-club-values'><span><Check size={17}/>L’esprit associatif</span><span><Check size={17}/>La transmission</span><span><Check size={17}/>La convivialité</span></div><div className='site-club-links'><a href={siteUrl(archiveHome.links.history)}>Notre histoire</a><a href={siteUrl(archiveHome.links.team)}>L’équipe du club</a><a href={siteUrl(archiveHome.links.statutes)}>Les statuts</a><a href={siteUrl(archiveHome.links.tiv)}>Documentation TIV</a></div><a className='site-text-action' href='#contact'>Venez nous rencontrer <Plus size={17}/></a></div>
-   </div></section>
+  return <div className="site-page apnea-home">
+    <a className="site-skip" href="#contenu">Aller au contenu</a>
+    <PublicHeader />
+    <main id="contenu">
+      <section className="apnea-home-hero">
+        <div className="site-container apnea-home-hero-inner">
+          <div className="apnea-home-hero-copy">
+            <p className="apnea-kicker">APNÉE & PLONGÉE · DARNÉTAL</p>
+            <h1>Un souffle.<br /><span>Un autre monde.</span></h1>
+            <p className="apnea-home-lead">Sous la surface, le temps change.<br />Près de Rouen, vivez l’eau à votre rythme<br className="apnea-desktop-break" /> avec les Hippocampes du Robec.</p>
+            <div className="apnea-home-actions">
+              <a className="apnea-home-button apnea-home-button-primary" href={siteUrl('/activites/')}>Découvrir nos activités</a>
+              <a className="apnea-home-button" href={siteUrl('/le-club/')}>Rencontrer le club</a>
+            </div>
+          </div>
+          <div className="apnea-home-hero-note"><span>Une passion qui nous rassemble</span><strong>Club associatif depuis 2001</strong></div>
+        </div>
+      </section>
 
-   <section className='site-section site-container' id='agenda'>
-    <div className='site-section-heading'><div><Badge>LES RENDEZ-VOUS DU CLUB</Badge><h2>À vos agendas.</h2></div><a className='site-button site-button-outline' href={siteUrl('/agenda')}><CalendarDays size={18}/>Ouvrir le calendrier</a></div>
-    <div className='site-agenda-layout'><div className='site-event-list'>
-     {featuredEvents.map(event=><article className='site-event' key={event.id}><div className={'site-event-date'+(event.date?' site-event-date-teal':'')}><span>{event.dateLabel}</span><strong>{event.dateValue}</strong></div><div className='site-event-main'><div className='site-event-meta'><span className={'site-tag'+(event.date?' site-tag-blue':'')}>{event.category}</span><span>{event.timeLabel}</span></div><h3>{event.title}</h3><p>{event.description}</p></div>{event.date?<button className='site-event-plus' aria-label={'Ajouter à mon agenda : '+event.title} onClick={()=>downloadCalendar(event)}><Download size={19}/></button>:<button className='site-event-plus' aria-label={'Se renseigner : '+event.title} onClick={()=>contactFor(event.contactSubject)}><Plus size={20}/></button>}</article>)}
-     <a className='site-text-action' href={siteUrl('/agenda')}>Voir tout l’agenda <ChevronRight size={17}/></a>
-     <p className='site-agenda-note'>Saison {settings.season.name} · {settings.season.agendaNote}</p>
-    </div><aside className='site-members-card'><div className='site-member-card-icon'><Users size={26}/></div><Badge>LA VIE DU CLUB, SIMPLEMENT</Badge>{clubPortalUrl?<><h3>Tout votre club,<br/>au même endroit.</h3><p>Agenda, inscriptions, documents et suivi des adhésions réunis dans un espace dédié.</p><a className='site-button site-button-white' href={clubPortalUrl}>Découvrir l’espace club</a>{!isStaticSite&&<small>Version de travail à explorer</small>}</>:<><h3>Préparer votre<br/>prochaine séance.</h3><p>Retrouvez les informations de la saison et les documents utiles pour rejoindre le club.</p><a className='site-button site-button-white' href={siteUrl(DOSSIER)}>Les informations d’inscription</a></>}</aside></div>
-   </section>
+      <div className="apnea-home-meeting"><div className="site-container"><p><MapPin size={19} /><span>{settings.contact.venueShort}</span></p><p>{settings.contact.hoursSummary}</p><a href={siteUrl('/le-club/#contact')}>Préparer une première rencontre</a></div></div>
 
-   <section className='site-news-section' id='actualites'><div className='site-container'>
-    <div className='site-section-heading'><div><Badge>LE CARNET DES HIPPOCAMPES</Badge><h2>Ça se passe au club.</h2></div><a className='site-text-action' href={siteUrl(publishedNews.length?'/actualites':'/archives?type=article')}>Parcourir les actualités <Plus size={16}/></a></div>
-    {!!publishedNews.length&&<><div className='site-news-grid'>{publishedNews.map(item=><a className='site-news-card' href={siteUrl('/actualites/'+encodeURIComponent(item.id))} key={item.id}><div className={'site-news-image'+(!item.image?' site-news-no-image':'')}>{item.image?<img src={mediaUrl(item.image)} alt='' width='600' height='400' loading='lazy'/>:<Waves size={46} strokeWidth={1.2}/>}<span>Vie du club</span></div><div className='site-news-copy'><time dateTime={item.date}>{new Date(item.date.length===10?item.date+'T12:00:00Z':item.date).toLocaleDateString('fr-FR',{day:'numeric',month:'long',year:'numeric',timeZone:'Europe/Paris'})}</time><h3>{item.title}</h3><p>{item.excerpt}</p><span className='site-text-action'>Lire l’actualité <Plus size={15}/></span></div></a>)}</div><div className='site-published-heading'><h3>Retrouver les récits du blog</h3><a href={siteUrl('/archives?type=article')}>Les archives</a></div></>}
-    <div className='site-filter-row' aria-label='Filtrer les actualités'>{['Tout','Vie du club','Les sorties'].map(f=><button className={newsFilter===f?'active':''} key={f} aria-pressed={newsFilter===f} onClick={()=>setNewsFilter(f)}>{f}</button>)}</div>
-    <div className='site-news-grid'>{articles.filter(a=>newsFilter==='Tout'||a.category===newsFilter).map(a=><a className='site-news-card' href={siteUrl(a.url)} key={a.title}><div className='site-news-image'><img src={mediaUrl(a.image)} alt={a.alt} width='600' height='400' loading='lazy'/><span>{a.category}</span></div><div className='site-news-copy'><time>{a.date}</time><h3>{a.title}</h3><p>{a.summary}</p><span className='site-text-action'>{a.url.startsWith('/archives/')?'Lire le récit':'Lire sur le blog'} {a.url.startsWith('/archives/')?<Plus size={15}/>:<ExternalLink size={15}/>}</span></div></a>)}</div>
-    <div className='site-latest-note'><FileText size={19}/><span>Assemblée générale du 17 octobre 2026</span><a href={siteUrl(archiveHome.links.assembly)}>Consulter la convocation {archiveHome.links.assembly.startsWith('/archives/')?<Plus size={14}/>:<ExternalLink size={14}/>}</a></div>
-   </div></section>
+      <section className="site-container apnea-home-section apnea-home-intro" aria-labelledby="home-club-title">
+        <div>
+          <p className="apnea-kicker">LE PLAISIR D’ÊTRE ENSEMBLE</p>
+          <h2 id="home-club-title">On vient pour l’eau.<br /><span>On reste pour le club.</span></h2>
+          <p>Depuis 2001, les Hippocampes du Robec se retrouvent à Darnétal. Des premières découvertes aux sorties en mer, la passion se transmet et les liens se tissent.</p>
+          <a className="apnea-home-text-link" href={siteUrl('/le-club/')}>Notre histoire, notre équipe</a>
+        </div>
+        <figure><img src={mediaUrl('/images/reprise-club-2026.jpg')} alt="Les adhérents équipés de bouteilles et de palmes à la piscine de Darnétal, septembre 2026." width="1600" height="720" loading="lazy" /><figcaption>Retrouvailles à la piscine · septembre 2026</figcaption></figure>
+      </section>
 
-   <section className='site-archive-section'><div className='site-container site-archive-banner'><div><Badge>LA MÉMOIRE DU CLUB</Badge><h2>Des rencontres, des voyages.<br/>Toute une histoire à retrouver.</h2><p>Retrouvez les récits, les albums et les documents déjà repris du blog des Hippocampes. Explorez les souvenirs par année, par thème ou en quelques mots.</p><a className='site-button site-button-primary' href={siteUrl('/archives')}>Parcourir les archives</a></div><div className='site-archive-stats'><a href={siteUrl('/archives?type=article')}><strong>{archiveHome.stats.articles}</strong><span>articles et récits</span></a><a href={siteUrl('/archives?type=album')}><strong>{archiveHome.stats.albums}</strong><span>albums à explorer</span></a><a href={siteUrl('/archives?type=page')}><strong>{archiveHome.stats.pages}</strong><span>pages du club</span></a></div></div></section>
+      <section className="site-container apnea-home-section apnea-home-practices" aria-labelledby="home-practices-title">
+        <div className="apnea-home-section-heading"><div><p className="apnea-kicker">PLUSIEURS FAÇONS DE VIVRE L’EAU</p><h2 id="home-practices-title">À chacun son immersion.</h2></div><a className="apnea-home-text-link" href={siteUrl('/activites/')}>Toutes nos activités</a></div>
+        <div className="apnea-home-practice-grid">{practices.map(practice => <a href={siteUrl(practice.href)} key={practice.title} className="apnea-home-practice"><p>{practice.label}</p><h3>{practice.title}</h3><span>{practice.description}</span><strong>Découvrir la pratique</strong></a>)}</div>
+      </section>
 
-   <section className='site-section site-container' id='photos'>
-    <div className='site-section-heading'><div><Badge>LES ALBUMS DU CLUB</Badge><h2>Une sortie. Un album.</h2><p className='site-subtle site-album-intro'>Retrouvez chaque souvenir à sa place.</p></div><a className='site-text-action' href={siteUrl('/archives?type=album')}>Tous les albums <ImageIcon size={18}/></a></div>
-    <PublishedAlbums />
-    <div className='site-album-grid'>{archiveHome.featuredAlbums.map(album=><a className='site-album-card' href={siteUrl(album.href)} key={album.id}><div className='site-album-cover'><img src={mediaUrl(album.cover)} alt={album.alt} width='640' height='480' loading='lazy' decoding='async'/></div><div className='site-album-copy'><span className='site-album-year'>{album.year}</span><h3>{album.title}</h3><div><span><ImageIcon size={16}/>{album.imageCount} photos</span><span className='site-album-open'>Voir l’album</span></div></div></a>)}</div>
-   </section>
+      <section className="apnea-home-rendezvous" aria-labelledby="home-agenda-title"><div className="site-container apnea-home-agenda-grid">
+        <div><p className="apnea-kicker">LA PROCHAINE FOIS, ENSEMBLE</p><h2 id="home-agenda-title">On se retrouve<br /><span>dans l’eau.</span></h2><p>Entraînements, formations et moments du club : les prochains rendez-vous de la saison {settings.season.name}.</p><a className="apnea-home-button" href={siteUrl('/agenda/')}><CalendarDays size={18} />Ouvrir le calendrier</a></div>
+        <div className="apnea-home-events">{upcoming.length ? upcoming.map(event => <a className="apnea-home-event" href={siteUrl('/agenda/?month=' + event.date.slice(0, 7))} key={event.id}><time dateTime={event.date}><strong>{event.dateValue}</strong><span>{event.dateLabel}</span></time><div><p>{event.category}{event.status === 'tentative' && <span className="apnea-home-tentative">À confirmer</span>}</p><h3>{event.title}</h3><span>{event.timeLabel}</span></div></a>) : <p>Retrouvez les entraînements et le programme de la saison dans le calendrier.</p>}</div>
+      </div></section>
 
-   <section className='site-join-section' id='rejoindre'><div className='site-container site-join-grid'><div><Badge>ENVIE DE FAIRE PARTIE DE L’AVENTURE ?</Badge><h2>Votre place est<br/>peut-être sous l’eau.</h2><p>Une question, un baptême ou une envie de reprendre ? On en parle. Le club vous accompagne pour faire le premier pas.</p><button className='site-button site-button-primary' onClick={()=>contactFor('Rejoindre le club')}><Mail size={19}/>Échanger avec le club</button></div><div className='site-resource-stack'><a className='site-resource' href={siteUrl(DOSSIER)}><span className='site-resource-icon'><FileText/></span><div><strong>Dossier d’inscription</strong><span>{settings.season.registrationCaption}</span></div><Plus size={18}/></a><a className='site-resource' href={siteUrl(archiveHome.links.rules)}><span className='site-resource-icon'><ShieldCheck/></span><div><strong>La vie de l’association</strong><span>Consulter le règlement du club.</span></div><Plus size={18}/></a>{clubPortalUrl&&<a className='site-resource' href={clubPortalUrl}><span className='site-resource-icon'><Users/></span><div><strong>L’espace club</strong><span>L’agenda et les outils du quotidien.</span></div><Plus size={18}/></a>}<a className='site-resource' href={siteUrl('/archives?type=page')}><span className='site-resource-icon'><FileText/></span><div><strong>Les documents et la vie du club</strong><span>Équipe, statuts, informations et ressources.</span></div><Plus size={18}/></a></div></div></section>
+      <section className="site-container apnea-home-section" aria-labelledby="home-news-title">
+        <div className="apnea-home-section-heading"><div><p className="apnea-kicker">LE JOURNAL DU CLUB</p><h2 id="home-news-title">À la surface,<br /><span>il s’en passe aussi.</span></h2></div><a className="apnea-home-text-link" href={siteUrl('/actualites/')}>Toutes les actualités</a></div>
+        <div className="apnea-home-news-grid">{news.map(item => <a className="apnea-home-news-story" key={item.title + item.url} href={siteUrl(item.url)}><div className="apnea-home-news-image">{item.image ? <img src={mediaUrl(item.image)} alt={item.alt} width="600" height="400" loading="lazy" /> : <Waves size={48} strokeWidth={1.2} />}</div><p className="apnea-home-story-meta">{item.category} · {item.date}</p><h3>{item.title}</h3><p>{item.summary}</p><span className="apnea-home-text-link">Lire le récit</span></a>)}</div>
+      </section>
 
-   <section className='site-section site-container site-faq'><div><Badge>ON VOUS RÉPOND</Badge><h2>Avant de se <br/>jeter à l’eau.</h2></div><div className='site-faq-items'>{faqs.map(({question,answer},i)=><details key={i}><summary>{question}<Plus size={19}/></summary><p>{answer}</p></details>)}</div></section>
-
-   <section className='site-contact-section' id='contact'><div className='site-container site-contact-grid'><div className='site-contact-copy'><Badge>RENCONTRONS-NOUS</Badge><h2>Les premières bulles<br/>commencent par <br/><span>un bonjour.</span></h2><div className='site-contact-detail'><MapPin/><div><strong>{settings.contact.venue}</strong><p>{settings.contact.addressLines.map((line,i)=><Fragment key={i}>{i>0&&<br/>}{line}</Fragment>)}</p><a href={siteUrl(settings.contact.accessUrl)} target='_blank' rel='noreferrer'>Les informations d’accès <ExternalLink size={14}/></a></div></div><div className='site-contact-detail'><Clock3/><div><strong>{settings.contact.trainingDays}</strong><p>{settings.contact.hoursLines.map((line,i)=><Fragment key={i}>{i>0&&<br/>}{line}</Fragment>)}</p></div></div><div className='site-contact-detail'><Mail/><div><a className='site-contact-email' href={'mailto:'+EMAIL}>{EMAIL}</a><button className='site-copy-email' onClick={copyEmail}>{copied?<Check size={14}/>:<Copy size={14}/>} {copied?'Adresse copiée':'Copier l’adresse'}</button></div></div></div>
-    <form className='site-contact-form' onSubmit={emailSubmit}><h3>Et si on en parlait ?</h3><p>Quelques mots suffisent pour préparer votre venue.</p><div className='site-form-grid'><label>Votre nom<input name='name' autoComplete='name' required maxLength={100} placeholder='Prénom et nom'/></label><label>Votre email<input name='email' type='email' autoComplete='email' required maxLength={180} placeholder='vous@exemple.fr'/></label></div><label>J’aimerais…<span className='site-select-wrap'><select name='interest' value={subject} onChange={e=>setSubject(e.target.value)}>{contactSubjects.map(s=><option key={s}>{s}</option>)}</select><ChevronRight size={17}/></span></label><label>Votre message<textarea name='message' rows={4} maxLength={3000} required placeholder='Présentez-vous, partagez votre expérience ou posez votre question…'/></label><button type='submit' className='site-button site-button-primary'><Mail size={18}/>Préparer mon email</button><p className='site-form-note'>Votre messagerie s’ouvrira avec le message préparé. Vous pourrez le relire avant de l’envoyer.</p>{mailPrepared&&<div className='site-mail-feedback' role='status'>Le message a été préparé. S’il ne s’ouvre pas, écrivez directement à <a href={'mailto:'+EMAIL}>{EMAIL}</a>.</div>}</form>
-   </div></section>
-  </main>
-  <footer className='site-footer'><div className='site-container'><div className='site-footer-top'><div><Brand light/><p>Plonger. Partager. Recommencer.</p></div><nav aria-label='Liens de pied de page'><a href='#activites'>Les activités</a><a href={siteUrl('/agenda')}>L’agenda</a><a href={siteUrl(DOSSIER)}>Nous rejoindre</a>{clubPortalUrl&&<a href={clubPortalUrl}>Espace club</a>}<a href={siteUrl('/archives')}>Les archives</a><a href={siteUrl('/archives?type=page')}>Le club & les documents</a><a href={siteUrl('/admin/')}>Administration du site</a></nav><div className='site-footer-location'><span>Darnétal, Normandie</span><span>Club affilié à la FFESSM</span><a href={'mailto:'+EMAIL}>Écrivez-nous <Mail size={16}/></a></div></div><div className='site-footer-bottom'><span>© {new Date().getFullYear()} Les Hippocampes du Robec{!isStaticSite&&' · Nouvelle version en préparation'}</span><div><button onClick={()=>setInfo('sources')}>Crédits & sources</button><button onClick={()=>setInfo('privacy')}>Informations & confidentialité</button></div></div></div></footer>
-
-  <dialog ref={modalRef} className='site-dialog site-activity-dialog' onCancel={()=>setActivity(null)} onClick={e=>{if(e.target===e.currentTarget)setActivity(null)}}>{activity!==null&&<><button className='site-dialog-close' aria-label='Fermer' onClick={()=>setActivity(null)}><X/></button><img src={mediaUrl(activities[activity].image)} alt={activities[activity].alt}/><div className='site-dialog-body'><Badge>{activities[activity].tag}</Badge><h2>{activities[activity].title}</h2><p>{activities[activity].body}</p><p>{activities[activity].extra}</p><button className='site-button site-button-primary' onClick={()=>contactFor(activity===1?'Découvrir l’apnée':'Découvrir la plongée')}>Contacter le club</button></div></>}</dialog>
-
-  <dialog ref={infoRef} className='site-dialog site-info-dialog' onCancel={()=>setInfo(null)} onClick={e=>{if(e.target===e.currentTarget)setInfo(null)}}><button className='site-dialog-close' aria-label='Fermer les informations' onClick={()=>setInfo(null)}><X/></button><div className='site-dialog-body'>{info==='sources'?<><Badge>L’HISTOIRE DU CLUB, PRÉSERVÉE</Badge><h2>Crédits & sources</h2><p>Le fond décoratif à la raie manta a été créé pour cette refonte à partir de la référence visuelle fournie. Il s’agit d’une illustration générée, distincte des photographies documentaires du club.</p><p>Les informations, le logo et les photographies des activités proviennent du site des Hippocampes du Robec. Les photos sous-marines et sur le bateau sont des archives de Marseille en 2010. Les photos de reprise, de Némo–Todi et de la sortie en fosse sont datées de 2026.</p><p>Les horaires suivent l’annonce du 5 septembre 2026. Le calendrier de saison a été publié le 24 septembre 2026 ; la sortie à Conflans est confirmée pour le 11 avril 2027.</p><a href={siteUrl('/archives')} className='site-button site-button-outline'>Parcourir les archives <Plus size={17}/></a><p><a href={BLOG} target='_blank' rel='noreferrer'>Consulter le blog d’origine</a></p><p className='site-form-note'>Une première partie des pages, récits et albums du blog est consultable dans les archives de ce site. La reprise est encore partielle et le blog d’origine reste accessible. Les dates et sources sont conservées ; les informations anciennes peuvent nécessiter une confirmation auprès du club.</p></>:<><Badge>UNE VERSION À DÉCOUVRIR</Badge><h2>Informations & confidentialité</h2><p>Cette version de travail présente le club à partir de ses informations publiques. Les coordonnées de l’éditeur, les mentions de l’hébergement définitif et les modalités de gestion des données devront être complétées avant l’ouverture officielle.</p><p>Le formulaire de contact prépare un email sur votre appareil. Il n’enregistre pas son contenu sur le site. Aucun outil de suivi publicitaire n’est ajouté à ces pages.</p>{isStaticSite?<p>Ce site présente les informations publiques du club. Les photos et vidéos peuvent être diffusées depuis des services externes. Les demandes d’inscription et les questions personnelles sont à adresser directement au club.{clubPortalUrl&&' L’espace club dispose de ses propres accès et règles de confidentialité.'}</p>:<p>L’espace club est partagé entre les personnes autorisées, avec des comptes individuels et des accès selon leur rôle. Les essais restent dans une démonstration séparée. Les photos publiques peuvent être diffusées par Cloudinary ; les documents des adhérents restent dans leur espace protégé.</p>}<a href={'mailto:'+EMAIL} className='site-text-action'>Contacter le club <Mail size={16}/></a></>}</div></dialog>
- </div>
+      <section className="site-container apnea-home-invitation"><div><p className="apnea-kicker">LE PREMIER PAS SE FAIT AU BORD DE L’EAU</p><h2>Et si on se rencontrait ?</h2><p>Une question, une envie de découvrir l’apnée ou de faire un baptême ? Parlons-en.</p></div><a className="apnea-home-button apnea-home-button-primary" href={siteUrl('/le-club/#contact')}>Contacter le club</a></section>
+    </main>
+    <PublicFooter onPrivacy={() => setInfo('privacy')} onSources={() => setInfo('sources')} />
+    <dialog ref={infoRef} className="site-dialog site-info-dialog" aria-labelledby="home-info-title" onCancel={() => setInfo(null)} onClick={event => { if (event.target === event.currentTarget) setInfo(null); }}>
+      <button className="site-dialog-close" aria-label="Fermer les informations" onClick={() => setInfo(null)}><X /></button>
+      <div className="site-dialog-body">{info === 'sources' ? <>
+        <p className="apnea-kicker">L’HISTOIRE DU CLUB, PRÉSERVÉE</p><h2 id="home-info-title">Crédits & sources</h2>
+        <p>Les fonds sous-marins sont des illustrations décoratives créées pour cette refonte. Ils sont distincts des photographies documentaires du club.</p>
+        <p>Les informations, le logo et les photographies des activités proviennent du site des Hippocampes du Robec. Les photos sous-marines et sur le bateau sont des archives de Marseille en 2010. Les photos de reprise, de Némo–Todi et de la sortie en fosse sont datées de 2026.</p>
+        <p>Les horaires suivent l’annonce du 5 septembre 2026. Le calendrier de saison a été publié le 24 septembre 2026 ; la sortie à Conflans est confirmée pour le 11 avril 2027.</p>
+        <p><a href={siteUrl('/archives/')}>Parcourir les archives</a> · <a href={BLOG} target="_blank" rel="noreferrer">Consulter le blog d’origine</a></p>
+        <p>La collection rassemble les pages, récits et albums déjà repris du blog. Les dates et les sources sont conservées ; les informations anciennes peuvent nécessiter une confirmation auprès du club.</p>
+      </> : <>
+        <p className="apnea-kicker">LES INFORMATIONS DU SITE</p><h2 id="home-info-title">Informations & confidentialité</h2>
+        <p>Ce site présente le club à partir de ses informations publiques. Les coordonnées de l’éditeur et les mentions légales complètes doivent être précisées par le club.</p>
+        <p>Le formulaire de contact prépare un email sur votre appareil. Il n’enregistre pas son contenu sur ce site. Aucun outil de suivi publicitaire n’est ajouté à ces pages.</p>
+        <p>Les demandes d’inscription et les questions personnelles sont à adresser directement au club.</p>
+        <a href={'mailto:' + settings.contact.email}>Contacter le club</a>
+      </>}</div>
+    </dialog>
+  </div>;
 }

@@ -4,7 +4,11 @@ import { useEffect, useState } from "react";
 import { BookOpen, CalendarDays, ExternalLink, Loader2, Waves } from "lucide-react";
 import "../archives/archives.css";
 import "./news.css";
-import { clubPortalUrl, isStaticSite, mediaUrl, publicFeedUrl, siteUrl } from "../../lib/site-delivery";
+import { isStaticSite, mediaUrl, publicFeedUrl, siteUrl } from "../../lib/site-delivery";
+
+import { PublicHeader, PublicFooter } from "../site/PublicLayout";
+import { publicSiteSettings as settings } from "../../lib/public-site-content";
+import "../site/apnea-home.css";
 
 export type PublicNews = { id: string; title: string; date: string; excerpt: string; body?: string; image: string; url: string };
 export function newsDate(value: string) {
@@ -28,11 +32,11 @@ export default function NewsPage({ initialId }: { initialId?: string }) {
     return () => controller.abort();
   }, [initialId]);
   const selected = initialId ? items.find(item => item.id === initialId) : null;
-  return <div className="archive-page news-page">
+  return <div className="archive-page news-page apnea-news">
     <a className="archive-skip" href="#actualites-contenu">Aller au contenu</a>
-    <header className="archive-header"><div className="archive-container archive-header-inner"><a className="archive-brand" href={siteUrl("/")}><img src={mediaUrl("/images/logo-club.jpg")} alt="" width="49" height="49" /><span>Les Hippocampes<small>DU ROBEC</small></span></a><nav className="archive-header-nav" aria-label="Navigation principale"><a href={siteUrl("/")}>Accueil</a><a href={siteUrl("/actualites")} aria-current="page">Actualités</a><a href={siteUrl("/archives")}>Archives</a></nav>{clubPortalUrl&&<a className="archive-member-link" href={clubPortalUrl}>Espace club</a>}</div></header>
+    <PublicHeader current="news" />
     <main id="actualites-contenu">
-      <section className="archive-hero"><div className="archive-container"><div className="archive-hero-copy"><div className="archive-eyebrow"><Waves size={20} /> LE CARNET DU CLUB</div><h1>Les nouvelles<br /><span>des Hippocampes.</span></h1><p>Les rendez-vous, les projets et les moments que l’on partage.</p></div></div></section>
+      <section className="archive-hero"><div className="archive-container"><div className="archive-hero-copy"><div className="archive-eyebrow"><Waves size={20} /> LE JOURNAL DES HIPPOCAMPES</div><h1>À la surface,<br /><span>la vie du club.</span></h1><p>Les rendez-vous, les projets et les moments que l’on partage. Un journal pour garder le fil, entre deux immersions.</p></div><div className="apnea-journal-aside"><span>LES NOUVELLES DU BORD</span><p>Des visages.<br />Des sorties.<br /><strong>Des histoires à partager.</strong></p></div></div></section>
       <section className="archive-container archive-reader-shell news-reading" aria-busy={loading}>
         {loading ? <p className="news-status" role="status"><Loader2 size={22} />Chargement des actualités…</p> : error ? <div role="alert"><h2>Impossible de charger les actualités</h2><p>{error}</p><a className="news-link" href={siteUrl("/actualites")}>Réessayer</a></div> : initialId ? selected ? <article>
           <a className="news-link" href={siteUrl("/actualites")}>Toutes les actualités</a>
@@ -41,11 +45,15 @@ export default function NewsPage({ initialId }: { initialId?: string }) {
           {safeImage(selected.image) && <img className="news-cover" src={safeImage(selected.image)} alt="" />}
           <div className="news-body">{(selected.body || "").split(/\n\s*\n/).filter(Boolean).map((paragraph, i) => <p key={i}>{paragraph}</p>)}</div>
           {safeLink(selected.url) && <a className="news-link" href={safeLink(selected.url)} target="_blank" rel="noreferrer">Informations complémentaires <ExternalLink size={16} /></a>}
-        </article> : <div className="news-status"><BookOpen size={30} /><h2>Cette actualité n’est pas disponible.</h2><p>Elle a peut-être été retirée ou n’est pas encore publiée.</p><a className="news-link" href={siteUrl("/actualites")}>Consulter les actualités</a></div> : <>
+        </article> : <div className="news-status"><BookOpen size={30} /><h2>Cette actualité n’est pas disponible.</h2><p>Elle a peut-être été retirée ou n’est pas encore publiée.</p><a className="news-link" href={siteUrl("/actualites")}>Consulter les actualités</a></div> : items.length ? <>
           <div className="news-section-heading"><div><h2>La vie du club</h2><p>Les publications de l’équipe.</p></div><a className="news-link" href={siteUrl("/archives?type=article")}>Retrouver les articles du blog</a></div>
-          {items.length ? <div className="news-grid">{items.map(item => <a className="news-card" key={item.id} href={siteUrl("/actualites/" + encodeURIComponent(item.id))}>{safeImage(item.image) ? <img src={safeImage(item.image)} alt="" loading="lazy" /> : <div className="news-card-symbol"><Waves size={44} strokeWidth={1.2} /></div>}<div><time dateTime={item.date}>{newsDate(item.date)}</time><h3>{item.title}</h3><p>{item.excerpt}</p><span>Lire l’actualité</span></div></a>)}</div> : <div className="news-status"><BookOpen size={30} /><h3>La suite de l’histoire s’écrit ici.</h3><p>Les prochaines nouvelles du club apparaîtront sur cette page. Les articles déjà repris du blog sont disponibles dans les archives.</p><a className="news-link" href={siteUrl("/archives?type=article")}>Parcourir les archives</a></div>}
-        </>}
+          <div className="news-grid">{items.map(item => <a className="news-card" key={item.id} href={siteUrl("/actualites/" + encodeURIComponent(item.id))}>{safeImage(item.image) ? <img src={safeImage(item.image)} alt="" loading="lazy" /> : <div className="news-card-symbol"><Waves size={44} strokeWidth={1.2} /></div>}<div><time dateTime={item.date}>{newsDate(item.date)}</time><h3>{item.title}</h3><p>{item.excerpt}</p><span>Lire l’actualité</span></div></a>)}</div>
+        </> : null}
+        {!initialId && !loading && <section className={"apnea-news-blog" + (!items.length && !error ? " apnea-news-blog-first" : "")} aria-labelledby="blog-news-heading">
+          <div className="news-section-heading"><div><h2 id="blog-news-heading">Le club en images</h2><p>Les derniers récits du blog, avec leurs photos.</p></div><a className="news-link" href={siteUrl("/archives?type=article")}>Tous les récits</a></div>
+          <div className="news-grid apnea-journal-grid">{settings.featuredNews.map(item => <a className="news-card" key={item.title} href={siteUrl(item.url)}><img src={mediaUrl(item.image)} alt={item.alt} loading="lazy" /><div><time>{item.date}</time><h3>{item.title}</h3><p>{item.summary}</p><span>Lire le récit</span></div></a>)}</div>
+        </section>}
       </section>
-    </main><footer className="archive-footer"><div className="archive-container news-footer"><span>Les Hippocampes du Robec · Darnétal</span><a href={siteUrl("/")}>Retour au site du club</a></div></footer>
+    </main><PublicFooter />
   </div>;
 }

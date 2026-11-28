@@ -1,23 +1,34 @@
 # Administrer le site des Hippocampes
 
-## Les deux accès
+## Une administration reliée à GitHub
 
-Le pied de page du site contient **Administration du site**. Cette page propose :
+Le bouton **Administration** en haut du site et le lien **Administration du site**
+en pied de page ouvrent [l’administration du site](https://durstyone.github.io/Hippocampes/admin/).
+Cette page propose :
 
 - **L’éditeur du site**, pour les actualités, les photos, l’agenda, les coordonnées et les textes de présentation.
-- **L’espace club**, qui conserve l’administration associative existante : adhérents, inscriptions, finances, matériel et documents privés.
+- **Le dépôt GitHub**, pour consulter les fichiers et l’historique de **Durstyone/Hippocampes**.
 
-Le bouton **Espace club** reste également accessible en haut du site. Les droits de cet espace ne sont pas modifiés. Ses publications ne mettent pas automatiquement à jour GitHub Pages.
+Les contenus sont enregistrés dans ce même dépôt et publiés par GitHub Pages.
+L’éditeur Pages CMS fournit l’interface de saisie. Aucun autre espace de gestion
+n’est relié depuis le site public.
 
 ## Accéder à l’éditeur
 
 Pages CMS est activé depuis le **28 novembre 2026**, avec **Durstyone/Hippocampes** comme seul dépôt existant sélectionné. La configuration de l’éditeur est dans `.pages.yml`.
 
-1. Cliquer sur **Ouvrir l’éditeur** pour accéder à [l’éditeur du site](https://app.pagescms.org/durstyone/hippocampes/main/file/site).
+1. Cliquer sur **Modifier le site avec Pages CMS** pour accéder à [l’éditeur du site](https://app.pagescms.org/durstyone/hippocampes/main/file/site).
 2. Si une connexion est demandée, utiliser le compte GitHub du club **Durstyone**.
 3. Choisir la rubrique à modifier : **Actualités**, **Photos et albums** ou **Le site et l’agenda**. L’éditeur utilise le dépôt **Hippocampes**, branche **main**.
 
 L’application est autorisée à modifier les fichiers et gérer les Actions de ce dépôt, à lire l’adresse email du compte et à créer des dépôts sur Durstyone. Ces permissions ont été explicitement approuvées lors de l’installation. Aucun mot de passe ni jeton GitHub n’est inclus dans le site.
+
+### Revenir au site public
+
+Les liens **Voir le site** et **Retour au site** de la page d’administration
+ouvrent [le site GitHub Pages](https://durstyone.github.io/Hippocampes/).
+Pages CMS et le dépôt GitHub s’ouvrent dans un autre onglet : l’onglet du site
+reste disponible pour consulter le résultat après la publication.
 
 ## Publier une actualité
 
@@ -65,10 +76,11 @@ Il s’agit d’un import ponctuel : les modifications ultérieures du site ne s
 
 Après l’enregistrement, GitHub Actions contrôle les données et construit le site. Le lien **Suivre une publication** permet de voir sa progression. Une réussite du travail **deploy** confirme la mise en ligne ; en cas d’échec, la dernière version correctement déployée reste accessible. Corriger le contenu signalé puis enregistrer de nouveau.
 
-## Données publiques et gestion du club
+## Périmètre public de l’administration
 
-Le dépôt est public. Les textes et les images enregistrés dans l’éditeur sont donc visibles dans GitHub, même avant leur apparition sur le site. Les coordonnées des adhérents, les certificats, les paiements et les documents privés doivent rester dans l’espace club.
+Le dépôt est public. Les textes et les images enregistrés dans l’éditeur sont donc visibles dans GitHub, même avant leur apparition sur le site. Les coordonnées des adhérents, les certificats, les paiements et les documents confidentiels restent hors de ce dépôt.
 
-L’éditeur n’administre pas les permissions ni la base de l’espace club. L’accès au site privé n’accorde pas automatiquement le rôle d’administrateur au sein du club.
+Cette version ne contient pas de base adhérents ni de gestion des paiements. Les
+droits de modification du site sont ceux accordés sur GitHub au dépôt du club.
 
 Références : [démarrage de Pages CMS](https://pagescms.org/docs/quick-start/), [configuration](https://pagescms.org/docs/configuration/), [médias](https://pagescms.org/docs/configuration/media/).
