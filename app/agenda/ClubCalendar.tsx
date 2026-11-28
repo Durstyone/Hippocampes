@@ -112,7 +112,11 @@ export default function ClubCalendar({ settings }: { settings: PublicSiteSetting
   const seasonEndDate = proposedEndDate < seasonStartDate ? seasonStartDate : proposedEndDate;
   const seasonStart = seasonStartDate.slice(0, 7);
   const seasonEnd = seasonEndDate.slice(0, 7);
-  const [month, setMonth] = useState(() => today >= seasonStartDate && today <= seasonEndDate ? today.slice(0, 7) : seasonStart);
+  const [month, setMonth] = useState(() => {
+    const requestedMonth = typeof window !== 'undefined' ? new URLSearchParams(window.location.search).get('month') : null;
+    if (requestedMonth && /^\d{4}-(?:0[1-9]|1[0-2])$/.test(requestedMonth) && requestedMonth >= seasonStart && requestedMonth <= seasonEnd) return requestedMonth;
+    return today >= seasonStartDate && today <= seasonEndDate ? today.slice(0, 7) : seasonStart;
+  });
   const [view, setView] = useState<CalendarView>(() => typeof window !== 'undefined' && window.matchMedia('(max-width: 760px)').matches ? 'agenda' : 'month');
   const [activeCategories, setActiveCategories] = useState<Category[]>(ALL_CATEGORIES);
   const [query, setQuery] = useState('');
