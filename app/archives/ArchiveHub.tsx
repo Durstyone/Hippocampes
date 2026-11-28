@@ -1,9 +1,13 @@
 'use client';
 
 import { useEffect, useMemo, useRef, useState } from 'react';
-import { BookOpen, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, FolderOpen, Image as ImageIcon, Info, Search, SlidersHorizontal, Users, Waves, X, ZoomIn } from 'lucide-react';
+import { BookOpen, CalendarDays, ChevronDown, ChevronLeft, ChevronRight, Download, ExternalLink, FileText, FolderOpen, Image as ImageIcon, Info, Search, SlidersHorizontal, Waves, X, ZoomIn } from 'lucide-react';
 import './archives.css';
-import { clubPortalUrl, localSitePath, mediaUrl, siteUrl } from '../../lib/site-delivery';
+import { localSitePath, mediaUrl, siteUrl } from '../../lib/site-delivery';
+
+import { PublicHeader, PublicFooter } from "../site/PublicLayout";
+import PublishedAlbums from "../site/PublishedAlbums";
+import "../site/apnea-home.css";
 
 export type ArchiveKind = 'article' | 'page' | 'album';
 export interface ArchiveSummary {
@@ -308,16 +312,12 @@ function prepareEntry(entry: ArchiveEntry): ReaderEntry {
   };
 }
 
-function ArchiveHeader({ currentKind }: { currentKind?: ArchiveKind }) {
-  return <header className="archive-header"><div className="archive-container archive-header-inner">
-    <a className="archive-brand" href={siteUrl("/")} aria-label="Les Hippocampes du Robec, accueil"><img src={mediaUrl("/images/logo-club.jpg")} width="48" height="48" alt=""/><span>Les Hippocampes<small>DU ROBEC</small></span></a>
-    <nav className="archive-header-nav" aria-label="Navigation du carnet"><a href={siteUrl("/archives")} aria-current={!currentKind || currentKind === 'article' ? 'page' : undefined}>Le carnet</a><a href={siteUrl("/archives?type=page")} aria-current={currentKind === 'page' ? 'page' : undefined}>Le club</a><a href={siteUrl("/archives?type=album")} aria-current={currentKind === 'album' ? 'page' : undefined}>Les albums</a></nav>
-    {clubPortalUrl&&<a className="archive-member-link" href={clubPortalUrl}><Users size={17}/><span>Espace club</span></a>}
-  </div></header>;
+function ArchiveHeader() {
+  return <PublicHeader current="archives" />;
 }
 
 function ArchiveFooter() {
-  return <footer className="archive-footer"><div className="archive-container"><div><strong>Les Hippocampes du Robec</strong><p>Plonger. Partager. Se souvenir.</p></div><nav aria-label="Liens de pied de page"><a href={siteUrl("/")}>Accueil du club</a><a href={siteUrl("/archives?type=page")}>Le club & documents</a><a href={siteUrl("/#contact")}>Nous contacter</a></nav><span>Darnétal · Normandie</span></div></footer>;
+  return <PublicFooter />;
 }
 
 function Loading({ detail = false }: { detail?: boolean }) {
@@ -424,7 +424,6 @@ export default function ArchiveHub({ initialId }: { initialId?: string }) {
   const backHref = siteUrl('/archives' + filterQuery(filters));
   const galleryImages = entry?.galleryImages || [];
   const currentImage = galleryIndex === null ? null : galleryImages[galleryIndex];
-  const displayedKind = entry?.kind || (filters.type === 'all' ? undefined : filters.type);
 
   function updateFilters(changes: Partial<Filters>, replace = false) {
     const next = { ...filters, ...changes, page: changes.page ?? 1 };
@@ -441,13 +440,14 @@ export default function ArchiveHub({ initialId }: { initialId?: string }) {
   const isTeamPage = entry?.kind === 'page' && /equipe|comite|bureau|encadrant/.test(normalize(entry.title));
   const relevantEntries = entry ? entries.filter(item => item.id !== entry.id && item.kind === entry.kind && item.categories?.some(category => entry.categories?.includes(category))).sort((a, b) => (b.date || yearOf(b)).localeCompare(a.date || yearOf(a))).slice(0, 3) : [];
 
-  return <div className="archive-page">
+  return <div className="archive-page apnea-archives">
     <a href="#archive-content" className="archive-skip">Aller au contenu</a>
-    <ArchiveHeader currentKind={displayedKind}/>
+    <ArchiveHeader/>
     <main id="archive-content">
       {!entryId ? <>
-        <section className="archive-hero"><div className="archive-container"><div className="archive-hero-copy"><div className="archive-eyebrow"><Waves size={20}/> LE CARNET DES HIPPOCAMPES</div><h1>Une passion.<br/><span>Toute une histoire.</span></h1><p>Les sorties, les rencontres et la vie du club.<br className="archive-desktop-break"/> Retrouvez les récits, les photos et les documents des Hippocampes.</p></div><div className="archive-hero-summary"><BookOpen size={32}/><p>Nos souvenirs,<br/><strong>à portée de main.</strong></p>{index && <span>{plural(index.stats?.articles ?? entries.filter(item => item.kind === 'article').length, 'article')} · {plural(index.stats?.albums ?? entries.filter(item => item.kind === 'album').length, 'album')}</span>}</div></div></section>
+        <section className="archive-hero"><div className="archive-container"><div className="archive-hero-copy"><div className="archive-eyebrow"><Waves size={20}/> LES ARCHIVES DU CLUB</div><h1>La mémoire<br/><span>de nos immersions.</span></h1><p>Un carnet que l’on feuillette au fil des années.<br className="archive-desktop-break"/> Retrouvez les récits, les albums et les documents des Hippocampes.</p></div><div className="archive-hero-summary"><BookOpen size={32}/><p>Nos souvenirs,<br/><strong>à portée de main.</strong></p>{index && <span>{plural(index.stats?.articles ?? entries.filter(item => item.kind === 'article').length, 'article')} · {plural(index.stats?.albums ?? entries.filter(item => item.kind === 'album').length, 'album')}</span>}</div></div></section>
         <section className="archive-container archive-catalogue" aria-label="Rechercher dans le carnet">
+          {(filters.type === 'all' || filters.type === 'album') && !filters.q && !filters.year && !filters.category && filters.page === 1 && <div className="site-page apnea-published-albums"><PublishedAlbums/></div>}
           {index?.coverage?.complete !== true && <aside className="archive-collection-note"><Info size={18}/><p>Cette collection réunit les contenus déjà repris du blog. D’autres archives restent consultables sur le <a href="https://les-hippocampes-du-robec.over-blog.com/" target="_blank" rel="noopener noreferrer">blog d’origine</a>.</p></aside>}
           <div className="archive-search"><Search size={22}/><label htmlFor="archive-search" className="archive-sr-only">Rechercher dans les titres et les textes</label><input id="archive-search" type="search" value={filters.q} onChange={event => updateFilters({ q: event.target.value }, true)} placeholder="Un voyage, une sortie, un document…" autoComplete="off"/><span className="archive-search-hint">Rechercher dans le carnet</span></div>
           <div className="archive-kind-tabs" role="group" aria-label="Type de contenu">{KINDS.map(kind => <button key={kind.value} className={filters.type === kind.value ? 'is-active' : ''} onClick={() => updateFilters({ type: kind.value })} aria-pressed={filters.type === kind.value}><kind.icon size={18}/>{kind.label}<span>{kind.value === 'all' ? entries.length : entries.filter(item => item.kind === kind.value).length}</span></button>)}</div>
