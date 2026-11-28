@@ -2,7 +2,7 @@
 
 ## Une interface de gestion dans le site
 
-Le bouton **Administration** ouvre [l’espace d’administration du club](https://durstyone.github.io/Hippocampes/admin/). Il regroupe le tableau de bord, les actualités, la photothèque, l’agenda et les informations du club. Les listes et formulaires s’utilisent dans cette interface ; les contenus sont enregistrés dans **Durstyone/Hippocampes**, branche **main**, puis publiés par GitHub Pages.
+Le bouton **Administration** ouvre [l’espace d’administration du club](https://durstyone.github.io/Hippocampes/admin/). Il regroupe le tableau de bord, les adhérents, les documents publics et privés, les actualités, la photothèque, l’agenda, les informations du club et les accès des responsables. Les listes et formulaires s’utilisent dans cette interface ; les contenus sont enregistrés dans **Durstyone/Hippocampes**, branche **main**, puis publiés par GitHub Pages.
 
 Le lien **Voir le site** reste accessible et ouvre toujours [le site public](https://durstyone.github.io/Hippocampes/).
 
@@ -12,13 +12,52 @@ La consultation des contenus publics ne demande aucune connexion. Les données a
 
 1. Se connecter à GitHub avec le compte du club **Durstyone**.
 2. Dans les paramètres GitHub, ouvrir **Developer settings → Personal access tokens → Fine-grained tokens**.
-3. Créer un jeton avec **Durstyone** comme propriétaire, choisir **Only select repositories** et sélectionner uniquement **Hippocampes**.
-4. Autoriser **Repository permissions → Contents → Read and write**. La lecture des métadonnées du dépôt est ajoutée automatiquement par GitHub ; aucune permission d’administration ou de workflow n’est nécessaire.
+3. Créer un jeton avec **Durstyone** comme propriétaire, choisir **Only select repositories** et sélectionner **Hippocampes** pour le site et **Hippocampes-prive** pour les dossiers du club.
+4. Autoriser **Repository permissions → Contents → Read and write**. La lecture des métadonnées du dépôt est ajoutée automatiquement par GitHub ; aucune permission de workflow n’est nécessaire. La rubrique séparée **Accès et droits**, réservée au propriétaire, demande aussi **Administration → Read and write** pour gérer les invitations.
 5. Copier le jeton dans le champ de connexion de l’administration et valider. L’identité retournée par GitHub est affichée après vérification.
 
 Cette connexion par jeton est distincte de la session ouverte sur github.com. Elle ne réutilise pas automatiquement les autorisations de Pages CMS. Le jeton reste uniquement en mémoire dans l’onglet : il n’est enregistré ni dans les fichiers du site, ni dans le stockage local du navigateur. Il est envoyé uniquement à l’API officielle GitHub et supprimé à la déconnexion ou au rechargement de la page.
 
-Ne pas placer le jeton dans une URL, un article ou un fichier du dépôt. Il doit rester limité au dépôt du club et avoir une durée adaptée à son usage.
+Ne pas placer le jeton dans une URL, un article ou un fichier du dépôt. Pour le propriétaire, il peut rester limité aux deux dépôts du club et avoir une durée adaptée à son usage.
+
+## Comptes des responsables invités
+
+Chaque responsable utilise son propre compte GitHub. Une fonction associative renseignée dans une fiche adhérent ne donne **aucun droit technique**. Le propriétaire choisit les autorisations dans **Accès et droits** ; la personne doit accepter l’invitation GitHub.
+
+GitHub ne permet pas à un collaborateur d’utiliser un jeton à accès fin sur un dépôt personnel appartenant à un autre utilisateur. Pour les formulaires intégrés, le collaborateur utilise un jeton classique : `public_repo` pour le site public seul, `repo` pour les dossiers privés. Ce dernier périmètre peut aussi couvrir ses autres dépôts privés. La clé n’est jamais conservée durablement par le site ; utiliser une durée courte et la révoquer après usage. Le propriétaire peut conserver un jeton à accès fin limité aux dépôts du club.
+
+## Adhérents
+
+La rubrique **Adhérents** gère les coordonnées, la saison, le niveau, les groupes, le statut du dossier, la réception du formulaire d’adhésion, le numéro et l’échéance de la licence, l’échéance du CACI et le contact d’urgence. Ne pas y renseigner de diagnostic ni les réponses d’un questionnaire médical.
+
+La liste est recherchable, filtrable et exportable en CSV. Une fiche peut être archivée puis rétablie. Ses documents sont consultables depuis la fiche. Les données ne sont chargées qu’après autorisation sur le dépôt privé **Durstyone/Hippocampes-prive**, et sont effacées de la mémoire de l’interface à la déconnexion.
+
+Aucun jeu de faux adhérents n’est préchargé. L’audit de la base de l’ancien espace effectué le 28 novembre 2026 n’a trouvé aucune fiche adhérent ni pièce jointe enregistrée à migrer.
+
+## Documents publics et dossier d’adhésion
+
+La page [Documents](https://durstyone.github.io/Hippocampes/documents/) regroupe les formulaires vierges et les ressources publiques. Le dossier officiel **2026–2027** déjà présent dans les archives est proposé directement : six pages, à imprimer et compléter. Il comprend la feuille d’inscription, la charte et les documents médicaux vierges. Le bouton de la page **Le club** suit la fiche d’adhésion de la saison.
+
+Dans **Documents → Documents publics**, ajouter ou modifier une fiche, importer un PDF de 5 Mio maximum ou choisir un document déjà présent. Confirmer que le document est destiné à tous les visiteurs avant sa publication. Les fiches sont enregistrées dans `github-pages/content/documents/` ; les nouveaux PDF sont dans `public/documents/fichiers/`. Le PDF et sa fiche sont enregistrés ensemble. Retirer une fiche de la page ne purge pas son fichier ni l’historique GitHub.
+
+## Documents privés
+
+**Documents → Documents privés** permet d’importer une pièce administrative (PDF, JPEG, PNG ou WebP, 5 Mio maximum), de la rattacher à un adhérent, de la classer par saison et catégorie, de la télécharger, de la modifier ou de l’archiver. Les fichiers restent dans **Hippocampes-prive** et ne sont jamais ajoutés à la publication GitHub Pages.
+
+Le rattachement à un adhérent sert au classement : il ne crée pas un accès personnel pour cet adhérent. Les responsables autorisés sur le dépôt privé voient tous les dossiers. Les questionnaires médicaux remplis restent avec l’adhérent et son médecin.
+
+## Accès et droits
+
+Cette rubrique est réservée au propriétaire **Durstyone**. Elle vérifie le compte GitHub du destinataire, affiche les accès et invitations existants et permet d’inviter un responsable ou de retirer un accès après confirmation.
+
+Les deux périmètres correspondent aux permissions **réelles** de GitHub :
+
+- **Site et code** : écriture dans `Durstyone/Hippocampes`, y compris les contenus, les fichiers sources et le logiciel d’administration. Réserver cet accès à une personne de confiance, car elle peut modifier le code utilisé par les autres responsables.
+- **Dossiers privés** : lecture et écriture dans `Durstyone/Hippocampes-prive`, comprenant tous les adhérents, les documents et leur historique.
+
+Un compte personnel GitHub distingue propriétaire et collaborateurs. Cette architecture ne fournit pas de rôle « actualités seulement », de lecture seule du dépôt privé ou de restriction par adhérent. Les rôles fins et les comptes autonomes des adhérents nécessitent une autre couche d’authentification et de permissions. Ajouter un accès à chacun des deux dépôts est une opération distincte ; l’interface indique les éventuels résultats partiels.
+
+Aucune invitation n’est envoyée automatiquement lors de la création d’une fiche, et aucun nouvel accès n’a été attribué pendant cette mise à jour.
 
 ## Actualités et récits à la une
 
@@ -68,10 +107,12 @@ Les changements saisis dans un formulaire mais non enregistrés restent dans l�
 
 L’[éditeur Pages CMS existant](https://app.pagescms.org/durstyone/hippocampes/main/file/site) reste un autre moyen de modifier les mêmes contenus. Il utilise sa propre connexion GitHub et sa configuration `.pages.yml`. Les modifications effectuées dans l’un des éditeurs doivent être rechargées dans l’autre avant de poursuivre sur le même fichier.
 
-## Périmètre de cette administration
+## Périmètre et conservation
 
-Cette interface administre les **contenus publics du site**. Le dépôt est public : toute donnée enregistrée dans ses fichiers est visible dans GitHub, même avant le déploiement du site.
+Les contenus publics et les données privées sont enregistrés dans deux dépôts distincts. Le client privé refuse les lectures et les enregistrements si GitHub ne confirme plus le caractère privé de `Hippocampes-prive`. Le constructeur du site n’inclut aucune fiche adhérent ni pièce jointe privée.
 
-Les fonctions privées de l’ancien espace club — adhérents, paiements, inscriptions, palanquées, matériel, certificats et documents confidentiels — ne sont pas migrées dans cette version. Elles nécessitent un stockage privé et des contrôles d’accès adaptés. Ne pas enregistrer ces informations dans les contenus publics.
+Git conserve les versions antérieures : **archiver n’efface pas définitivement** les données de l’historique. La suppression définitive d’une donnée nécessite une opération distincte sur l’historique, à préparer spécifiquement.
 
-Références officielles : [jetons personnels GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), [API GitHub et requêtes depuis le navigateur](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests), [configuration de Pages CMS](https://pagescms.org/docs/configuration/).
+Les paiements, la comptabilité, les inscriptions autonomes aux sorties, les palanquées et le prêt de matériel ne sont pas intégrés dans cette version. Les formulaires et les protections sont testés localement ; l’enregistrement authentifié et l’envoi d’invitations doivent être vérifiés après activation du jeton du propriétaire.
+
+Références officielles : [jetons personnels GitHub](https://docs.github.com/en/authentication/keeping-your-account-and-data-secure/managing-your-personal-access-tokens), [permissions d’un dépôt personnel](https://docs.github.com/en/repositories/managing-your-repositorys-settings-and-features/repository-access-and-collaboration/permission-levels-for-a-personal-account-repository), [API GitHub depuis le navigateur](https://docs.github.com/en/rest/using-the-rest-api/using-cors-and-jsonp-to-make-cross-origin-requests), [configuration de Pages CMS](https://pagescms.org/docs/configuration/).
