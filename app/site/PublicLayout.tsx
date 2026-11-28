@@ -6,7 +6,7 @@ import { publicSiteSettings as settings } from '../../lib/public-site-content';
 import { mediaUrl, siteUrl } from '../../lib/site-delivery';
 import './site.css';
 
-type PublicSection = 'club' | 'activities' | 'agenda' | 'news' | 'archives';
+type PublicSection = 'club' | 'activities' | 'agenda' | 'news' | 'archives' | 'documents';
 const BLOG_URL = 'https://les-hippocampes-du-robec.over-blog.com/';
 const PUBLIC_LINKS: { id: PublicSection; label: string; path: string }[] = [
   { id: 'club', label: 'Le club', path: '/le-club/' },
@@ -14,6 +14,7 @@ const PUBLIC_LINKS: { id: PublicSection; label: string; path: string }[] = [
   { id: 'agenda', label: 'L’agenda', path: '/agenda/' },
   { id: 'news', label: 'Actualités', path: '/actualites/' },
   { id: 'archives', label: 'Archives', path: '/archives/' },
+  { id: 'documents', label: 'Documents', path: '/documents/' },
 ];
 
 function PublicBrand({ light = false }: { light?: boolean }) {

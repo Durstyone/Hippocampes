@@ -1,12 +1,14 @@
 'use client';
 
 import { Fragment, useEffect, useState } from 'react';
-import { CalendarDays, Check, ChevronDown, Clock3, Copy, FileText, Mail, MapPin, ShieldCheck, Users, Waves } from 'lucide-react';
+import { CalendarDays, Check, ChevronDown, Clock3, Copy, Download, FileText, Mail, MapPin, ShieldCheck, Users, Waves } from 'lucide-react';
 import { clubPortalUrl, mediaUrl, siteUrl } from '../../lib/site-delivery';
 import { publicSiteSettings as settings } from '../../lib/public-site-content';
 import archiveHome from './archive-links.json';
 import { PublicHeader, PublicFooter } from './PublicLayout';
+import { validatePublicDocument, type PublicDocument } from '../../lib/public-documents.mjs';
 import './club-pages.css';
+import '../documents/documents.css';
 
 const EMAIL = settings.contact.email;
 const CONTACT_SUBJECTS = [
@@ -85,8 +87,27 @@ function ContactSection() {
 }
 
 export function ClubPage() {
+  const [registration, setRegistration] = useState<PublicDocument | null>({ title: 'Dossier d’adhésion 2026–2027', description: '', category: 'adhesion', season: '2026–2027', url: '/media/archive/1eddff43697a4fd88c8bc87a.pdf', date: '', format: 'pdf', order: 10 });
+  useEffect(() => {
+    const controller = new AbortController();
+    fetch(siteUrl('/content/public-documents.json'), { signal: controller.signal, cache: 'no-store' })
+      .then(async response => {
+        if (!response.ok) return;
+        const data: unknown = await response.json();
+        if (!data || typeof data !== 'object' || !('documents' in data) || !Array.isArray(data.documents)) return;
+        const documents = data.documents.map((item: unknown) => {
+          if (!item || typeof item !== 'object' || !('id' in item)) throw new Error('Document invalide.');
+          const { id: _id, ...record } = item;
+          return validatePublicDocument(record);
+        }).filter(item => item.category === 'adhesion').sort((a, b) => a.order - b.order);
+        const current = documents.find(item => item.season.replace(/\D/g, '') === settings.season.name.replace(/\D/g, '')) || documents[0];
+        if (!controller.signal.aborted) setRegistration(current || null);
+      }).catch(() => { /* The previously published official dossier remains available. */ });
+    return () => controller.abort();
+  }, []);
+  const registrationIsDownload = registration?.format === 'pdf' && registration.url.startsWith('/');
   const resources = [
-    { href: archiveHome.links.registration, title: 'Le dossier d’inscription', detail: settings.season.registrationCaption, icon: FileText },
+    { href: '/documents/', title: 'Les documents du club', detail: 'Le dossier d’adhésion et les ressources de l’association.', icon: FileText },
     { href: archiveHome.links.team, title: 'L’équipe du club', detail: 'Les personnes qui font vivre l’association.', icon: Users },
     { href: archiveHome.links.rules, title: 'Le règlement intérieur', detail: 'Les repères pour vivre le club ensemble.', icon: ShieldCheck },
     { href: archiveHome.links.statutes, title: 'Les statuts de l’association', detail: 'Le fonctionnement des Hippocampes du Robec.', icon: FileText },
@@ -129,13 +150,13 @@ export function ClubPage() {
       </section>
 
       <section className="cp-membership cp-container" id="rejoindre" aria-labelledby="membership-title">
-        <div className="cp-membership-intro"><p className="cp-kicker">REJOINDRE LES HIPPOCAMPES</p><h2 id="membership-title">Le premier pas<br/>se fait ensemble.</h2><p>Une question, un baptême ou une envie de reprendre ? Contactez le club pour choisir votre activité et préparer votre inscription.</p><p>Retrouvez ici les documents et les informations de l’association pour la saison {settings.season.name}.</p><a className="cp-text-link" href={siteUrl('/activites/')}>Découvrir les activités</a>{clubPortalUrl && <a className="cp-member-access" href={clubPortalUrl}><Users size={22} aria-hidden="true"/><span><strong>Déjà membre ?</strong>Retrouver l’espace club</span></a>}</div>
-        <div className="cp-resource-list">{resources.map(resource => <a key={resource.href} href={siteUrl(resource.href)} className="cp-resource"><resource.icon size={22} aria-hidden="true"/><span><strong>{resource.title}</strong><small>{resource.detail}</small></span><span className="cp-resource-open">Consulter</span></a>)}<a className="cp-resource-all" href={siteUrl('/archives?type=page')}>Tous les documents et les pages du club</a></div>
+        <div className="cp-membership-intro"><p className="cp-kicker">REJOINDRE LES HIPPOCAMPES</p><h2 id="membership-title">Le premier pas<br/>se fait ensemble.</h2><p>Une question, un baptême ou une envie de reprendre ? Contactez le club pour choisir votre activité et préparer votre inscription.</p><p>Retrouvez ici les documents et les informations de l’association pour la saison {settings.season.name}.</p>{registration && <a className="cp-button cp-button-primary cp-membership-download" href={siteUrl(registration.url)} download={registrationIsDownload ? 'dossier-adhesion-' + registration.season.replace(/[^0-9]+/g, '-') + '.pdf' : undefined} target={registrationIsDownload ? undefined : '_blank'} rel="noopener noreferrer">{registrationIsDownload ? <Download size={19} aria-hidden="true"/> : <FileText size={19} aria-hidden="true"/>}<span>{registrationIsDownload ? 'Télécharger le dossier d’adhésion' : 'Consulter le dossier d’adhésion'}{registration.season && <><br/>{registration.season}</>}</span></a>}{registration?.format === 'pdf' && <p className="cp-membership-download-note">Un dossier à imprimer et à compléter, puis à remettre au club.</p>}<a className="cp-text-link" href={siteUrl('/activites/')}>Découvrir les activités</a>{clubPortalUrl && <a className="cp-member-access" href={clubPortalUrl}><Users size={22} aria-hidden="true"/><span><strong>Déjà membre ?</strong>Retrouver l’espace club</span></a>}</div>
+        <div className="cp-resource-list">{resources.map(resource => <a key={resource.href} href={siteUrl(resource.href)} className="cp-resource"><resource.icon size={22} aria-hidden="true"/><span><strong>{resource.title}</strong><small>{resource.detail}</small></span><span className="cp-resource-open">Consulter</span></a>)}<a className="cp-resource-all" href={siteUrl('/documents/')}>Ouvrir tous les documents</a></div>
       </section>
 
       <section className="cp-questions cp-container" aria-labelledby="questions-title">
         <div><p className="cp-kicker">AVANT DE NOUS REJOINDRE</p><h2 id="questions-title">Vos premières<br/>questions.</h2></div>
-        <div className="cp-faq">{settings.faq.map(({ question, answer }, index) => <details key={question} open={index === 0 ? true : undefined}><summary>{question}<ChevronDown size={20} aria-hidden="true"/></summary><p>{answer.replace('ci-dessous', 'sur cette page')}</p>{question === 'Comment rejoindre le club ?' && <a className="cp-text-link" href={siteUrl(archiveHome.links.registration)}>Ouvrir le dossier d’inscription</a>}</details>)}</div>
+        <div className="cp-faq">{settings.faq.map(({ question, answer }, index) => <details key={question} open={index === 0 ? true : undefined}><summary>{question}<ChevronDown size={20} aria-hidden="true"/></summary><p>{answer.replace('ci-dessous', 'sur cette page')}</p>{question === 'Comment rejoindre le club ?' && registration && <a className="cp-text-link" href={siteUrl(registration.url)} target="_blank" rel="noopener noreferrer">Ouvrir le dossier d’inscription{registration.season ? ' ' + registration.season : ''}</a>}</details>)}</div>
       </section>
       <ContactSection/>
     </main>
