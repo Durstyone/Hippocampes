@@ -303,10 +303,13 @@ await writeFile(resolve(www, '.nojekyll'), '');
 if (domain && !preview) await writeFile(resolve(www, 'CNAME'), domain + '\n');
 
 const template = await readFile(resolve(www, 'index.html'), 'utf8');
-const background = resolveMedia('/images/fond-manta-robec.png');
-const backgroundCss = `:root{--site-ocean-image:url(${JSON.stringify(background).replace(/</g, '\\3c ').replace(/>/g, '\\3e ')})}`;
+const background = resolveMedia('/images/apnee-immersion.webp');
+const backgroundImage = `url(${JSON.stringify(background).replace(/</g, '\\3c ').replace(/>/g, '\\3e ')})`;
+const backgroundCss = `:root{--site-ocean-image:${backgroundImage};--apnea-scene:${backgroundImage}}`;
 const routeRecords = [
   { path: '/', title },
+  { path: '/le-club/', title: 'Le club — Les Hippocampes du Robec', description: 'Découvrez le club des Hippocampes du Robec à Darnétal : plongée, apnée, vie associative et informations pratiques pour nous rejoindre.' },
+  { path: '/activites/', title: 'Nos activités — Les Hippocampes du Robec', description: 'Apnée, plongée bouteille, formations et sorties : découvrez les activités des Hippocampes du Robec et les rendez-vous du club à Darnétal.' },
   { path: '/archives/', title: 'Les archives — Les Hippocampes du Robec' },
   { path: '/actualites/', title: 'Les actualités — Les Hippocampes du Robec' },
   { path: '/agenda/', title: `Agenda ${siteSettings.season.name} — Les Hippocampes du Robec`, description: `Le calendrier ${siteSettings.season.name} des Hippocampes du Robec : entraînements, formations, sorties et vie du club. Consultez les dates et ajoutez les rendez-vous à votre agenda.` },

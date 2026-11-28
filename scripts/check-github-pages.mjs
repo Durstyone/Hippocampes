@@ -48,7 +48,7 @@ async function walk(directory) {
 
 const files = await walk(root);
 const paths = new Set(files.map(path => relative(root, path).split('\\').join('/')));
-for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'archives/index.html', 'actualites/index.html', 'agenda/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
+for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'le-club/index.html', 'activites/index.html', 'archives/index.html', 'actualites/index.html', 'agenda/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
 const forbidden = /(?:^|\/)(?:\.git|\.env[^/]*|\.openai|\.wrangler|club\.sqlite[^/]*|auth\.mjs|server\.mjs|package\.json)(?:\/|$)|\.(?:sqlite(?:-wal|-shm)?|pem|map)$/i;
 const mediaPattern = /\.(?:avif|gif|jpe?g|png|webp|bmp|tiff?|heic|heif|mp4|webm|mov|m4v|mkv|avi|ogv)$/i;
 for (const path of paths) {
@@ -93,6 +93,17 @@ assert.ok((await readFile(resolve(root, 'admin/index.html'), 'utf8')).includes('
 const agendaHtml = await readFile(resolve(root, 'agenda/index.html'), 'utf8');
 assert.match(agendaHtml, /<title>Agenda [^<]+ — Les Hippocampes du Robec<\/title>/, 'L’agenda doit avoir un titre de page dédié.');
 assert.match(agendaHtml, /<meta name="description" content="Le calendrier [^"]+"\s*\/>/, 'L’agenda doit avoir sa propre description.');
+const sectionHtml = new Map();
+const sectionDescriptions = new Set();
+for (const [slug, label] of [['le-club', 'Le club'], ['activites', 'Nos activités']]) {
+  const html = await readFile(resolve(root, `${slug}/index.html`), 'utf8');
+  assert.ok(html.includes(`<title>${label} — Les Hippocampes du Robec</title>`), `La page ${label} doit avoir un titre dédié.`);
+  const pageDescription = html.match(/<meta name="description" content="([^"]+)"\s*\/>/)?.[1];
+  assert.ok(pageDescription && pageDescription !== info.description, `La page ${label} doit avoir sa propre description.`);
+  assert.ok(!sectionDescriptions.has(pageDescription), `La description de ${label} ne doit pas être celle d’une autre rubrique.`);
+  sectionDescriptions.add(pageDescription);
+  sectionHtml.set(slug, html);
+}
 
 let htmlPages = 0;
 for (const file of files) {
@@ -122,6 +133,11 @@ if (info.canonicalSiteUrl && !preview) {
   assert.ok(agendaHtml.includes(`<link rel="canonical" href="${agendaUrl}"`), 'L’URL canonique de l’agenda doit conserver le chemin du dépôt.');
   const sitemap = await readFile(resolve(root, 'sitemap.xml'), 'utf8');
   assert.ok(sitemap.includes(`<loc>${agendaUrl}</loc>`), 'L’agenda doit apparaître dans le sitemap public.');
+  for (const [slug, html] of sectionHtml) {
+    const canonicalUrl = info.canonicalSiteUrl.replace(/\/$/, '') + `/${slug}/`;
+    assert.ok(html.includes(`<link rel="canonical" href="${canonicalUrl}"`), `L’URL canonique de ${slug} doit conserver le chemin du dépôt.`);
+    assert.ok(sitemap.includes(`<loc>${canonicalUrl}</loc>`), `La page ${slug} doit apparaître dans le sitemap public.`);
+  }
 }
 const bytes = (await Promise.all(files.map(file => stat(file)))).reduce((sum, item) => sum + item.size, 0);
 assert.equal(info.files, files.length);
