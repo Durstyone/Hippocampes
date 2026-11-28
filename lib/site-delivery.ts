@@ -47,7 +47,9 @@ export function mediaUrl(path: string) {
   return siteUrl(local);
 }
 
-export const clubPortalUrl = isStaticSite ? (delivery?.clubUrl || '') : '/club';
+// The GitHub Pages site is administered through its own /admin/ entry point.
+// A legacy build variable must never restore a link to the separate club app.
+export const clubPortalUrl = isStaticSite ? '' : '/club';
 
 export function publicFeedUrl(kind: 'club' | 'media') {
   return isStaticSite ? siteUrl('/content/public-' + kind + '.json') : '/api/public/' + kind;
