@@ -1,4 +1,5 @@
 import { validateSiteSettings, type PublicSiteSettings } from './public-site-settings.mjs';
+import { validatePublicDocument, validatePublicPdf, type PublicDocument } from './public-documents.mjs';
 
 /** The editor can write public club content in this repository only. */
 export const ADMIN_REPOSITORY = 'Durstyone/Hippocampes';
@@ -24,6 +25,8 @@ export interface AdminSnapshot {
   settingsSha: string;
   news: ManagedRecord<AdminNews>[];
   photos: ManagedRecord<AdminPhoto>[];
+  documents: ManagedRecord<PublicDocument>[];
+  documentFiles: AdminMedia[];
   media: AdminMedia[];
   fileShas: Record<string, string>;
 }
@@ -104,12 +107,15 @@ export function validateAdminPhoto(value: unknown): AdminPhoto {
   };
 }
 
-type ContentKind = 'settings' | 'news' | 'photos' | 'image';
+function isPublicPdfPath(path: string): boolean { return /^\/(?:documents\/fichiers|media\/archive)\/[A-Za-z0-9][A-Za-z0-9_-]*\.pdf$/.test(path) && path.slice(path.lastIndexOf('/') + 1).length <= 180; }
+type ContentKind = 'settings' | 'news' | 'photos' | 'documents' | 'image' | 'pdf';
 function contentKind(path: string): ContentKind {
   if (path === ADMIN_SETTINGS_PATH) return 'settings';
-  const collection = /^github-pages\/content\/(news|photos)\/([^/]+)\.json$/.exec(path);
-  if (collection && safeId.test(collection[2]) && collection[2] !== '.' && collection[2] !== '..') return collection[1] as 'news' | 'photos';
+  const collection = /^github-pages\/content\/(news|photos|documents)\/([^/]+)\.json$/.exec(path);
+  if (collection?.[1] === 'documents' && !/^[A-Za-z0-9][A-Za-z0-9_-]{0,159}$/.test(collection[2])) return invalid('Le nom du document public contient des caractères non autorisés.');
+  if (collection && safeId.test(collection[2]) && collection[2] !== '.' && collection[2] !== '..') return collection[1] as 'news' | 'photos' | 'documents';
   if (path.startsWith('public/images/publications/') && isPublicRasterPath(path.slice('public'.length))) return 'image';
+  if (path.startsWith('public/documents/fichiers/') && isPublicPdfPath(path.slice('public'.length))) return 'pdf';
   return invalid('Ce fichier ne fait pas partie des contenus modifiables du site.');
 }
 function checkedSha(value: unknown): string {
@@ -172,7 +178,7 @@ function validateRaster(bytes: Uint8Array, path: string) {
 
 interface GitTreeItem { path: string; sha: string; type: string; mode: string; size?: number }
 interface GitState { headSha: string; treeSha: string; entries: GitTreeItem[]; fileShas: Record<string, string> }
-interface PreparedChange extends AdminChange { kind: ContentKind; parsed?: PublicSiteSettings | AdminNews | AdminPhoto }
+interface PreparedChange extends AdminChange { kind: ContentKind; parsed?: PublicSiteSettings | AdminNews | AdminPhoto | PublicDocument }
 
 export class GitHubAdminClient {
   #token: string;
@@ -183,7 +189,7 @@ export class GitHubAdminClient {
 
   constructor(token: string, fetcher: typeof fetch = fetch) {
     const trimmed = token.trim();
-    if (!/^github_pat_[A-Za-z0-9_]{20,250}$/.test(trimmed)) invalid('Utilisez un jeton GitHub à accès fin, limité au dépôt Hippocampes.');
+    if (!/^(?:github_pat_[A-Za-z0-9_]{20,250}|ghp_[A-Za-z0-9]{30,255})$/.test(trimmed)) invalid('Utilisez un jeton GitHub personnel valide. Le propriétaire peut le limiter au dépôt Hippocampes ; les collaborateurs utilisent un jeton classique.');
     this.#token = trimmed;
     this.#fetch = fetcher;
   }
@@ -269,7 +275,8 @@ export class GitHubAdminClient {
     const settings = validateSiteSettings(await this.#json(settingsFile.sha));
     const news: ManagedRecord<AdminNews>[] = [];
     const photos: ManagedRecord<AdminPhoto>[] = [];
-    const collections = state.entries.filter(entry => /^github-pages\/content\/(?:news|photos)\/[^/]+\.json$/.test(entry.path));
+    const documents: ManagedRecord<PublicDocument>[] = [];
+    const collections = state.entries.filter(entry => /^github-pages\/content\/(?:news|photos|documents)\/[^/]+\.json$/.test(entry.path));
     // Small bounded batches avoid flooding the API as the collection grows.
     for (let offset = 0; offset < collections.length; offset += 6) {
       await Promise.all(collections.slice(offset, offset + 6).map(async entry => {
@@ -279,12 +286,15 @@ export class GitHubAdminClient {
         const raw = await this.#json(entry.sha);
         if (kind === 'news') news.push({ id, path: entry.path, sha: entry.sha, data: validateAdminNews(raw) });
         if (kind === 'photos') photos.push({ id, path: entry.path, sha: entry.sha, data: validateAdminPhoto(raw) });
+        if (kind === 'documents') documents.push({ id, path: entry.path, sha: entry.sha, data: validatePublicDocument(raw) });
       }));
     }
     news.sort((a, b) => b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
     photos.sort((a, b) => a.data.order - b.data.order || b.data.date.localeCompare(a.data.date) || a.id.localeCompare(b.id));
     const media = state.entries.filter(entry => entry.mode === '100644' && entry.path.startsWith('public/') && isPublicRasterPath(entry.path.slice('public'.length))).map(entry => ({ path: entry.path.slice('public'.length), repoPath: entry.path, sha: entry.sha, name: entry.path.slice(entry.path.lastIndexOf('/') + 1), size: entry.size }));
-    return { ...state, settings, settingsSha: settingsFile.sha, news, photos, media };
+    documents.sort((a, b) => a.data.order - b.data.order || a.data.title.localeCompare(b.data.title, 'fr'));
+    const documentFiles = state.entries.filter(entry => entry.mode === '100644' && entry.path.startsWith('public/') && isPublicPdfPath(entry.path.slice(6))).map(entry => ({ path: entry.path.slice(6), repoPath: entry.path, sha: entry.sha, name: entry.path.slice(entry.path.lastIndexOf('/') + 1), size: entry.size }));
+    return { ...state, settings, settingsSha: settingsFile.sha, news, photos, media, documents, documentFiles };
   }
 
   async commit(changes: AdminChange[], message: string, snapshot: AdminSnapshot): Promise<{ sha: string; url: string }> {
@@ -306,10 +316,10 @@ export class GitHubAdminClient {
           return { path: change.path, content: null, kind };
         }
         if (typeof change.content !== 'string') return invalid('Le contenu d’un fichier est invalide.');
-        if (kind === 'image') {
+        if (kind === 'image' || kind === 'pdf') {
           if (change.encoding !== 'base64') invalid('L’image doit être préparée avant son envoi.');
           const data = decodeBase64(change.content, ADMIN_MAX_IMAGE_BYTES);
-          validateRaster(data, change.path);
+          if (kind === 'image') validateRaster(data, change.path); else validatePublicPdf(data);
           bytes += data.byteLength;
           if (bytes > MAX_COMMIT_BYTES) invalid('Cet enregistrement dépasse 20 Mio. Ajoutez moins de photos à la fois.');
           return { path: change.path, content: change.content.replace(/[\r\n]/g, ''), encoding: 'base64', kind };
@@ -317,7 +327,7 @@ export class GitHubAdminClient {
         if (change.encoding && change.encoding !== 'utf-8') invalid('Les textes doivent être encodés en UTF‑8.');
         if (new TextEncoder().encode(change.content).byteLength > MAX_JSON_BYTES) invalid('Ce contenu dépasse la limite de 512 Kio.');
         const raw = parseJson(change.content, 'Le contenu');
-        const parsed = kind === 'settings' ? validateSiteSettings(raw) : kind === 'news' ? validateAdminNews(raw) : validateAdminPhoto(raw);
+        const parsed = kind === 'settings' ? validateSiteSettings(raw) : kind === 'news' ? validateAdminNews(raw) : kind === 'documents' ? validatePublicDocument(raw) : validateAdminPhoto(raw);
         const content = JSON.stringify(parsed, null, 2) + '\n';
         const length = new TextEncoder().encode(content).byteLength;
         if (length > MAX_JSON_BYTES) invalid('Ce contenu dépasse la limite de 512 Kio.');
@@ -338,8 +348,20 @@ export class GitHubAdminClient {
         else availableImages.add(change.path.slice(6));
       }
       const checkImage = (path: string) => { if (path.startsWith('/') && !availableImages.has(path)) invalid('Une image choisie est absente de la photothèque. Ajoutez-la dans le même enregistrement ou choisissez une autre photo.'); };
-      const checkReferences = (kind: ContentKind, parsed: PublicSiteSettings | AdminNews | AdminPhoto) => {
+      const availablePdfs = new Set(current.entries.filter(entry => entry.mode === '100644' && entry.path.startsWith('public/') && isPublicPdfPath(entry.path.slice(6))).map(entry => entry.path.slice(6)));
+      for (const change of prepared.filter(item => item.kind === 'pdf')) {
+        if (change.content === null) availablePdfs.delete(change.path.slice(6)); else availablePdfs.add(change.path.slice(6));
+      }
+      const checkDocument = (doc: PublicDocument) => {
+        if (doc.url.startsWith('/') && doc.format === 'pdf' && !availablePdfs.has(doc.url)) invalid('Le PDF choisi est absent. Ajoutez-le dans le même enregistrement ou choisissez un fichier existant.');
+        if (doc.url.startsWith('/archives/')) {
+          const id = doc.url.split('/')[2];
+          if (!current.entries.some(entry => entry.path === `public/content/entries/${id}.json` && entry.mode === '100644')) invalid('La page des archives choisie est introuvable.');
+        }
+      };
+      const checkReferences = (kind: ContentKind, parsed: PublicSiteSettings | AdminNews | AdminPhoto | PublicDocument) => {
         if (kind === 'settings') { const settings = parsed as PublicSiteSettings; checkImage(settings.season.calendarImage); settings.featuredNews.forEach(item => checkImage(item.image)); }
+        else if (kind === 'documents') checkDocument(parsed as PublicDocument);
         else checkImage((parsed as AdminNews | AdminPhoto).image);
       };
       for (const change of prepared) if (change.parsed) checkReferences(change.kind, change.parsed);
@@ -349,10 +371,14 @@ export class GitHubAdminClient {
         if (!paths.has(ADMIN_SETTINGS_PATH)) checkReferences('settings', latest.settings);
         for (const record of [...latest.news, ...latest.photos]) if (!paths.has(record.path)) checkImage(record.data.image);
       }
+      if (prepared.some(change => change.kind === 'pdf' && change.content === null)) {
+        const latest = await this.#snapshot(current);
+        for (const record of latest.documents) if (!paths.has(record.path)) checkDocument(record.data);
+      }
       const treeEntries: { path: string; mode: string; type: string; sha?: string | null; content?: string }[] = [];
       for (const change of prepared) {
         if (change.content === null) treeEntries.push({ path: change.path, mode: '100644', type: 'blob', sha: null });
-        else if (change.kind === 'image') {
+        else if (change.kind === 'image' || change.kind === 'pdf') {
           const blob = await this.#request(`${REPO_API}/git/blobs`, 'POST', { content: change.content, encoding: 'base64' });
           treeEntries.push({ path: change.path, mode: '100644', type: 'blob', sha: checkedSha(blob.sha) });
         } else treeEntries.push({ path: change.path, mode: '100644', type: 'blob', content: change.content });

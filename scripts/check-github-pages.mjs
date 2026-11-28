@@ -4,7 +4,8 @@ import { createHash } from 'node:crypto';
 import { readFile, readdir, stat } from 'node:fs/promises';
 import { dirname, extname, relative, resolve } from 'node:path';
 import { fileURLToPath } from 'node:url';
-import { inspectCmsImages } from './cms-content.mjs';
+import { assertPublicDocumentTargets, inspectCmsDocuments, inspectCmsImages, readCmsCollection } from './cms-content.mjs';
+import { validatePublicDocument, validatePublicPdf } from '../lib/public-documents.mjs';
 
 const project = resolve(dirname(fileURLToPath(import.meta.url)), '..');
 const preview = process.argv.includes('--preview');
@@ -33,6 +34,9 @@ for (const path of retained.files) {
 for (const path of (await inspectCmsImages(project)).keys()) localMedia.add(path);
 assert.equal(info.localMediaFiles, localMedia.size);
 assert.deepEqual(info.localMediaPaths, [...localMedia].sort());
+const publicPdfs = await inspectCmsDocuments(project);
+assert.equal(info.publicPdfFiles, publicPdfs.size);
+assert.deepEqual(info.publicPdfPaths, [...publicPdfs.keys()].sort());
 
 async function walk(directory) {
   const files = [];
@@ -48,12 +52,14 @@ async function walk(directory) {
 
 const files = await walk(root);
 const paths = new Set(files.map(path => relative(root, path).split('\\').join('/')));
-for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'content/admin-content.json', 'le-club/index.html', 'activites/index.html', 'archives/index.html', 'actualites/index.html', 'agenda/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
+for (const name of ['index.html', '404.html', '.nojekyll', 'favicon.svg', 'content/archive-index.json', 'content/public-club.json', 'content/public-media.json', 'content/public-documents.json', 'content/admin-content.json', 'le-club/index.html', 'activites/index.html', 'archives/index.html', 'actualites/index.html', 'agenda/index.html', 'documents/index.html', 'admin/index.html']) assert.ok(paths.has(name), `Fichier public absent : ${name}`);
 const forbidden = /(?:^|\/)(?:\.git|\.env[^/]*|\.openai|\.wrangler|club\.sqlite[^/]*|auth\.mjs|server\.mjs|package\.json)(?:\/|$)|\.(?:sqlite(?:-wal|-shm)?|pem|map)$/i;
 const mediaPattern = /\.(?:avif|gif|jpe?g|png|webp|bmp|tiff?|heic|heif|mp4|webm|mov|m4v|mkv|avi|ogv)$/i;
 for (const path of paths) {
   assert.ok(!forbidden.test(path), `Fichier privé ou de développement dans la publication : ${path}`);
+  assert.ok(!/^(?:club|data|private|members)\/|(?:^|\/)(?:members|club-records|club-documents|private-members|private-documents)\.json$/i.test(path), `Donnée de gestion privée dans la publication : ${path}`);
   if (!preview && mediaPattern.test(path)) assert.ok(localMedia.has('/' + path), `Média local non autorisé dans la publication : ${path}`);
+  if (/\.pdf$/i.test(path)) assert.ok(publicPdfs.has('/' + path), `PDF public non autorisé : ${path}`);
 }
 assert.equal(paths.has('PREVIEW-ONLY.txt'), preview);
 for (const path of localMedia) {
@@ -68,6 +74,14 @@ const mediaFiles = files.filter(file => mediaPattern.test(file));
 if (!preview) assert.equal(mediaFiles.length, localMedia.size);
 const mediaBytes = (await Promise.all(mediaFiles.map(file => stat(file)))).reduce((sum, item) => sum + item.size, 0);
 assert.equal(info.mediaBytesInPublication, mediaBytes);
+assert.equal([...paths].filter(path => /\.pdf$/i.test(path)).length, publicPdfs.size);
+for (const path of publicPdfs.keys()) {
+  assert.ok(paths.has(path.slice(1)), `PDF public absent : ${path}`);
+  const source = await readFile(resolve(project, 'public', '.' + path));
+  const publication = await readFile(resolve(root, '.' + path));
+  validatePublicPdf(publication);
+  assert.deepEqual(publication, source, `Le PDF public a été altéré : ${path}`);
+}
 
 const index = JSON.parse(await readFile(resolve(root, 'content/archive-index.json'), 'utf8'));
 for (const entry of index.entries) {
@@ -89,16 +103,34 @@ for (const photo of mediaFeed.photos) {
     assert.ok(paths.has(photo.secureUrl.slice(1)), `Image de photothèque absente : ${photo.secureUrl}`);
   }
 }
+const documentsFeed = JSON.parse(await readFile(resolve(root, 'content/public-documents.json'), 'utf8'));
+assert.deepEqual(Object.keys(documentsFeed), ['documents'], 'Le catalogue public ne doit pas contenir les documents nominatifs ni les adhérents.');
+assert.ok(Array.isArray(documentsFeed.documents));
+assert.equal(documentsFeed.documents.length, info.publishedDocuments);
+const documentIds = new Set();
+for (const item of documentsFeed.documents) {
+  assert.match(item.id, /^[A-Za-z0-9][A-Za-z0-9_-]{0,159}$/);
+  assert.ok(!documentIds.has(item.id), 'Identifiant de document public dupliqué.');
+  documentIds.add(item.id);
+  const { id, ...data } = item;
+  assert.deepEqual(data, validatePublicDocument(data), `Fiche publique invalide ou non normalisée : ${id}`);
+}
+const sourceDocuments = (await readCmsCollection(project, 'documents')).sort((a, b) => a.order - b.order || a.title.localeCompare(b.title, 'fr'));
+assert.deepEqual(documentsFeed.documents, sourceDocuments, 'Le catalogue publié doit correspondre exactement aux documents publics validés.');
+assertPublicDocumentTargets(documentsFeed.documents, publicPdfs.keys(), index.entries.map(entry => entry.id));
+for (const item of documentsFeed.documents) {
+  if (item.url.startsWith('/')) assert.ok(paths.has(item.url.slice(1)) || paths.has(item.url.slice(1) + 'index.html'), `Destination publique absente : ${item.url}`);
+}
 // The administration's public snapshot must stay narrowly scoped, and its
 // hashes must describe source files rather than the normalized public feeds.
 const adminContent = JSON.parse(await readFile(resolve(root, 'content/admin-content.json'), 'utf8'));
-assert.deepEqual(Object.keys(adminContent).sort(), ['headSha', 'treeSha', 'settings', 'settingsSha', 'news', 'photos', 'media', 'fileShas'].sort());
+assert.deepEqual(Object.keys(adminContent).sort(), ['headSha', 'treeSha', 'settings', 'settingsSha', 'news', 'photos', 'documents', 'media', 'documentFiles', 'fileShas'].sort());
 assert.equal(adminContent.headSha, '');
 assert.equal(adminContent.treeSha, '');
 const adminPaths = new Set(['github-pages/content/site-settings.json']);
 assert.deepEqual(Object.keys(adminContent.settings).sort(), ['contact', 'season', 'club', 'events', 'featuredNews', 'faq'].sort());
 assert.equal(adminContent.settingsSha, adminContent.fileShas['github-pages/content/site-settings.json']);
-for (const [name, allowed] of [['news', ['title', 'date', 'excerpt', 'body', 'image', 'url']], ['photos', ['title', 'image', 'alt', 'album', 'date', 'description', 'credit', 'order']]]) {
+for (const [name, allowed] of [['news', ['title', 'date', 'excerpt', 'body', 'image', 'url']], ['photos', ['title', 'image', 'alt', 'album', 'date', 'description', 'credit', 'order']], ['documents', ['title', 'description', 'category', 'season', 'url', 'date', 'format', 'order']]]) {
   assert.ok(Array.isArray(adminContent[name]));
   for (const item of adminContent[name]) {
     assert.match(item.id, /^[A-Za-z0-9][A-Za-z0-9._~-]{0,219}$/);
@@ -107,6 +139,10 @@ for (const [name, allowed] of [['news', ['title', 'date', 'excerpt', 'body', 'im
     assert.equal(item.sha, adminContent.fileShas[item.path]);
     assert.ok(!adminPaths.has(item.path), 'Publication administrative dupliquée.');
     adminPaths.add(item.path);
+    if (name === 'documents') {
+      assert.deepEqual(item.data, validatePublicDocument(JSON.parse(await readFile(resolve(project, item.path), 'utf8'))));
+      assert.ok(documentIds.has(item.id), 'Document administratif absent du catalogue public.');
+    }
   }
 }
 assert.ok(Array.isArray(adminContent.media));
@@ -116,6 +152,20 @@ for (const item of adminContent.media) {
   assert.ok(paths.has(item.path.slice(1)), 'Image administrative absente de la publication.');
   assert.equal(item.sha, adminContent.fileShas[item.repoPath]);
   assert.ok(!adminPaths.has(item.repoPath), 'Image administrative dupliquée.');
+  adminPaths.add(item.repoPath);
+}
+assert.equal(adminContent.documents.length, documentIds.size);
+assert.ok(Array.isArray(adminContent.documentFiles));
+assert.equal(adminContent.documentFiles.length, publicPdfs.size);
+for (const item of adminContent.documentFiles) {
+  assert.deepEqual(Object.keys(item).sort(), ['path', 'repoPath', 'sha', 'size', 'name'].sort());
+  assert.ok(publicPdfs.has(item.path), 'Le catalogue administratif doit contenir uniquement les PDF publics autorisés.');
+  assert.equal(item.repoPath, 'public' + item.path);
+  assert.equal(item.name, item.path.split('/').at(-1));
+  assert.equal(item.size, publicPdfs.get(item.path).bytes);
+  assert.ok(paths.has(item.path.slice(1)), 'PDF administratif absent de la publication.');
+  assert.equal(item.sha, adminContent.fileShas[item.repoPath]);
+  assert.ok(!adminPaths.has(item.repoPath), 'PDF administratif dupliqué.');
   adminPaths.add(item.repoPath);
 }
 assert.deepEqual(Object.keys(adminContent.fileShas).sort(), [...adminPaths].sort(), 'Aucun autre fichier du dépôt ne doit apparaître dans les données d’administration.');
@@ -130,7 +180,7 @@ assert.match(agendaHtml, /<title>Agenda [^<]+ — Les Hippocampes du Robec<\/tit
 assert.match(agendaHtml, /<meta name="description" content="Le calendrier [^"]+"\s*\/>/, 'L’agenda doit avoir sa propre description.');
 const sectionHtml = new Map();
 const sectionDescriptions = new Set();
-for (const [slug, label] of [['le-club', 'Le club'], ['activites', 'Nos activités']]) {
+for (const [slug, label] of [['le-club', 'Le club'], ['activites', 'Nos activités'], ['documents', 'Documents']]) {
   const html = await readFile(resolve(root, `${slug}/index.html`), 'utf8');
   assert.ok(html.includes(`<title>${label} — Les Hippocampes du Robec</title>`), `La page ${label} doit avoir un titre dédié.`);
   const pageDescription = html.match(/<meta name="description" content="([^"]+)"\s*\/>/)?.[1];
@@ -177,4 +227,4 @@ if (info.canonicalSiteUrl && !preview) {
 const bytes = (await Promise.all(files.map(file => stat(file)))).reduce((sum, item) => sum + item.size, 0);
 assert.equal(info.files, files.length);
 assert.equal(info.bytes, bytes);
-console.log(JSON.stringify({ ok: true, mode: preview ? 'preview-only' : 'production', basePath, pages: info.publicRoutes, archives: index.entries.length, files: files.length, bytes, localImages: localMedia.size, localMediaBytes: mediaBytes, externalMedia: info.externalMediaFiles, backendIncluded: false }));
+console.log(JSON.stringify({ ok: true, mode: preview ? 'preview-only' : 'production', basePath, pages: info.publicRoutes, archives: index.entries.length, documents: documentsFeed.documents.length, publicPdfs: publicPdfs.size, files: files.length, bytes, localImages: localMedia.size, localMediaBytes: mediaBytes, externalMedia: info.externalMediaFiles, backendIncluded: false }));

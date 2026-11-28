@@ -50,26 +50,15 @@ récupérées restent des liens vers leur source.
 
 ## Administration
 
-Le bouton **Administration** en haut du site et le lien du pied de page ouvrent
-[`/admin/`](https://durstyone.github.io/Hippocampes/admin/) sur GitHub Pages.
-L’éditeur de contenu **Pages CMS**, configuré par `.pages.yml`, est activé depuis
-le **28 novembre 2026** sur **Durstyone/Hippocampes uniquement**. Le bouton
-**Modifier le site avec Pages CMS** donne accès aux contenus avec le compte GitHub
-du club **Durstyone**. **Ouvrir le dépôt GitHub** donne accès directement aux
-fichiers de [Durstyone/Hippocampes](https://github.com/Durstyone/Hippocampes).
-Enregistrer un contenu dans l’éditeur crée une modification GitHub
-et déclenche automatiquement la publication. Aucun jeton n’est placé dans le site.
+L’[administration intégrée](https://durstyone.github.io/Hippocampes/admin/) propose des formulaires pour les actualités, les photos, le calendrier, les documents et les informations du club. Les contenus publics sont conservés dans **Durstyone/Hippocampes** et publiés par GitHub Actions.
 
-Le retour **Voir le site** et le lien **Retour au site** de cette page ouvrent
-`https://durstyone.github.io/Hippocampes/`. L’éditeur et le dépôt s’ouvrent dans un
-autre onglet pour conserver le site accessible.
+Les fiches adhérents et les pièces privées utilisent le dépôt **privé Durstyone/Hippocampes-prive**, jamais le dossier de publication de ce dépôt. L’accès est vérifié par GitHub à chaque opération privée. **Accès et droits** permet au propriétaire de gérer les collaborateurs et les invitations par dépôt ; aucun rôle fin par rubrique n’est simulé.
 
-La configuration `clubUrl` reste vide. La version GitHub Pages désactive les
-anciens liens d’espace club, y compris si une ancienne variable de construction
-les renseigne encore. Cette administration gère le contenu public ; aucune base
-adhérents, aucun paiement et aucun document confidentiel ne sont ajoutés au dépôt.
+La page [Documents](https://durstyone.github.io/Hippocampes/documents/) donne directement accès au dossier d’adhésion vierge 2026–2027, au règlement, aux statuts et à la documentation TIV. Les nouveaux PDF publics sont conservés dans `public/documents/fichiers/` et leurs fiches dans `github-pages/content/documents/`.
 
-Voir [le guide d’administration](docs/ADMINISTRATION.md).
+La connexion de l’éditeur utilise un jeton en mémoire dans l’onglet. Le propriétaire peut utiliser un jeton à accès fin limité aux deux dépôts ; les collaborateurs d’un dépôt personnel utilisent un jeton classique dont la portée est plus large. Les permissions et les limites sont détaillées dans le [guide d’administration](docs/ADMINISTRATION.md). Pages CMS reste disponible pour les collections configurées dans `.pages.yml`.
+
+Les liens **Voir le site** et **Retour au site** ouvrent toujours le site public GitHub Pages. Le site et les données du club restent indépendants de tout projet professionnel.
 
 ## Construction locale
 
